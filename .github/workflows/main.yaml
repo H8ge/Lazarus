@@ -15,3 +15,5 @@ jobs:
           username: ${{ vars.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 23
+          source: "./*"
+          target: "/"
