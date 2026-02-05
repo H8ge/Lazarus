@@ -357,7 +357,9 @@ img {
 .hero-content {
     position: relative;
     z-index: 3;
-    max-width: 720px;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
 }
 
 .hero-badge {
@@ -395,12 +397,13 @@ img {
     font-size: 18px;
     line-height: 1.7;
     color: var(--text-secondary);
-    max-width: 560px;
-    margin-bottom: 40px;
+    max-width: 620px;
+    margin: 0 auto 40px;
 }
 
 .hero-actions {
     display: flex;
+    justify-content: center;
     gap: 16px;
     flex-wrap: wrap;
     margin-bottom: 64px;
@@ -408,6 +411,7 @@ img {
 
 .hero-stats {
     display: flex;
+    justify-content: center;
     align-items: center;
     gap: 32px;
 }

@@ -764,7 +764,7 @@ const Configurator = (() => {
     let els = {};
 
     function cacheDom() {
-        els.configurator = document.getElementById('configuratorApp');
+        els.configurator = document.getElementById('standardConfigPanel');
         els.steps = document.querySelectorAll('.config-step');
         els.panels = document.querySelectorAll('.config-panel');
         els.profileGrid = document.getElementById('profileGrid');

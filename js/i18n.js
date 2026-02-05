@@ -47,6 +47,38 @@ const I18n = (() => {
             pl:'Łączymy Twoje wymagania projektowe z precyzyjną produkcją. Bez magazynów, bez zbędnych kosztów.',
             es:'Conectamos sus requisitos con la fabricación de precisión. Sin almacenes, sin gastos generales — solo experiencia fiable.',
         },
+        'services.s1.title':   { de:'Profilkonfiguration', en:'Profile Configuration', fr:'Configuration de profilés', pl:'Konfiguracja profili', es:'Configuración de perfiles' },
+        'services.s1.desc':    {
+            de:'Nutzen Sie unseren interaktiven Konfigurator für exakte Profiltypen, Maße, Werkstoffe und Oberflächen. Sofortige Gewichts- und Preiskalkulationen für Standard- und Strangpressprofile.',
+            en:'Use our interactive configurator to specify exact profile types, dimensions, materials, and finishes. Get instant weight calculations and price estimates for both standard and custom extrusion profiles.',
+            fr:'Utilisez notre configurateur interactif pour spécifier types, dimensions, matériaux et finitions. Calculs de poids et estimations de prix instantanés.',
+            pl:'Użyj naszego konfiguratora do określenia typów profili, wymiarów, materiałów i wykończeń. Natychmiastowe kalkulacje wagi i cen.',
+            es:'Use nuestro configurador interactivo para especificar tipos de perfiles, dimensiones, materiales y acabados. Cálculos de peso y estimaciones de precio instantáneos.',
+        },
+        'services.s2.title':   { de:'Stahlbeschaffung & Logistik', en:'Steel Sourcing & Logistics', fr:'Approvisionnement acier', pl:'Dostawy stali i logistyka', es:'Suministro de acero' },
+        'services.s2.desc':    {
+            de:'Stahlprofile (IPE, HEA, UPN, Hohlprofile) von zertifizierten europäischen Walzwerken. Wir übernehmen Beschaffung, Qualitätssicherung und Logistik — Sie erhalten die Profile frei Baustelle.',
+            en:'Structural steel profiles (IPE, HEA, UPN, hollow sections) sourced from certified European rolling mills. We handle procurement, quality assurance, and logistics — you get the profiles delivered to your site.',
+            fr:'Profilés acier (IPE, HEA, UPN, sections creuses) des laminoirs européens certifiés. Nous gérons approvisionnement, qualité et logistique.',
+            pl:'Profile stalowe (IPE, HEA, UPN, profile zamknięte) z certyfikowanych europejskich walcowni. Zajmujemy się zakupem, kontrolą jakości i logistyką.',
+            es:'Perfiles de acero (IPE, HEA, UPN, secciones huecas) de laminadores europeos certificados. Nos encargamos de compras, calidad y logística.',
+        },
+        'services.s3.title':   { de:'Aluminium-Strangpressung', en:'Aluminum Extrusion', fr:'Extrusion d\'aluminium', pl:'Wytłaczanie aluminium', es:'Extrusión de aluminio' },
+        'services.s3.desc':    {
+            de:'Individuelle Aluminiumprofile auf einer der modernsten mittelgroßen Strangpressen Europas. Von Fensterprofilen bis zu Kühlkörpern und Industrieprofilen — zeichnen Sie Ihr Profil, wir fertigen es.',
+            en:'Custom aluminum profiles manufactured on one of Europe\'s most modern mid-sized extrusion presses. From window frames to heatsinks and industrial profiles — draw your cross-section, we\'ll produce it.',
+            fr:'Profilés aluminium sur mesure fabriqués sur l\'une des presses d\'extrusion les plus modernes d\'Europe. Fenêtres, dissipateurs, profilés industriels — dessinez, nous produisons.',
+            pl:'Niestandardowe profile aluminiowe produkowane na jednej z najnowocześniejszych pras w Europie. Od profili okiennych po radiatory — narysuj przekrój, my go wyprodukujemy.',
+            es:'Perfiles de aluminio personalizados fabricados en una de las prensas de extrusión más modernas de Europa. Desde ventanas hasta disipadores — dibuje su perfil, nosotros lo producimos.',
+        },
+        'services.s4.title':   { de:'Qualitätszertifikate', en:'Quality Certificates', fr:'Certificats de qualité', pl:'Certyfikaty jakości', es:'Certificados de calidad' },
+        'services.s4.desc':    {
+            de:'Jede Lieferung enthält EN 10204 Werkszeugnisse (2.1, 3.1 oder 3.2), Maßprotokolle und vollständige Rückverfolgbarkeit.',
+            en:'Every delivery includes EN 10204 material certificates (2.1, 3.1, or 3.2), dimensional inspection reports, and full traceability documentation.',
+            fr:'Chaque livraison comprend les certificats EN 10204 (2.1, 3.1 ou 3.2), les rapports dimensionnels et la traçabilité complète.',
+            pl:'Każda dostawa zawiera świadectwa EN 10204 (2.1, 3.1 lub 3.2), protokoły pomiarowe i pełną dokumentację.',
+            es:'Cada entrega incluye certificados EN 10204 (2.1, 3.1 o 3.2), informes dimensionales y documentación de trazabilidad completa.',
+        },
 
         // Configurator
         'config.tag':           { de:'Interaktives Tool', en:'Interactive Tool', fr:'Outil interactif', pl:'Narzędzie interaktywne', es:'Herramienta interactiva' },
@@ -65,7 +97,7 @@ const I18n = (() => {
         'config.std.note':      {
             de:'Standard-Stahlprofile (IPE, HEA, UPN, Hohlprofile) werden von zertifizierten europäischen Walzwerken bezogen. Aluminium-Standardprofile sind ab Lager oder aus Produktion verfügbar. Für kundenspezifische Aluminium-Strangpressprofile wechseln Sie zum Tab <strong>Kundenspezifisch</strong>.',
             en:'Standard steel profiles (IPE, HEA, UPN, hollow sections) are sourced from certified European mills. Aluminum standard profiles are available from stock or production. For custom aluminum extrusion profiles, switch to the <strong>Custom Profile</strong> tab.',
-            fr:'Les profilés acier standard (IPE, HEA, UPN, sections creuses) sont approvisionnés auprès de laminoirs européens certifiés. Pour les profilés aluminium sur mesure, utilisez l\\'onglet <strong>Profilé sur mesure</strong>.',
+            fr:'Les profilés acier standard (IPE, HEA, UPN, sections creuses) sont approvisionnés auprès de laminoirs européens certifiés. Pour les profilés aluminium sur mesure, utilisez l\'onglet <strong>Profilé sur mesure</strong>.',
             pl:'Standardowe profile stalowe (IPE, HEA, UPN, profile zamknięte) pozyskiwane są z certyfikowanych europejskich walcowni. Dla niestandardowych profili aluminiowych przejdź do zakładki <strong>Profil niestandardowy</strong>.',
             es:'Los perfiles de acero estándar (IPE, HEA, UPN, secciones huecas) se obtienen de laminadores europeos certificados. Para perfiles de aluminio personalizados, cambie a la pestaña <strong>Perfil personalizado</strong>.',
         },
