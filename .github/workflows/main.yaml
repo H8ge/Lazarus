@@ -18,4 +18,4 @@ jobs:
           localDir: "./"
           remoteDir: "./"
           exclude: |
-            **/.* 
+            .*/**
