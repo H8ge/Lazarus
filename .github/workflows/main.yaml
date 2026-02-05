@@ -9,11 +9,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 📂 Sync files
-        uses: appleboy/scp-action@v1
+        uses: wangyucode/sftp-upload-action@v2.0.2
         with:
           host: ${{ vars.FTP_SERVER }}
+          port: 23
           username: ${{ vars.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: 23
-          source: "./*"
-          target: "./"
+          localDir: "./"
+          remoteDir: "./"
