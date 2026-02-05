@@ -199,6 +199,35 @@
 
 
     // ========================================================================
+    // CONFIGURATOR TAB SWITCHING
+    // ========================================================================
+
+    const tabStandard = document.getElementById('tabStandard');
+    const tabCustom = document.getElementById('tabCustom');
+    const standardPanel = document.getElementById('standardConfigPanel');
+    const customPanel = document.getElementById('customConfigPanel');
+
+    if (tabStandard && tabCustom && standardPanel && customPanel) {
+        tabStandard.addEventListener('click', () => {
+            tabStandard.classList.add('active');
+            tabCustom.classList.remove('active');
+            standardPanel.style.display = '';
+            customPanel.style.display = 'none';
+        });
+
+        tabCustom.addEventListener('click', () => {
+            tabCustom.classList.add('active');
+            tabStandard.classList.remove('active');
+            customPanel.style.display = '';
+            standardPanel.style.display = 'none';
+
+            // Trigger canvas resize so it renders correctly when first shown
+            setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+        });
+    }
+
+
+    // ========================================================================
     // SCROLL ANIMATIONS (Intersection Observer)
     // ========================================================================
 
