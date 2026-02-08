@@ -45,9 +45,14 @@
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', (e) => {
-            const target = document.querySelector(anchor.getAttribute('href'));
+            const href = anchor.getAttribute('href');
+            const target = document.querySelector(href);
             if (target) {
                 e.preventDefault();
+                // Show privacy section if clicking privacy link
+                if (href === '#privacy') {
+                    target.style.display = 'block';
+                }
                 const offset = nav.offsetHeight + 20;
                 const top = target.getBoundingClientRect().top + window.scrollY - offset;
                 window.scrollTo({ top, behavior: 'smooth' });
