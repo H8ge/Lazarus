@@ -627,7 +627,7 @@ const CustomConfigurator = (() => {
             ctx.closePath();
             ctx.fillStyle = 'rgba(59, 130, 246, 0.12)';
             ctx.fill();
-            ctx.strokeStyle = '#3b82f6';
+            ctx.strokeStyle = '#c8102e';
             ctx.lineWidth = 2;
             ctx.stroke();
 
@@ -636,7 +636,7 @@ const CustomConfigurator = (() => {
                 const p = mmToCanvas(pt.x, pt.y);
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-                ctx.fillStyle = '#3b82f6';
+                ctx.fillStyle = '#c8102e';
                 ctx.fill();
             }
         }
@@ -645,7 +645,7 @@ const CustomConfigurator = (() => {
         for (let i = 0; i < state.hollows.length; i++) {
             const h = state.hollows[i];
             ctx.fillStyle = '#111827';
-            ctx.strokeStyle = state.selectedIndex === i ? '#f97316' : '#60a5fa';
+            ctx.strokeStyle = state.selectedIndex === i ? '#f5a623' : '#e0132f';
             ctx.lineWidth = state.selectedIndex === i ? 2.5 : 1.5;
 
             if (h.type === 'rect') {
@@ -678,7 +678,7 @@ const CustomConfigurator = (() => {
                     const p = mmToCanvas(pt.x, pt.y);
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-                    ctx.fillStyle = '#60a5fa';
+                    ctx.fillStyle = '#e0132f';
                     ctx.fill();
                 }
             }
@@ -686,7 +686,7 @@ const CustomConfigurator = (() => {
     }
 
     function drawHandle(x, y) {
-        ctx.fillStyle = '#f97316';
+        ctx.fillStyle = '#f5a623';
         ctx.fillRect(x - 4, y - 4, 8, 8);
     }
 
@@ -707,7 +707,7 @@ const CustomConfigurator = (() => {
             ctx.lineTo(cp.x, cp.y);
         }
 
-        ctx.strokeStyle = state.mode === 'draw-outer' ? '#22c55e' : '#f97316';
+        ctx.strokeStyle = state.mode === 'draw-outer' ? '#22c55e' : '#f5a623';
         ctx.lineWidth = 1.5;
         ctx.setLineDash([6, 4]);
         ctx.stroke();
@@ -718,7 +718,7 @@ const CustomConfigurator = (() => {
             const p = mmToCanvas(pt.x, pt.y);
             ctx.beginPath();
             ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-            ctx.fillStyle = state.mode === 'draw-outer' ? '#22c55e' : '#f97316';
+            ctx.fillStyle = state.mode === 'draw-outer' ? '#22c55e' : '#f5a623';
             ctx.fill();
         }
 
@@ -747,7 +747,7 @@ const CustomConfigurator = (() => {
                 ctx.lineTo(p.x, p.y);
             }
             ctx.closePath();
-            ctx.strokeStyle = '#f97316';
+            ctx.strokeStyle = '#f5a623';
             ctx.lineWidth = 3;
             ctx.setLineDash([8, 4]);
             ctx.stroke();
@@ -904,7 +904,7 @@ const CustomConfigurator = (() => {
             render();
             const s = mmToCanvas(rectStartMm.x, rectStartMm.y);
             const e2 = mmToCanvas(mm.x, mm.y);
-            ctx.strokeStyle = '#f97316';
+            ctx.strokeStyle = '#f5a623';
             ctx.lineWidth = 1.5;
             ctx.setLineDash([6, 4]);
             ctx.strokeRect(Math.min(s.x, e2.x), Math.min(s.y, e2.y),

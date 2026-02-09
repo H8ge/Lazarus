@@ -1,40 +1,40 @@
 /* ==========================================================================
-   FERRON Trading — Main Application Script
-   Navigation, hero animation, scroll effects, contact form
+   FERRON Trading — Main Application Script (Redesign)
+   Navigation, scroll animations, counters, configurator tabs, contact form
    ========================================================================== */
 
-(function() {
+(function () {
     'use strict';
 
     // ========================================================================
     // NAVIGATION
+    // Full-screen overlay menu with scroll-based styling
     // ========================================================================
 
-    const nav = document.getElementById('nav');
-    const navToggle = document.getElementById('navToggle');
-    const navLinks = document.getElementById('navLinks');
+    var nav = document.getElementById('nav');
+    var navToggle = document.getElementById('navToggle');
+    var navLinks = document.getElementById('navLinks');
 
-    // Scroll-based nav styling
-    let lastScroll = 0;
+    // Scroll-based nav styling — add "scrolled" class when past 60px
     function handleNavScroll() {
-        const scrollY = window.scrollY;
-        nav.classList.toggle('scrolled', scrollY > 60);
-        lastScroll = scrollY;
+        if (!nav) return;
+        nav.classList.toggle('scrolled', window.scrollY > 60);
     }
+
     window.addEventListener('scroll', handleNavScroll, { passive: true });
     handleNavScroll();
 
-    // Mobile toggle
+    // Mobile overlay toggle
     if (navToggle && navLinks) {
-        navToggle.addEventListener('click', () => {
-            navToggle.classList.toggle('open');
-            navLinks.classList.toggle('open');
-            document.body.style.overflow = navLinks.classList.contains('open') ? 'hidden' : '';
+        navToggle.addEventListener('click', function () {
+            var isOpen = navLinks.classList.toggle('open');
+            navToggle.classList.toggle('open', isOpen);
+            document.body.style.overflow = isOpen ? 'hidden' : '';
         });
 
-        // Close on link click
-        navLinks.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', () => {
+        // Close overlay when any link inside it is clicked
+        navLinks.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', function () {
                 navToggle.classList.remove('open');
                 navLinks.classList.remove('open');
                 document.body.style.overflow = '';
@@ -42,211 +42,58 @@
         });
     }
 
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', (e) => {
-            const href = anchor.getAttribute('href');
-            const target = document.querySelector(href);
-            if (target) {
-                e.preventDefault();
-                // Show privacy section if clicking privacy link
-                if (href === '#privacy') {
-                    target.style.display = 'block';
-                }
-                const offset = nav.offsetHeight + 20;
-                const top = target.getBoundingClientRect().top + window.scrollY - offset;
-                window.scrollTo({ top, behavior: 'smooth' });
+
+    // ========================================================================
+    // SMOOTH SCROLL
+    // All anchor links scroll smoothly with nav height offset
+    // ========================================================================
+
+    document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+        anchor.addEventListener('click', function (e) {
+            var href = anchor.getAttribute('href');
+            if (!href || href === '#') return;
+
+            var target = document.querySelector(href);
+            if (!target) return;
+
+            e.preventDefault();
+
+            // Reveal hidden privacy section when its link is clicked
+            if (href === '#privacy') {
+                target.style.display = 'block';
             }
+
+            var offset = nav ? nav.offsetHeight + 20 : 20;
+            var top = target.getBoundingClientRect().top + window.scrollY - offset;
+
+            window.scrollTo({ top: top, behavior: 'smooth' });
         });
     });
 
 
     // ========================================================================
-    // HERO CANVAS ANIMATION
-    // Subtle grid + floating particles suggesting precision engineering
-    // ========================================================================
-
-    const canvas = document.getElementById('heroCanvas');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
-        let connections = [];
-        let animFrame;
-
-        function resize() {
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-            const rect = canvas.parentElement.getBoundingClientRect();
-            width = rect.width;
-            height = rect.height;
-            canvas.width = width * dpr;
-            canvas.height = height * dpr;
-            canvas.style.width = width + 'px';
-            canvas.style.height = height + 'px';
-            ctx.scale(dpr, dpr);
-        }
-
-        function createParticles() {
-            particles = [];
-            const count = Math.floor((width * height) / 18000);
-            for (let i = 0; i < count; i++) {
-                particles.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    vx: (Math.random() - 0.5) * 0.3,
-                    vy: (Math.random() - 0.5) * 0.3,
-                    radius: Math.random() * 1.5 + 0.5,
-                    opacity: Math.random() * 0.4 + 0.1,
-                });
-            }
-        }
-
-        function drawGrid() {
-            const gridSize = 60;
-            ctx.strokeStyle = 'rgba(59, 130, 246, 0.03)';
-            ctx.lineWidth = 0.5;
-
-            for (let x = 0; x < width; x += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, height);
-                ctx.stroke();
-            }
-            for (let y = 0; y < height; y += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(width, y);
-                ctx.stroke();
-            }
-        }
-
-        function drawParticles() {
-            const connectionDist = 120;
-
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-
-                // Move
-                p.x += p.vx;
-                p.y += p.vy;
-
-                // Wrap
-                if (p.x < 0) p.x = width;
-                if (p.x > width) p.x = 0;
-                if (p.y < 0) p.y = height;
-                if (p.y > height) p.y = 0;
-
-                // Draw particle
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(59, 130, 246, ${p.opacity})`;
-                ctx.fill();
-
-                // Draw connections to nearby particles
-                for (let j = i + 1; j < particles.length; j++) {
-                    const p2 = particles[j];
-                    const dx = p.x - p2.x;
-                    const dy = p.y - p2.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-
-                    if (dist < connectionDist) {
-                        const alpha = (1 - dist / connectionDist) * 0.08;
-                        ctx.beginPath();
-                        ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(p2.x, p2.y);
-                        ctx.strokeStyle = `rgba(59, 130, 246, ${alpha})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-            drawGrid();
-            drawParticles();
-            animFrame = requestAnimationFrame(animate);
-        }
-
-        function initCanvas() {
-            resize();
-            createParticles();
-            animate();
-        }
-
-        // Debounced resize
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                resize();
-                createParticles();
-            }, 200);
-        });
-
-        initCanvas();
-
-        // Pause animation when hero is out of viewport
-        const heroSection = document.getElementById('hero');
-        const heroObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    if (!animFrame) animate();
-                } else {
-                    cancelAnimationFrame(animFrame);
-                    animFrame = null;
-                }
-            });
-        }, { threshold: 0 });
-        heroObserver.observe(heroSection);
-    }
-
-
-    // ========================================================================
-    // CONFIGURATOR TAB SWITCHING
-    // ========================================================================
-
-    const tabStandard = document.getElementById('tabStandard');
-    const tabCustom = document.getElementById('tabCustom');
-    const standardPanel = document.getElementById('standardConfigPanel');
-    const customPanel = document.getElementById('customConfigPanel');
-
-    if (tabStandard && tabCustom && standardPanel && customPanel) {
-        tabStandard.addEventListener('click', () => {
-            tabStandard.classList.add('active');
-            tabCustom.classList.remove('active');
-            standardPanel.style.display = '';
-            customPanel.style.display = 'none';
-        });
-
-        tabCustom.addEventListener('click', () => {
-            tabCustom.classList.add('active');
-            tabStandard.classList.remove('active');
-            customPanel.style.display = '';
-            standardPanel.style.display = 'none';
-
-            // Trigger canvas resize so it renders correctly when first shown
-            setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
-        });
-    }
-
-
-    // ========================================================================
     // SCROLL ANIMATIONS (Intersection Observer)
+    // Replaces the old canvas particle animation with CSS-driven reveals
     // ========================================================================
 
-    const animatedElements = document.querySelectorAll('[data-animate]');
+    var animatedElements = document.querySelectorAll('[data-animate]');
+
     if (animatedElements.length > 0) {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry, index) => {
+        var animObserver = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
-                    // Stagger animation
-                    const delay = Array.from(animatedElements).indexOf(entry.target) % 4 * 100;
-                    setTimeout(() => {
-                        entry.target.classList.add('visible');
-                    }, delay);
-                    observer.unobserve(entry.target);
+                    var el = entry.target;
+                    var delay = parseInt(el.getAttribute('data-delay'), 10) || 0;
+
+                    if (delay > 0) {
+                        setTimeout(function () {
+                            el.classList.add('visible');
+                        }, delay);
+                    } else {
+                        el.classList.add('visible');
+                    }
+
+                    animObserver.unobserve(el);
                 }
             });
         }, {
@@ -254,43 +101,135 @@
             rootMargin: '0px 0px -60px 0px'
         });
 
-        animatedElements.forEach(el => observer.observe(el));
+        animatedElements.forEach(function (el) {
+            animObserver.observe(el);
+        });
+    }
+
+
+    // ========================================================================
+    // COUNTER ANIMATION
+    // Animate [data-count] elements from 0 to their target value
+    // ========================================================================
+
+    var counterElements = document.querySelectorAll('[data-count]');
+
+    if (counterElements.length > 0) {
+        var counterObserver = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+
+                var el = entry.target;
+                counterObserver.unobserve(el);
+
+                var target = parseInt(el.getAttribute('data-count'), 10);
+                if (isNaN(target)) return;
+
+                var duration = 2000;
+                var startTime = null;
+
+                function easeOutCubic(t) {
+                    return 1 - Math.pow(1 - t, 3);
+                }
+
+                function step(timestamp) {
+                    if (!startTime) startTime = timestamp;
+
+                    var elapsed = timestamp - startTime;
+                    var progress = Math.min(elapsed / duration, 1);
+                    var easedProgress = easeOutCubic(progress);
+                    var current = Math.round(easedProgress * target);
+
+                    el.textContent = current;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(step);
+                    } else {
+                        el.textContent = target;
+                    }
+                }
+
+                requestAnimationFrame(step);
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        counterElements.forEach(function (el) {
+            counterObserver.observe(el);
+        });
+    }
+
+
+    // ========================================================================
+    // CONFIGURATOR TAB SWITCHING
+    // Toggle between standard and custom configuration panels
+    // ========================================================================
+
+    var tabStandard = document.getElementById('tabStandard');
+    var tabCustom = document.getElementById('tabCustom');
+    var standardPanel = document.getElementById('standardConfigPanel');
+    var customPanel = document.getElementById('customConfigPanel');
+
+    if (tabStandard && tabCustom && standardPanel && customPanel) {
+        tabStandard.addEventListener('click', function () {
+            tabStandard.classList.add('active');
+            tabCustom.classList.remove('active');
+            standardPanel.style.display = '';
+            customPanel.style.display = 'none';
+        });
+
+        tabCustom.addEventListener('click', function () {
+            tabCustom.classList.add('active');
+            tabStandard.classList.remove('active');
+            customPanel.style.display = '';
+            standardPanel.style.display = 'none';
+
+            // Trigger resize so child canvases / layouts render correctly
+            setTimeout(function () {
+                window.dispatchEvent(new Event('resize'));
+            }, 50);
+        });
     }
 
 
     // ========================================================================
     // CONTACT FORM
+    // Simulated submission with loading and success states
     // ========================================================================
 
-    const contactForm = document.getElementById('contactForm');
+    var contactForm = document.getElementById('contactForm');
+
     if (contactForm) {
-        contactForm.addEventListener('submit', (e) => {
+        contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            const btn = contactForm.querySelector('button[type="submit"]');
-            const originalHtml = btn.innerHTML;
+            var btn = contactForm.querySelector('button[type="submit"]');
+            if (!btn) return;
 
-            // Simulate submission
+            var originalHtml = btn.innerHTML;
+
+            // Show loading state
             btn.disabled = true;
-            btn.innerHTML = `
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
-                    <path d="M21 12a9 9 0 11-6.219-8.56"/>
-                </svg>
-                Sending...
-            `;
+            btn.innerHTML =
+                '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" ' +
+                'stroke="currentColor" stroke-width="2" class="spin">' +
+                '<path d="M21 12a9 9 0 11-6.219-8.56"/>' +
+                '</svg> Sending...';
 
-            setTimeout(() => {
-                btn.innerHTML = `
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-                    </svg>
-                    Sent Successfully
-                `;
+            // Show success state after simulated delay
+            setTimeout(function () {
+                btn.innerHTML =
+                    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" ' +
+                    'stroke="currentColor" stroke-width="2">' +
+                    '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>' +
+                    '<polyline points="22 4 12 14.01 9 11.01"/>' +
+                    '</svg> Sent Successfully';
                 btn.style.background = '#22c55e';
                 btn.style.borderColor = '#22c55e';
 
-                // Reset after 3 seconds
-                setTimeout(() => {
+                // Reset form and button after 3 seconds
+                setTimeout(function () {
                     btn.disabled = false;
                     btn.innerHTML = originalHtml;
                     btn.style.background = '';
@@ -303,18 +242,13 @@
 
 
     // ========================================================================
-    // SPIN ANIMATION (for loading indicator)
+    // SPIN ANIMATION (injected CSS keyframe for loading indicator)
     // ========================================================================
 
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .spin {
-            animation: spin 1s linear infinite;
-        }
-    `;
+    var style = document.createElement('style');
+    style.textContent =
+        '@keyframes spin { to { transform: rotate(360deg); } }' +
+        ' .spin { animation: spin 1s linear infinite; }';
     document.head.appendChild(style);
 
 })();
