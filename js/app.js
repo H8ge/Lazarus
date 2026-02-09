@@ -103,7 +103,7 @@
 
         function drawGrid() {
             const gridSize = 60;
-            ctx.strokeStyle = 'rgba(59, 130, 246, 0.03)';
+            ctx.strokeStyle = 'rgba(75, 123, 174, 0.03)';
             ctx.lineWidth = 0.5;
 
             for (let x = 0; x < width; x += gridSize) {
@@ -139,7 +139,7 @@
                 // Draw particle
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(59, 130, 246, ${p.opacity})`;
+                ctx.fillStyle = `rgba(75, 123, 174, ${p.opacity})`;
                 ctx.fill();
 
                 // Draw connections to nearby particles
@@ -154,7 +154,7 @@
                         ctx.beginPath();
                         ctx.moveTo(p.x, p.y);
                         ctx.lineTo(p2.x, p2.y);
-                        ctx.strokeStyle = `rgba(59, 130, 246, ${alpha})`;
+                        ctx.strokeStyle = `rgba(75, 123, 174, ${alpha})`;
                         ctx.lineWidth = 0.5;
                         ctx.stroke();
                     }
