@@ -1,5 +1,5 @@
 /* ==========================================================================
-   FERRON Profile Configurator
+   STAELER Profile Configurator
    Interactive tool for configuring steel & aluminum profiles with
    real-time SVG preview, weight calculation, and price estimation.
 
@@ -1195,7 +1195,7 @@ const Configurator = (() => {
         // Request Quote button
         document.getElementById('requestQuote').addEventListener('click', () => {
             // Generate reference number
-            const ref = 'FRN-' + new Date().getFullYear() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+            const ref = 'STL-' + new Date().getFullYear() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
             els.modalRef.textContent = ref;
             els.quoteModal.classList.add('active');
         });

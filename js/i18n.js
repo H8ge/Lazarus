@@ -1,5 +1,5 @@
 /* ==========================================================================
-   FERRON — Internationalization (i18n)
+   STAELER — Internationalization (i18n)
    Supports: DE, EN, FR, PL, ES
    ========================================================================== */
 
@@ -14,7 +14,7 @@ const I18n = (() => {
     // ========================================================================
     const T = {
         // Navigation
-        'nav.tagline':        { de:'Profile aus Aluminium', en:'Aluminum Profiles', fr:'Profilés en aluminium', pl:'Profile aluminiowe', es:'Perfiles de aluminio' },
+        'nav.tagline':        { de:'Profiltechnik seit Jahrzehnten', en:'Profile Engineering for Decades', fr:'Ingénierie de profilés depuis des décennies', pl:'Technika profilowa od dziesięcioleci', es:'Ingeniería de perfiles desde hace décadas' },
         'nav.services':       { de:'Leistungen', en:'Services', fr:'Services', pl:'Usługi', es:'Servicios' },
         'nav.configurator':   { de:'Konfigurator', en:'Profile Configurator', fr:'Configurateur', pl:'Konfigurator', es:'Configurador' },
         'nav.process':        { de:'Ablauf', en:'How It Works', fr:'Processus', pl:'Proces', es:'Proceso' },
@@ -23,22 +23,22 @@ const I18n = (() => {
         'nav.quote':          { de:'Angebot anfragen', en:'Request Quote', fr:'Demander un devis', pl:'Zapytaj o ofertę', es:'Solicitar presupuesto' },
 
         // Hero
-        'hero.title1':        { de:'Unser Profil', en:'Our Profile', fr:'Notre profil', pl:'Nasz profil', es:'Nuestro perfil' },
-        'hero.title2':        { de:'zeigt sich in', en:'shows in', fr:'se montre en', pl:'objawia się w', es:'se muestra en' },
-        'hero.title3':        { de:'Aluminium.', en:'Aluminum.', fr:'Aluminium.', pl:'Aluminium.', es:'Aluminio.' },
+        'hero.title1':        { de:'Präzision', en:'Precision', fr:'Précision', pl:'Precyzja', es:'Precisión' },
+        'hero.title2':        { de:'in jedem', en:'in Every', fr:'dans chaque', pl:'w każdym', es:'en cada' },
+        'hero.title3':        { de:'Profil.', en:'Profile.', fr:'Profilé.', pl:'Profilu.', es:'Perfil.' },
         'hero.text1':         {
-            de:'Als Hersteller komplexer Aluminium-Strangpressprofile bieten wir Ihnen den kompletten Service: von der Profilentwicklung über die Extrusion auf modernen Pressen bis zur mechanischen Bearbeitung und Oberflächenveredelung.',
-            en:'As a manufacturer of complex aluminum extrusion profiles, we offer a complete service: from profile development through extrusion on modern presses to machining and surface finishing.',
-            fr:'En tant que fabricant de profilés aluminium complexes, nous offrons un service complet: du développement de profilés à l\'extrusion sur des presses modernes jusqu\'à l\'usinage et la finition de surface.',
-            pl:'Jako producent złożonych profili aluminiowych oferujemy kompletny serwis: od opracowania profilu przez wytłaczanie na nowoczesnych prasach po obróbkę mechaniczną i wykończenie powierzchni.',
-            es:'Como fabricante de perfiles de aluminio complejos, ofrecemos un servicio completo: desde el desarrollo de perfiles hasta la extrusión en prensas modernas, mecanizado y acabado superficial.',
+            de:'Mit jahrzehntelanger Erfahrung in der Aluminium-Strangpressung fertigen wir hochkomplexe Profilquerschnitte auf modernsten Pressen — von der Entwicklung über die Extrusion bis zur Oberflächenveredelung. Alles aus einer Hand.',
+            en:'With decades of experience in aluminum extrusion, we manufacture highly complex profile cross-sections on state-of-the-art presses — from development through extrusion to surface finishing. All from a single source.',
+            fr:'Forts de décennies d\'expérience dans l\'extrusion d\'aluminium, nous fabriquons des sections de profilés hautement complexes sur des presses de dernière génération — du développement à la finition de surface. Tout d\'un seul fournisseur.',
+            pl:'Dzięki wieloletniemu doświadczeniu w wytłaczaniu aluminium produkujemy wysoce złożone przekroje profili na najnowocześniejszych prasach — od projektowania przez ekstruzję po wykończenie powierzchni. Wszystko z jednego źródła.',
+            es:'Con décadas de experiencia en extrusión de aluminio, fabricamos secciones de perfiles altamente complejas en prensas de última generación — desde el desarrollo hasta el acabado superficial. Todo de un solo proveedor.',
         },
         'hero.text2':         {
-            de:'Ergänzt durch unser Sortiment an Stahl-Strukturprofilen aus zertifizierten europäischen Walzwerken liefern wir eine Komplettlösung für Ihre Projekte — termingerecht, normkonform und wirtschaftlich.',
-            en:'Complemented by our range of structural steel profiles from certified European mills, we deliver a complete solution for your projects — on time, standards-compliant, and cost-effective.',
-            fr:'Complétés par notre gamme de profilés en acier de construction provenant de laminoirs européens certifiés, nous livrons une solution complète — dans les délais, conforme et économique.',
-            pl:'Uzupełnione o nasz asortyment profili stalowych z certyfikowanych europejskich walcowni, dostarczamy kompletne rozwiązanie — terminowo, zgodne z normami i ekonomicznie.',
-            es:'Complementado con nuestra gama de perfiles de acero estructural de laminadores europeos certificados, ofrecemos una solución completa — puntual, conforme a normas y rentable.',
+            de:'Ergänzt durch unser bewährtes Netzwerk zertifizierter europäischer Walzwerke liefern wir Ihnen Stahl- und Aluminiumprofile als Komplettlösung — termingerecht, normkonform und wirtschaftlich optimiert.',
+            en:'Complemented by our proven network of certified European rolling mills, we deliver steel and aluminum profiles as a complete solution — on schedule, standards-compliant, and cost-optimized.',
+            fr:'Complétés par notre réseau éprouvé de laminoirs européens certifiés, nous livrons des profilés acier et aluminium en solution complète — dans les délais, conformes aux normes et économiquement optimisés.',
+            pl:'Uzupełnione o naszą sprawdzoną sieć certyfikowanych europejskich walcowni, dostarczamy profile stalowe i aluminiowe jako kompleksowe rozwiązanie — terminowo, zgodnie z normami i optymalnie kosztowo.',
+            es:'Complementado con nuestra red consolidada de laminadores europeos certificados, entregamos perfiles de acero y aluminio como solución integral — a tiempo, conforme a normas y con costos optimizados.',
         },
         'hero.cta.configure':   { de:'Profil konfigurieren', en:'Configure Profile', fr:'Configurer un profilé', pl:'Konfiguruj profil', es:'Configurar perfil' },
         'hero.cta.contact':     { de:'Kontakt aufnehmen', en:'Get in Touch', fr:'Nous contacter', pl:'Skontaktuj się', es:'Contactar' },
@@ -50,7 +50,7 @@ const I18n = (() => {
 
         // Services
         'services.tag':        { de:'Leistungsspektrum', en:'Capabilities', fr:'Nos capacités', pl:'Możliwości', es:'Capacidades' },
-        'services.title':      { de:'Vom Rohmaterial\nzum fertigen Profil.', en:'From Raw Material\nto Finished Profile.', fr:'De la matière première\nau profilé fini.', pl:'Od surowca\ndo gotowego profilu.', es:'De la materia prima\nal perfil terminado.' },
+        'services.title':      { de:'Vom Rohmaterial\nzum fertigen Profil — alles aus einer Hand.', en:'From Raw Material\nto Finished Profile — All from One Source.', fr:'De la matière première\nau profilé fini — tout d\'un seul fournisseur.', pl:'Od surowca\ndo gotowego profilu — wszystko z jednego źródła.', es:'De la materia prima\nal perfil terminado — todo de un solo proveedor.' },
         'services.s1.title':   { de:'Profilkonfiguration', en:'Profile Configuration', fr:'Configuration de profilés', pl:'Konfiguracja profili', es:'Configuración de perfiles' },
         'services.s1.desc':    {
             de:'Nutzen Sie unseren interaktiven Konfigurator für exakte Profiltypen, Maße, Werkstoffe und Oberflächen. Sofortige Gewichts- und Preiskalkulationen für Standard- und Strangpressprofile.',
@@ -61,19 +61,19 @@ const I18n = (() => {
         },
         'services.s2.title':   { de:'Stahlbeschaffung & Logistik', en:'Steel Sourcing & Logistics', fr:'Approvisionnement acier', pl:'Dostawy stali i logistyka', es:'Suministro de acero' },
         'services.s2.desc':    {
-            de:'Stahlprofile (IPE, HEA, UPN, Hohlprofile) von zertifizierten europäischen Walzwerken. Wir übernehmen Beschaffung, Qualitätssicherung und Logistik — Sie erhalten die Profile frei Baustelle.',
-            en:'Structural steel profiles (IPE, HEA, UPN, hollow sections) sourced from certified European rolling mills. We handle procurement, quality assurance, and logistics — you get the profiles delivered to your site.',
-            fr:'Profilés acier (IPE, HEA, UPN, sections creuses) des laminoirs européens certifiés. Nous gérons approvisionnement, qualité et logistique.',
-            pl:'Profile stalowe (IPE, HEA, UPN, profile zamknięte) z certyfikowanych europejskich walcowni. Zajmujemy się zakupem, kontrolą jakości i logistyką.',
-            es:'Perfiles de acero (IPE, HEA, UPN, secciones huecas) de laminadores europeos certificados. Nos encargamos de compras, calidad y logística.',
+            de:'Stahlprofile (IPE, HEA, UPN, Hohlprofile) von langjährig bewährten europäischen Walzwerken. Wir übernehmen Beschaffung, Qualitätssicherung und Logistik — Sie erhalten die Profile frei Baustelle, mit lückenloser Dokumentation.',
+            en:'Structural steel profiles (IPE, HEA, UPN, hollow sections) from long-established European rolling mills. We handle procurement, quality assurance, and logistics — profiles delivered to your site with full documentation.',
+            fr:'Profilés acier (IPE, HEA, UPN, sections creuses) provenant de laminoirs européens établis de longue date. Nous gérons approvisionnement, qualité et logistique — livraison sur site avec documentation complète.',
+            pl:'Profile stalowe (IPE, HEA, UPN, profile zamknięte) od sprawdzonych europejskich walcowni. Zajmujemy się zakupem, kontrolą jakości i logistyką — dostawa z kompletną dokumentacją.',
+            es:'Perfiles de acero (IPE, HEA, UPN, secciones huecas) de laminadores europeos consolidados. Nos encargamos de compras, calidad y logística — entrega en obra con documentación completa.',
         },
         'services.s3.title':   { de:'Aluminium-Strangpressung', en:'Aluminum Extrusion', fr:'Extrusion d\'aluminium', pl:'Wytłaczanie aluminium', es:'Extrusión de aluminio' },
         'services.s3.desc':    {
-            de:'Individuelle Aluminiumprofile auf einer der modernsten mittelgroßen Strangpressen Europas. Von Fensterprofilen bis zu Kühlkörpern und Industrieprofilen — zeichnen Sie Ihr Profil, wir fertigen es.',
-            en:'Custom aluminum profiles manufactured on one of Europe\'s most modern mid-sized extrusion presses. From window frames to heatsinks and industrial profiles — draw your cross-section, we\'ll produce it.',
-            fr:'Profilés aluminium sur mesure fabriqués sur l\'une des presses d\'extrusion les plus modernes d\'Europe. Fenêtres, dissipateurs, profilés industriels — dessinez, nous produisons.',
-            pl:'Niestandardowe profile aluminiowe produkowane na jednej z najnowocześniejszych pras w Europie. Od profili okiennych po radiatory — narysuj przekrój, my go wyprodukujemy.',
-            es:'Perfiles de aluminio personalizados fabricados en una de las prensas de extrusión más modernas de Europa. Desde ventanas hasta disipadores — dibuje su perfil, nosotros lo producimos.',
+            de:'Individuelle Aluminiumprofile auf modernsten Strangpressen Europas — gefertigt mit dem Know-how aus hunderten realisierter Projekte. Von Fensterprofilen über Kühlkörper bis zu Industrieprofilen: zeichnen Sie Ihr Profil, wir fertigen es.',
+            en:'Custom aluminum profiles on Europe\'s most modern extrusion presses — manufactured with the know-how from hundreds of completed projects. From window profiles to heatsinks and industrial sections: draw your profile, we\'ll produce it.',
+            fr:'Profilés aluminium sur mesure sur les presses les plus modernes d\'Europe — fabriqués avec le savoir-faire de centaines de projets réalisés. Fenêtres, dissipateurs, profilés industriels : dessinez, nous produisons.',
+            pl:'Niestandardowe profile aluminiowe na najnowocześniejszych prasach Europy — produkowane z wiedzą zdobytą w setkach zrealizowanych projektów. Od profili okiennych po radiatory: narysuj przekrój, my go wyprodukujemy.',
+            es:'Perfiles de aluminio personalizados en las prensas más modernas de Europa — fabricados con el know-how de cientos de proyectos realizados. Desde ventanas hasta disipadores: dibuje su perfil, nosotros lo producimos.',
         },
         'services.s4.title':   { de:'Oberflächenveredelung & Zertifizierung', en:'Surface Finishing & Certification', fr:'Finition de surface & Certification', pl:'Wykończenie powierzchni i certyfikacja', es:'Acabado superficial y certificación' },
         'services.s4.desc':    {
@@ -126,18 +126,18 @@ const I18n = (() => {
         'process.s4.title':    { de:'Lieferung', en:'Delivery', fr:'Livraison', pl:'Dostawa', es:'Entrega' },
 
         // About
-        'about.tag':           { de:'Über FERRON', en:'About FERRON', fr:'À propos de FERRON', pl:'O firmie FERRON', es:'Sobre FERRON' },
-        'about.title':         { de:'Aufgebaut auf Jahrzehnten\nFertigungs-Know-how.', en:'Built on Decades of\nManufacturing Expertise.', fr:'Fondé sur des décennies\nd\'expertise manufacturière.', pl:'Zbudowane na dekadach\ndoświadczenia produkcyjnego.', es:'Construido sobre décadas\nde experiencia industrial.' },
+        'about.tag':           { de:'Über STAELER', en:'About STAELER', fr:'À propos de STAELER', pl:'O firmie STAELER', es:'Sobre STAELER' },
+        'about.title':         { de:'Verwurzelt in Jahrzehnten\nFertigungs-Know-how.', en:'Rooted in Decades of\nManufacturing Expertise.', fr:'Enraciné dans des décennies\nd\'expertise industrielle.', pl:'Zakorzenieni w dekadach\ndoświadczenia produkcyjnego.', es:'Arraigados en décadas\nde experiencia industrial.' },
 
         // Contact
         'contact.tag':         { de:'Kontakt', en:'Contact', fr:'Contact', pl:'Kontakt', es:'Contacto' },
         'contact.title':       { de:'Angebot anfragen.', en:'Request a Quote.', fr:'Demander un devis.', pl:'Zapytaj o ofertę.', es:'Solicitar presupuesto.' },
         'contact.desc':        {
-            de:'Senden Sie uns Ihre Anforderungen und wir antworten innerhalb von 48 Stunden mit einem detaillierten Angebot.',
-            en:'Send us your requirements and we\'ll respond with a detailed offer within 48 hours.',
-            fr:'Envoyez-nous vos exigences et nous vous répondrons avec une offre détaillée sous 48 heures.',
-            pl:'Wyślij nam swoje wymagania, a odpowiemy szczegółową ofertą w ciągu 48 godzin.',
-            es:'Envíenos sus requisitos y le responderemos con una oferta detallada en 48 horas.',
+            de:'Beschreiben Sie Ihr Projekt — unser erfahrenes technisches Team erstellt Ihnen innerhalb von 48 Stunden ein detailliertes, verbindliches Angebot.',
+            en:'Describe your project — our experienced technical team will provide a detailed, binding quote within 48 hours.',
+            fr:'Décrivez votre projet — notre équipe technique expérimentée vous fournira un devis détaillé et contraignant sous 48 heures.',
+            pl:'Opisz swój projekt — nasz doświadczony zespół techniczny przygotuje szczegółową, wiążącą ofertę w ciągu 48 godzin.',
+            es:'Describa su proyecto — nuestro experimentado equipo técnico le proporcionará un presupuesto detallado y vinculante en 48 horas.',
         },
         'contact.name':        { de:'Vollständiger Name', en:'Full Name', fr:'Nom complet', pl:'Imię i nazwisko', es:'Nombre completo' },
         'contact.company':     { de:'Unternehmen', en:'Company', fr:'Entreprise', pl:'Firma', es:'Empresa' },
@@ -158,7 +158,7 @@ const I18n = (() => {
         'cc.snap':             { de:'Einrasten', en:'Snap', fr:'Aimanter', pl:'Przyciągaj', es:'Ajustar' },
 
         // Footer
-        'footer.tagline2':     { de:'Präzise Metallprofilbeschaffung für die moderne Industrie.', en:'Precision metal profile sourcing for modern industry.', fr:'Approvisionnement de profilés métalliques de précision.', pl:'Precyzyjne dostawy profili metalowych.', es:'Suministro de perfiles metálicos de precisión.' },
+        'footer.tagline2':     { de:'Präzise Metallprofile — seit Jahrzehnten zuverlässig geliefert.', en:'Precision metal profiles — reliably delivered for decades.', fr:'Profilés métalliques de précision — livrés avec fiabilité depuis des décennies.', pl:'Precyzyjne profile metalowe — niezawodnie dostarczane od dziesięcioleci.', es:'Perfiles metálicos de precisión — entregados con fiabilidad durante décadas.' },
         'footer.solutions':    { de:'Lösungen', en:'Solutions', fr:'Solutions', pl:'Rozwiązania', es:'Soluciones' },
         'footer.stdprofiles':  { de:'Standardprofile', en:'Standard Profiles', fr:'Profilés standard', pl:'Profile standardowe', es:'Perfiles estándar' },
         'footer.custom':       { de:'Strangpressung', en:'Custom Extrusion', fr:'Extrusion sur mesure', pl:'Wytłaczanie', es:'Extrusión' },
@@ -174,7 +174,7 @@ const I18n = (() => {
         'footer.howit':        { de:'So funktioniert es', en:'How It Works', fr:'Comment ça marche', pl:'Jak to działa', es:'Cómo funciona' },
         'footer.contact':      { de:'Kontakt', en:'Contact', fr:'Contact', pl:'Kontakt', es:'Contacto' },
         'footer.privacy':      { de:'Datenschutz', en:'Privacy', fr:'Confidentialité', pl:'Prywatność', es:'Privacidad' },
-        'footer.copy':         { de:'© 2026 FERRON Trading GmbH. Alle Rechte vorbehalten.', en:'© 2026 FERRON Trading GmbH. All rights reserved.', fr:'© 2026 FERRON Trading GmbH. Tous droits réservés.', pl:'© 2026 FERRON Trading GmbH. Wszelkie prawa zastrzeżone.', es:'© 2026 FERRON Trading GmbH. Todos los derechos reservados.' },
+        'footer.copy':         { de:'© 2026 STAELER GmbH. Alle Rechte vorbehalten.', en:'© 2026 STAELER GmbH. All rights reserved.', fr:'© 2026 STAELER GmbH. Tous droits réservés.', pl:'© 2026 STAELER GmbH. Wszelkie prawa zastrzeżone.', es:'© 2026 STAELER GmbH. Todos los derechos reservados.' },
 
         // Configurator Extended
         'config.step1':        { de:'Profiltyp', en:'Profile Type', fr:'Type de profilé', pl:'Typ profilu', es:'Tipo de perfil' },
@@ -209,19 +209,19 @@ const I18n = (() => {
         'config.restart':      { de:'Neue Konfiguration starten', en:'Start New Configuration', fr:'Nouvelle configuration', pl:'Nowa konfiguracja', es:'Nueva configuración' },
 
         // Process Extended
-        'process.desc':        { de:'Von der Spezifikation bis zur Lieferung in vier einfachen Schritten. Keine versteckten Kosten, keine Komplexität.', en:'From specification to delivery in four straightforward steps. No hidden fees, no complexity.', fr:'De la spécification à la livraison en quatre étapes simples. Pas de frais cachés.', pl:'Od specyfikacji do dostawy w czterech prostych krokach. Bez ukrytych kosztów.', es:'De la especificación a la entrega en cuatro sencillos pasos. Sin costos ocultos.' },
+        'process.desc':        { de:'Von der Spezifikation bis zur Lieferung in vier bewährten Schritten. Transparente Kosten, verlässliche Abläufe — erprobt in hunderten Projekten.', en:'From specification to delivery in four proven steps. Transparent costs, reliable processes — refined across hundreds of projects.', fr:'De la spécification à la livraison en quatre étapes éprouvées. Coûts transparents, processus fiables — perfectionnés sur des centaines de projets.', pl:'Od specyfikacji do dostawy w czterech sprawdzonych krokach. Przejrzyste koszty, niezawodne procesy — udoskonalone w setkach projektów.', es:'De la especificación a la entrega en cuatro pasos probados. Costos transparentes, procesos confiables — perfeccionados en cientos de proyectos.' },
         'process.s1.desc':     { de:'Nutzen Sie unseren Konfigurator oder senden Sie uns Ihre Spezifikationen. Definieren Sie Profile, Abmessungen, Werkstoffe und Mengen. Zeichnen Sie individuelle Querschnitte oder wählen Sie Standardprofile.', en:'Use our configurator or send us your specifications. Define profiles, dimensions, materials, and quantities. Draw custom cross-sections or choose from standard profiles.', fr:'Utilisez notre configurateur ou envoyez-nous vos spécifications. Définissez profils, dimensions, matériaux et quantités.', pl:'Użyj naszego konfiguratora lub wyślij nam specyfikacje. Zdefiniuj profile, wymiary, materiały i ilości.', es:'Use nuestro configurador o envíenos sus especificaciones. Defina perfiles, dimensiones, materiales y cantidades.' },
         'process.s2.desc':     { de:'Erhalten Sie innerhalb von 48 Stunden ein detailliertes, verbindliches Angebot. Transparente Preise ohne versteckte Aufschläge. Sonderprofile inkl. Werkzeugkosten-Aufschlüsselung.', en:'Receive a detailed, binding quote within 48 hours. Transparent pricing with no hidden surcharges. Custom profiles include die cost breakdown.', fr:'Recevez un devis détaillé et contraignant sous 48 heures. Tarification transparente sans surcharge.', pl:'Otrzymaj szczegółową, wiążącą ofertę w ciągu 48 godzin. Przejrzyste ceny bez ukrytych dopłat.', es:'Reciba un presupuesto detallado y vinculante en 48 horas. Precios transparentes sin recargos ocultos.' },
         'process.s3.desc':     { de:'Aluminium-Sonderprofile werden auf einer der modernsten mittelgroßen Pressen Europas stranggepresst. Stahlprofile stammen aus zertifizierten Walzwerken. EN 10204 Zeugnisse bei jeder Lieferung inklusive.', en:'Custom aluminum profiles are extruded on one of Europe\'s most modern mid-sized presses. Standard steel profiles are sourced from certified mills. EN 10204 certificates included with every delivery.', fr:'Les profilés aluminium sur mesure sont extrudés sur l\'une des presses les plus modernes d\'Europe. Certificats EN 10204 inclus.', pl:'Profile aluminiowe produkowane na jednej z najnowocześniejszych pras w Europie. Świadectwa EN 10204 w każdej dostawie.', es:'Los perfiles de aluminio se extruyen en una de las prensas más modernas de Europa. Certificados EN 10204 incluidos.' },
         'process.s4.desc':     { de:'Koordinierte Logistik bis zu Ihrem Standort. Verfolgen Sie Ihren Auftragsstatus und erhalten Sie Lieferbestätigungen. Europaweites Liefernetzwerk.', en:'Coordinated logistics to your site. Track your order status and receive delivery confirmations. Europe-wide delivery network.', fr:'Logistique coordonnée jusqu\'à votre site. Suivez votre commande et recevez des confirmations de livraison.', pl:'Skoordynowana logistyka do Twojej lokalizacji. Śledź status zamówienia. Europejska sieć dostaw.', es:'Logística coordinada a su sitio. Siga el estado de su pedido. Red de entrega en toda Europa.' },
 
         // About Extended
-        'about.text1':         { de:'FERRON Trading wurde gegründet, um moderne Beschaffungslösungen für die Stahl- und Aluminiumindustrie zu bieten. Gestützt auf eine Familientradition in der Metallprofilfertigung und eine der leistungsfähigsten mittelgroßen Strangpressen Europas verbinden wir tiefes technisches Wissen mit zeitgemäßen Geschäftspraktiken.', en:'FERRON Trading was founded to bring modern procurement solutions to the steel and aluminum industry. Backed by a family legacy in metal profile manufacturing and one of Europe\'s most capable mid-sized extrusion presses, we combine deep technical knowledge with contemporary business practices.', fr:'FERRON Trading a été fondée pour apporter des solutions d\'approvisionnement modernes. Soutenue par un héritage familial et l\'une des presses d\'extrusion les plus performantes d\'Europe.', pl:'FERRON Trading została założona, aby oferować nowoczesne rozwiązania zaopatrzeniowe dla przemysłu stalowego i aluminiowego.', es:'FERRON Trading fue fundada para ofrecer soluciones de adquisición modernas para la industria del acero y aluminio.' },
-        'about.text2':         { de:'Ob Sie Standard-Baustahl aus europäischen Walzwerken oder kundenspezifische Aluminium-Strangpressprofile für Fenster, Fassaden und Industrieanwendungen benötigen — wir liefern Präzisionsprofile zu wettbewerbsfähigen Preisen mit garantierter Qualität und vollständiger EN/DIN-Zertifizierung.', en:'Whether you need standard structural steel from European mills, or custom aluminum extrusions for windows, facades, and industrial applications — we deliver precision profiles at competitive prices with guaranteed quality and full EN/DIN certification.', fr:'Que vous ayez besoin d\'acier de construction standard ou de profilés aluminium sur mesure — nous livrons des profilés de précision à des prix compétitifs avec certification EN/DIN complète.', pl:'Niezależnie czy potrzebujesz standardowej stali konstrukcyjnej czy niestandardowych profili aluminiowych — dostarczamy profile precyzyjne z pełną certyfikacją EN/DIN.', es:'Ya sea que necesite acero estructural estándar o extrusiones de aluminio personalizadas — entregamos perfiles de precisión con certificación EN/DIN completa.' },
+        'about.text1':         { de:'STAELER steht für moderne Beschaffungslösungen in der Stahl- und Aluminiumindustrie. Gestützt auf eine Familientradition in der Metallprofilfertigung und den Zugang zu leistungsfähigen Strangpressen verbinden wir tiefes technisches Wissen mit zeitgemäßen Geschäftspraktiken.', en:'STAELER stands for modern procurement solutions in the steel and aluminum industry. Rooted in a family tradition of metal profile manufacturing and backed by access to high-performance extrusion presses, we combine deep technical expertise with contemporary business practices.', fr:'STAELER incarne des solutions d\'approvisionnement modernes pour l\'industrie de l\'acier et de l\'aluminium. Enracinés dans une tradition familiale de fabrication de profilés métalliques et disposant d\'un accès à des presses d\'extrusion performantes, nous allions expertise technique approfondie et pratiques commerciales modernes.', pl:'STAELER to nowoczesne rozwiązania zaopatrzeniowe dla przemysłu stalowego i aluminiowego. Zakorzenieni w rodzinnej tradycji produkcji profili metalowych, z dostępem do wydajnych pras do wytłaczania, łączymy głęboką wiedzę techniczną ze współczesnymi praktykami biznesowymi.', es:'STAELER representa soluciones de adquisición modernas para la industria del acero y aluminio. Arraigados en una tradición familiar de fabricación de perfiles metálicos y con acceso a prensas de extrusión de alto rendimiento, combinamos una profunda experiencia técnica con prácticas comerciales contemporáneas.' },
+        'about.text2':         { de:'Ob Standard-Baustahl aus europäischen Walzwerken oder kundenspezifische Aluminium-Strangpressprofile — wir liefern Präzisionsprofile zu wettbewerbsfähigen Preisen mit garantierter Qualität und vollständiger EN/DIN-Zertifizierung.', en:'Whether you need standard structural steel from European mills or custom aluminum extrusion profiles — we deliver precision profiles at competitive prices with guaranteed quality and full EN/DIN certification.', fr:'Qu\'il s\'agisse d\'acier de construction standard ou de profilés aluminium sur mesure — nous livrons des profilés de précision à des prix compétitifs avec une qualité garantie et une certification EN/DIN complète.', pl:'Niezależnie czy potrzebujesz standardowej stali konstrukcyjnej czy niestandardowych profili aluminiowych — dostarczamy profile precyzyjne w konkurencyjnych cenach z gwarantowaną jakością i pełną certyfikacją EN/DIN.', es:'Ya sea acero estructural estándar o perfiles de aluminio de extrusión personalizados — entregamos perfiles de precisión a precios competitivos con calidad garantizada y certificación EN/DIN completa.' },
         'about.val1.title':    { de:'EN/DIN-Konform', en:'EN/DIN Compliant', fr:'Conforme EN/DIN', pl:'Zgodne z EN/DIN', es:'Conforme EN/DIN' },
         'about.val1.desc':     { de:'Alle Profile nach europäischen Normen', en:'All profiles to European standards', fr:'Tous les profilés aux normes européennes', pl:'Wszystkie profile wg norm europejskich', es:'Todos los perfiles según normas europeas' },
-        'about.val2.title':    { de:'Moderne Presse', en:'Modern Press', fr:'Presse moderne', pl:'Nowoczesna prasa', es:'Prensa moderna' },
-        'about.val2.desc':     { de:'Strangpresskapazität auf höchstem Niveau', en:'State-of-the-art extrusion capacity', fr:'Capacité d\'extrusion de pointe', pl:'Najnowocześniejsza zdolność wytłaczania', es:'Capacidad de extrusión de última generación' },
+        'about.val2.title':    { de:'Bewährte Fertigungskompetenz', en:'Proven Manufacturing Expertise', fr:'Expertise de fabrication éprouvée', pl:'Sprawdzona kompetencja produkcyjna', es:'Competencia de fabricación probada' },
+        'about.val2.desc':     { de:'Hunderte realisierte Projekte in allen Branchen', en:'Hundreds of projects delivered across all industries', fr:'Des centaines de projets réalisés dans toutes les industries', pl:'Setki zrealizowanych projektów we wszystkich branżach', es:'Cientos de proyectos entregados en todas las industrias' },
         'about.val3.title':    { de:'48h Angebote', en:'48h Quotes', fr:'Devis en 48h', pl:'Oferty w 48h', es:'Presupuestos en 48h' },
         'about.val3.desc':     { de:'Verbindliche Angebote innerhalb von zwei Werktagen', en:'Binding offers within two business days', fr:'Offres contraignantes sous deux jours ouvrables', pl:'Wiążące oferty w ciągu dwóch dni roboczych', es:'Ofertas vinculantes en dos días hábiles' },
 
@@ -268,7 +268,7 @@ const I18n = (() => {
         // Specifications Section
         'specs.tag':           { de:'Technische Daten', en:'Technical Data', fr:'Données techniques', pl:'Dane techniczne', es:'Datos técnicos' },
         'specs.title':         { de:'Qualität & Toleranzen', en:'Quality & Tolerances', fr:'Qualité & Tolérances', pl:'Jakość i tolerancje', es:'Calidad y tolerancias' },
-        'specs.desc':          { de:'Alle Profile entsprechen EN/DIN-Normen. Hier die wichtigsten technischen Parameter auf einen Blick.', en:'All profiles comply with EN/DIN standards. Key technical parameters at a glance.', fr:'Tous les profilés sont conformes aux normes EN/DIN. Paramètres techniques clés en un coup d\'œil.', pl:'Wszystkie profile zgodne z normami EN/DIN. Kluczowe parametry techniczne w skrócie.', es:'Todos los perfiles cumplen con las normas EN/DIN. Parámetros técnicos clave de un vistazo.' },
+        'specs.desc':          { de:'Alle Profile entsprechen EN/DIN-Normen — geprüft und dokumentiert über die gesamte Lieferkette. Hier die wichtigsten technischen Parameter auf einen Blick.', en:'All profiles comply with EN/DIN standards — verified and documented across the entire supply chain. Key technical parameters at a glance.', fr:'Tous les profilés sont conformes aux normes EN/DIN — vérifiés et documentés tout au long de la chaîne d\'approvisionnement. Paramètres techniques clés en un coup d\'œil.', pl:'Wszystkie profile zgodne z normami EN/DIN — zweryfikowane i udokumentowane w całym łańcuchu dostaw. Kluczowe parametry techniczne w skrócie.', es:'Todos los perfiles cumplen con las normas EN/DIN — verificados y documentados en toda la cadena de suministro. Parámetros técnicos clave de un vistazo.' },
         'specs.press.title':   { de:'Strangpresse', en:'Extrusion Press', fr:'Presse d\'extrusion', pl:'Prasa do wytłaczania', es:'Prensa de extrusión' },
         'specs.press.force':   { de:'Presskraft:', en:'Press Force:', fr:'Force de presse:', pl:'Siła prasy:', es:'Fuerza de prensa:' },
         'specs.press.circle':  { de:'Max. Hüllkreis:', en:'Max. Circumscribing Circle:', fr:'Cercle circonscrit max:', pl:'Maks. koło opisujące:', es:'Círculo circunscrito máx:' },
@@ -314,17 +314,17 @@ const I18n = (() => {
         'trust.quote':         { de:'Angebotszeit', en:'Quote Turnaround', fr:'Délai de devis', pl:'Czas oferty', es:'Tiempo de oferta' },
 
         // CTA Section
-        'cta.title':           { de:'Bereit für Ihr Projekt?', en:'Ready for Your Project?', fr:'Prêt pour votre projet?', pl:'Gotowy na Twój projekt?', es:'¿Listo para su proyecto?' },
-        'cta.desc':            { de:'Konfigurieren Sie Ihr Profil online oder senden Sie uns Ihre technische Zeichnung für ein individuelles Angebot.', en:'Configure your profile online or send us your technical drawing for a custom quote.', fr:'Configurez votre profilé en ligne ou envoyez-nous votre dessin technique.', pl:'Skonfiguruj profil online lub wyślij nam rysunek techniczny.', es:'Configure su perfil en línea o envíenos su dibujo técnico.' },
+        'cta.title':           { de:'Ihr nächstes Projekt beginnt hier.', en:'Your Next Project Starts Here.', fr:'Votre prochain projet commence ici.', pl:'Twój następny projekt zaczyna się tutaj.', es:'Su próximo proyecto empieza aquí.' },
+        'cta.desc':            { de:'Konfigurieren Sie Ihr Profil online oder senden Sie uns Ihre technische Zeichnung — unser erfahrenes Team erstellt Ihnen innerhalb von 48 Stunden ein verbindliches Angebot.', en:'Configure your profile online or send us your technical drawing — our experienced team will provide a binding quote within 48 hours.', fr:'Configurez votre profilé en ligne ou envoyez-nous votre dessin technique — notre équipe expérimentée vous fournira un devis ferme sous 48 heures.', pl:'Skonfiguruj profil online lub wyślij nam rysunek techniczny — nasz doświadczony zespół przygotuje wiążącą ofertę w ciągu 48 godzin.', es:'Configure su perfil en línea o envíenos su dibujo técnico — nuestro equipo experimentado le proporcionará un presupuesto vinculante en 48 horas.' },
         'cta.configure':       { de:'Profil konfigurieren', en:'Configure Profile', fr:'Configurer un profilé', pl:'Konfiguruj profil', es:'Configurar perfil' },
         'cta.contact':         { de:'Zeichnung hochladen', en:'Upload Drawing', fr:'Télécharger le dessin', pl:'Prześlij rysunek', es:'Subir dibujo' },
 
         // About extended values
-        'about.val2.title':    { de:'Modernste Presstechnik', en:'State-of-the-Art Press Technology', fr:'Technologie de presse de pointe', pl:'Najnowocześniejsza technologia prasy', es:'Tecnología de prensa de última generación' },
-        'about.val2.desc':     { de:'Strangpresskapazität auf höchstem Niveau', en:'Extrusion capacity at the highest level', fr:'Capacité d\'extrusion au plus haut niveau', pl:'Zdolność wytłaczania na najwyższym poziomie', es:'Capacidad de extrusión al más alto nivel' },
+        'about.val2.title':    { de:'Bewährte Fertigungskompetenz', en:'Proven Manufacturing Expertise', fr:'Expertise de fabrication éprouvée', pl:'Sprawdzona kompetencja produkcyjna', es:'Competencia de fabricación probada' },
+        'about.val2.desc':     { de:'Hunderte realisierte Projekte in allen Branchen', en:'Hundreds of projects delivered across all industries', fr:'Des centaines de projets réalisés dans toutes les industries', pl:'Setki zrealizowanych projektów we wszystkich branżach', es:'Cientos de proyectos entregados en todas las industrias' },
 
         // Footer updated
-        'footer.tagline':      { de:'Aluminium-Strangpressprofile und Stahl-Strukturprofile für die europäische Industrie.', en:'Aluminum extrusion profiles and structural steel profiles for European industry.', fr:'Profilés aluminium et profilés acier pour l\'industrie européenne.', pl:'Profile aluminiowe i profile stalowe dla europejskiego przemysłu.', es:'Perfiles de aluminio y acero estructural para la industria europea.' },
+        'footer.tagline':      { de:'Ihr erfahrener Partner für Aluminium-Strangpressprofile und Stahl-Strukturprofile in Europa.', en:'Your experienced partner for aluminum extrusion profiles and structural steel profiles in Europe.', fr:'Votre partenaire expérimenté pour les profilés aluminium et acier en Europe.', pl:'Twój doświadczony partner w zakresie profili aluminiowych i stalowych w Europie.', es:'Su socio experimentado para perfiles de aluminio y acero estructural en Europa.' },
     };
 
     let currentLang = 'de'; // Default German
@@ -332,7 +332,7 @@ const I18n = (() => {
     function setLanguage(lang) {
         if (!LANGS.includes(lang)) return;
         currentLang = lang;
-        localStorage.setItem('ferron-lang', lang);
+        localStorage.setItem('staeler-lang', lang);
 
         // Update all elements with data-i18n attribute
         document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -372,7 +372,7 @@ const I18n = (() => {
 
     function init() {
         // Detect preferred language
-        const saved = localStorage.getItem('ferron-lang');
+        const saved = localStorage.getItem('staeler-lang');
         const browser = navigator.language?.slice(0, 2);
 
         if (saved && LANGS.includes(saved)) {

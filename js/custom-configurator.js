@@ -1,5 +1,5 @@
 /* ==========================================================================
-   FERRON Custom Profile Configurator
+   STAELER Custom Profile Configurator
    Canvas-based drawing tool for custom aluminum extrusion profiles.
    Users draw cross-sections, get real-time constraint validation
    and pricing estimates based on extrusion manufacturing parameters.
@@ -218,6 +218,7 @@ const CustomConfigurator = (() => {
         selectedIndex: -1,          // index in hollows, or -2 for outer
         dragging: false,
         dragOffset: {x:0, y:0},
+        draggingVertex: null,       // {source:'outer'|'hollow', hollowIdx:n, pointIdx:n}
         // View
         scale: 3.5,                 // pixels per mm
         offsetX: 0,
@@ -547,9 +548,11 @@ const CustomConfigurator = (() => {
 
         drawGrid();
         drawProfile();
+        drawDimensions();
         drawCurrentDrawing();
         drawSelection();
         drawConstraintWarnings();
+        drawPointHandles();
     }
 
     function drawGrid() {
@@ -557,7 +560,7 @@ const CustomConfigurator = (() => {
         const gridPx = state.gridSize * state.scale;
 
         // Minor grid
-        ctx.strokeStyle = 'rgba(59, 130, 246, 0.06)';
+        ctx.strokeStyle = 'rgba(200, 16, 46, 0.06)';
         ctx.lineWidth = 0.5;
         const startMm = canvasToMm(0, 0);
         const endMm = canvasToMm(w, h);
@@ -584,7 +587,7 @@ const CustomConfigurator = (() => {
         }
 
         // Major grid (every 5 gridSize)
-        ctx.strokeStyle = 'rgba(59, 130, 246, 0.12)';
+        ctx.strokeStyle = 'rgba(200, 16, 46, 0.12)';
         ctx.lineWidth = 0.8;
         const major = gs * 5;
         const mStartX = Math.floor(startMm.x / major) * major;
@@ -606,7 +609,7 @@ const CustomConfigurator = (() => {
 
         // Origin crosshair
         const origin = mmToCanvas(0, 0);
-        ctx.strokeStyle = 'rgba(59, 130, 246, 0.25)';
+        ctx.strokeStyle = 'rgba(200, 16, 46, 0.25)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(origin.x, 0); ctx.lineTo(origin.x, h);
@@ -625,7 +628,7 @@ const CustomConfigurator = (() => {
                 ctx.lineTo(p.x, p.y);
             }
             ctx.closePath();
-            ctx.fillStyle = 'rgba(59, 130, 246, 0.12)';
+            ctx.fillStyle = 'rgba(200, 16, 46, 0.15)';
             ctx.fill();
             ctx.strokeStyle = '#c8102e';
             ctx.lineWidth = 2;
@@ -644,19 +647,22 @@ const CustomConfigurator = (() => {
         // Draw hollows
         for (let i = 0; i < state.hollows.length; i++) {
             const h = state.hollows[i];
-            ctx.fillStyle = '#111827';
-            ctx.strokeStyle = state.selectedIndex === i ? '#f5a623' : '#e0132f';
-            ctx.lineWidth = state.selectedIndex === i ? 2.5 : 1.5;
+            const isSelected = state.selectedIndex === i;
+            ctx.fillStyle = '#050508';
+            ctx.strokeStyle = isSelected ? '#f5a623' : '#e0132f';
+            ctx.lineWidth = isSelected ? 2.5 : 1.5;
 
             if (h.type === 'rect') {
                 const tl = mmToCanvas(h.x, h.y);
                 const br = mmToCanvas(h.x + h.w, h.y + h.h);
                 const rw = br.x - tl.x, rh = br.y - tl.y;
                 ctx.fillRect(tl.x, tl.y, rw, rh);
+                // Draw cross-hatch pattern inside hollow
+                drawHatchPattern(tl.x, tl.y, rw, rh);
                 ctx.strokeRect(tl.x, tl.y, rw, rh);
 
                 // Drag handles
-                if (state.selectedIndex === i) {
+                if (isSelected) {
                     drawHandle(tl.x, tl.y);
                     drawHandle(br.x, tl.y);
                     drawHandle(br.x, br.y);
@@ -672,6 +678,22 @@ const CustomConfigurator = (() => {
                 }
                 ctx.closePath();
                 ctx.fill();
+                // Cross-hatch for polygon hollows
+                ctx.save();
+                ctx.clip();
+                const hbb = boundingBox(h.points);
+                const htl = mmToCanvas(hbb.minX, hbb.minY);
+                const hbr = mmToCanvas(hbb.maxX, hbb.maxY);
+                drawHatchPattern(htl.x, htl.y, hbr.x - htl.x, hbr.y - htl.y);
+                ctx.restore();
+                ctx.beginPath();
+                const fp2 = mmToCanvas(h.points[0].x, h.points[0].y);
+                ctx.moveTo(fp2.x, fp2.y);
+                for (let j = 1; j < h.points.length; j++) {
+                    const pp = mmToCanvas(h.points[j].x, h.points[j].y);
+                    ctx.lineTo(pp.x, pp.y);
+                }
+                ctx.closePath();
                 ctx.stroke();
 
                 for (const pt of h.points) {
@@ -683,6 +705,24 @@ const CustomConfigurator = (() => {
                 }
             }
         }
+    }
+
+    function drawHatchPattern(x, y, w, h) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x, y, w, h);
+        ctx.clip();
+        ctx.strokeStyle = 'rgba(200, 16, 46, 0.18)';
+        ctx.lineWidth = 0.5;
+        const spacing = 8;
+        const maxDim = Math.max(Math.abs(w), Math.abs(h)) * 2;
+        for (let d = -maxDim; d < maxDim; d += spacing) {
+            ctx.beginPath();
+            ctx.moveTo(x + d, y);
+            ctx.lineTo(x + d + Math.abs(h), y + Math.abs(h));
+            ctx.stroke();
+        }
+        ctx.restore();
     }
 
     function drawHandle(x, y) {
@@ -789,6 +829,232 @@ const CustomConfigurator = (() => {
 
 
     // ========================================================================
+    // DIMENSION LABELS & POINT EDITING
+    // ========================================================================
+
+    function drawDimensions() {
+        if (state.outer.length < 2) return;
+
+        ctx.save();
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Draw dimension labels on outer edges
+        for (let i = 0; i < state.outer.length; i++) {
+            const j = (i + 1) % state.outer.length;
+            const p1 = state.outer[i];
+            const p2 = state.outer[j];
+            const len = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+            if (len < 2) continue;
+
+            const cp1 = mmToCanvas(p1.x, p1.y);
+            const cp2 = mmToCanvas(p2.x, p2.y);
+            const mx = (cp1.x + cp2.x) / 2;
+            const my = (cp1.y + cp2.y) / 2;
+
+            // Calculate offset perpendicular to edge
+            const dx = cp2.x - cp1.x;
+            const dy = cp2.y - cp1.y;
+            const edgeLen = Math.hypot(dx, dy);
+            if (edgeLen < 30) continue; // Don't label very short edges on screen
+
+            const nx = -dy / edgeLen * 14;
+            const ny = dx / edgeLen * 14;
+
+            const lx = mx + nx;
+            const ly = my + ny;
+
+            // Draw dimension text with background
+            const text = len.toFixed(1);
+            const textWidth = ctx.measureText(text).width;
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.85)';
+            ctx.fillRect(lx - textWidth / 2 - 4, ly - 7, textWidth + 8, 14);
+            ctx.strokeStyle = 'rgba(200, 16, 46, 0.4)';
+            ctx.lineWidth = 0.5;
+            ctx.strokeRect(lx - textWidth / 2 - 4, ly - 7, textWidth + 8, 14);
+            ctx.fillStyle = 'rgba(200, 16, 46, 0.8)';
+            ctx.fillText(text, lx, ly);
+
+            // Draw dimension ticks at endpoints
+            const tickLen = 4;
+            ctx.strokeStyle = 'rgba(200, 16, 46, 0.35)';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(cp1.x + nx * 0.5 - nx * 0.3, cp1.y + ny * 0.5 - ny * 0.3);
+            ctx.lineTo(cp1.x + nx * 1.3, cp1.y + ny * 1.3);
+            ctx.moveTo(cp2.x + nx * 0.5 - nx * 0.3, cp2.y + ny * 0.5 - ny * 0.3);
+            ctx.lineTo(cp2.x + nx * 1.3, cp2.y + ny * 1.3);
+            ctx.stroke();
+        }
+
+        // Also show bounding box dimensions if profile exists
+        if (state.outer.length >= 3) {
+            const bb = boundingBox(state.outer);
+            const tl = mmToCanvas(bb.minX, bb.minY);
+            const br = mmToCanvas(bb.maxX, bb.maxY);
+
+            // Width dimension below
+            const widthText = bb.width.toFixed(1) + ' mm';
+            const wtw = ctx.measureText(widthText).width;
+            const wmy = br.y + 20;
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.85)';
+            ctx.fillRect((tl.x + br.x) / 2 - wtw / 2 - 4, wmy - 7, wtw + 8, 14);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 0.5;
+            ctx.strokeRect((tl.x + br.x) / 2 - wtw / 2 - 4, wmy - 7, wtw + 8, 14);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.fillText(widthText, (tl.x + br.x) / 2, wmy);
+
+            // Height dimension to the right
+            const heightText = bb.height.toFixed(1) + ' mm';
+            const htw = ctx.measureText(heightText).width;
+            const hmx = br.x + 24;
+            ctx.save();
+            ctx.translate(hmx, (tl.y + br.y) / 2);
+            ctx.rotate(Math.PI / 2);
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.85)';
+            ctx.fillRect(-htw / 2 - 4, -7, htw + 8, 14);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 0.5;
+            ctx.strokeRect(-htw / 2 - 4, -7, htw + 8, 14);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.fillText(heightText, 0, 0);
+            ctx.restore();
+        }
+
+        ctx.restore();
+    }
+
+    function drawPointHandles() {
+        if (state.mode !== 'select' || state.outer.length < 3) return;
+
+        // Draw editable point handles on outer polygon
+        for (let i = 0; i < state.outer.length; i++) {
+            const pt = state.outer[i];
+            const p = mmToCanvas(pt.x, pt.y);
+
+            // Check if cursor is near this point
+            let isHovered = false;
+            if (state.cursorMm) {
+                const dist = Math.hypot(state.cursorMm.x - pt.x, state.cursorMm.y - pt.y);
+                isHovered = dist < state.gridSize * 1.5;
+            }
+
+            if (isHovered) {
+                // Draw enlarged handle with coordinate tooltip
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(200, 16, 46, 0.3)';
+                ctx.fill();
+                ctx.strokeStyle = '#c8102e';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Coordinate label
+                ctx.save();
+                ctx.font = '10px "JetBrains Mono", monospace';
+                ctx.textAlign = 'left';
+                const coordText = `(${pt.x.toFixed(1)}, ${pt.y.toFixed(1)})`;
+                const tw = ctx.measureText(coordText).width;
+                ctx.fillStyle = 'rgba(10, 10, 10, 0.9)';
+                ctx.fillRect(p.x + 10, p.y - 18, tw + 8, 16);
+                ctx.strokeStyle = '#c8102e';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(p.x + 10, p.y - 18, tw + 8, 16);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(coordText, p.x + 14, p.y - 10);
+                ctx.restore();
+            }
+        }
+    }
+
+    // ========================================================================
+    // POINT EDITING
+    // ========================================================================
+
+    let editingPoint = null; // { type: 'outer'|'hollow', index: number, pointIndex: number }
+    let pointEditOverlay = null;
+
+    function showPointEditor(pt, onSave) {
+        removePointEditor();
+        const canvasWrapper = canvas.parentElement;
+        const cp = mmToCanvas(pt.x, pt.y);
+        const rect = canvas.getBoundingClientRect();
+
+        pointEditOverlay = document.createElement('div');
+        pointEditOverlay.className = 'cc-point-editor';
+        pointEditOverlay.style.cssText = `
+            position: absolute;
+            left: ${cp.x + 12}px;
+            top: ${cp.y - 40}px;
+            background: #161616;
+            border: 1px solid #c8102e;
+            border-radius: 6px;
+            padding: 8px;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        `;
+
+        const inputX = document.createElement('input');
+        inputX.type = 'number';
+        inputX.value = pt.x.toFixed(1);
+        inputX.step = state.gridSize;
+        inputX.style.cssText = 'width:60px;padding:4px 6px;background:#0a0a0a;border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:#fff;font-family:"JetBrains Mono",monospace;font-size:11px;text-align:center;';
+
+        const separator = document.createElement('span');
+        separator.textContent = ',';
+        separator.style.cssText = 'color:#666;font-size:11px;';
+
+        const inputY = document.createElement('input');
+        inputY.type = 'number';
+        inputY.value = pt.y.toFixed(1);
+        inputY.step = state.gridSize;
+        inputY.style.cssText = inputX.style.cssText;
+
+        const okBtn = document.createElement('button');
+        okBtn.textContent = '✓';
+        okBtn.style.cssText = 'padding:4px 8px;background:#c8102e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;';
+
+        okBtn.addEventListener('click', () => {
+            const nx = parseFloat(inputX.value);
+            const ny = parseFloat(inputY.value);
+            if (!isNaN(nx) && !isNaN(ny)) {
+                onSave(nx, ny);
+            }
+            removePointEditor();
+        });
+
+        // Confirm on Enter key
+        const onKey = (e) => {
+            if (e.key === 'Enter') { okBtn.click(); e.preventDefault(); }
+            if (e.key === 'Escape') { removePointEditor(); }
+        };
+        inputX.addEventListener('keydown', onKey);
+        inputY.addEventListener('keydown', onKey);
+
+        pointEditOverlay.appendChild(inputX);
+        pointEditOverlay.appendChild(separator);
+        pointEditOverlay.appendChild(inputY);
+        pointEditOverlay.appendChild(okBtn);
+
+        canvasWrapper.appendChild(pointEditOverlay);
+        inputX.focus();
+        inputX.select();
+    }
+
+    function removePointEditor() {
+        if (pointEditOverlay && pointEditOverlay.parentElement) {
+            pointEditOverlay.parentElement.removeChild(pointEditOverlay);
+        }
+        pointEditOverlay = null;
+        editingPoint = null;
+    }
+
+    // ========================================================================
     // MOUSE EVENTS
     // ========================================================================
 
@@ -819,7 +1085,34 @@ const CustomConfigurator = (() => {
         }
 
         if (state.mode === 'select') {
-            // Hit test hollows
+            // Hit test vertices first (for individual vertex dragging)
+            for (let i = 0; i < state.outer.length; i++) {
+                const pt = state.outer[i];
+                const dist = Math.hypot(mm.x - pt.x, mm.y - pt.y);
+                if (dist < state.gridSize * 1.5) {
+                    state.draggingVertex = { source: 'outer', pointIdx: i };
+                    state.dragging = true;
+                    render();
+                    return;
+                }
+            }
+            for (let hi = 0; hi < state.hollows.length; hi++) {
+                const h = state.hollows[hi];
+                if (h.type === 'polygon' && h.points) {
+                    for (let pi = 0; pi < h.points.length; pi++) {
+                        const pt = h.points[pi];
+                        const dist = Math.hypot(mm.x - pt.x, mm.y - pt.y);
+                        if (dist < state.gridSize * 1.5) {
+                            state.draggingVertex = { source: 'hollow', hollowIdx: hi, pointIdx: pi };
+                            state.dragging = true;
+                            render();
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // Hit test hollows (whole shape drag)
             for (let i = state.hollows.length - 1; i >= 0; i--) {
                 const h = state.hollows[i];
                 if (h.type === 'rect') {
@@ -867,7 +1160,26 @@ const CustomConfigurator = (() => {
             return;
         }
 
-        // Drag in select mode
+        // Vertex drag in select mode
+        if (state.dragging && state.draggingVertex && state.mode === 'select') {
+            const v = state.draggingVertex;
+            let nx = mm.x, ny = mm.y;
+            if (state.snapToGrid) {
+                nx = Math.round(nx / state.gridSize) * state.gridSize;
+                ny = Math.round(ny / state.gridSize) * state.gridSize;
+            }
+            if (v.source === 'outer') {
+                state.outer[v.pointIdx] = { x: nx, y: ny };
+            } else if (v.source === 'hollow') {
+                state.hollows[v.hollowIdx].points[v.pointIdx] = { x: nx, y: ny };
+            }
+            render();
+            updateCalculations();
+            updateCursorDisplay(mm);
+            return;
+        }
+
+        // Drag in select mode (whole shape)
         if (state.dragging && state.mode === 'select') {
             if (state.selectedIndex >= 0) {
                 const h = state.hollows[state.selectedIndex];
@@ -926,6 +1238,7 @@ const CustomConfigurator = (() => {
 
         if (state.dragging) {
             state.dragging = false;
+            state.draggingVertex = null;
             saveHistory();
             updateCalculations();
             return;
@@ -971,6 +1284,47 @@ const CustomConfigurator = (() => {
         if (state.mode === 'draw-outer' || state.mode === 'draw-hollow') {
             if (state.drawingPoints.length >= 3) {
                 closeCurrentShape();
+            }
+            return;
+        }
+
+        // In select mode, double-click on a vertex to edit coordinates
+        if (state.mode === 'select') {
+            const mm = getMouseMm(e);
+
+            // Check outer polygon points
+            for (let i = 0; i < state.outer.length; i++) {
+                const pt = state.outer[i];
+                const dist = Math.hypot(mm.x - pt.x, mm.y - pt.y);
+                if (dist < state.gridSize * 1.5) {
+                    showPointEditor(pt, (nx, ny) => {
+                        state.outer[i] = { x: nx, y: ny };
+                        saveHistory();
+                        render();
+                        updateCalculations();
+                    });
+                    return;
+                }
+            }
+
+            // Check hollow polygon points
+            for (let hi = 0; hi < state.hollows.length; hi++) {
+                const h = state.hollows[hi];
+                if (h.type === 'polygon' && h.points) {
+                    for (let pi = 0; pi < h.points.length; pi++) {
+                        const pt = h.points[pi];
+                        const dist = Math.hypot(mm.x - pt.x, mm.y - pt.y);
+                        if (dist < state.gridSize * 1.5) {
+                            showPointEditor(pt, (nx, ny) => {
+                                h.points[pi] = { x: nx, y: ny };
+                                saveHistory();
+                                render();
+                                updateCalculations();
+                            });
+                            return;
+                        }
+                    }
+                }
             }
         }
     }
@@ -1274,6 +1628,36 @@ const CustomConfigurator = (() => {
         canvas.addEventListener('dblclick', onDblClick);
         canvas.addEventListener('wheel', onWheel, { passive: false });
         canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Touch event support for mobile
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX, clientY: touch.clientY, button: 0
+            });
+            onMouseDown(mouseEvent);
+            // Also trigger click for drawing modes
+            if (state.mode === 'draw-outer' || state.mode === 'draw-hollow') {
+                const clickEvent = new MouseEvent('click', {
+                    clientX: touch.clientX, clientY: touch.clientY, button: 0
+                });
+                onClick(clickEvent);
+            }
+        }, { passive: false });
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX, clientY: touch.clientY
+            });
+            onMouseMove(mouseEvent);
+        }, { passive: false });
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const mouseEvent = new MouseEvent('mouseup', { button: 0 });
+            onMouseUp(mouseEvent);
+        }, { passive: false });
         document.addEventListener('keydown', (e) => {
             // Only handle if custom configurator is visible
             const ccSection = document.getElementById('customConfigPanel');
@@ -1360,7 +1744,7 @@ const CustomConfigurator = (() => {
         if (reqQuoteBtn) {
             reqQuoteBtn.addEventListener('click', () => {
                 const modal = document.getElementById('quoteModal');
-                const ref = 'FRN-' + new Date().getFullYear() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+                const ref = 'STL-' + new Date().getFullYear() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
                 document.getElementById('modalRef').textContent = ref;
                 if (modal) modal.classList.add('active');
             });

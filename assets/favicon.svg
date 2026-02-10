@@ -1,7 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
   <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
-  <!-- Stylized F / extrusion profile mark -->
-  <rect x="6" y="5" width="20" height="4.5" rx="1" fill="#ffffff"/>
-  <rect x="6" y="9.5" width="4.5" height="17.5" rx="0.5" fill="#ffffff"/>
-  <rect x="6" y="15" width="15" height="4" rx="1" fill="#c8102e"/>
+  <!-- Stylized S mark -->
+  <g transform="translate(6, 4)">
+    <!-- Top chevron -->
+    <path d="M2,6 L10,1 L18,6 L18,9 L10,4 L2,9 Z" fill="#ffffff"/>
+    <!-- Red accent middle -->
+    <path d="M5,11 L10,8 L15,11" fill="none" stroke="#c8102e" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Bottom chevron -->
+    <path d="M2,16 L10,21 L18,16 L18,19 L10,24 L2,19 Z" fill="#ffffff"/>
+    <!-- Middle connector -->
+    <path d="M2,13 L10,18 L18,13" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  </g>
 </svg>

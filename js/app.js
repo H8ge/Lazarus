@@ -1,5 +1,5 @@
 /* ==========================================================================
-   FERRON Trading — Main Application Script (Redesign)
+   STAELER — Main Application Script (Redesign)
    Navigation, scroll animations, counters, configurator tabs, contact form
    ========================================================================== */
 
