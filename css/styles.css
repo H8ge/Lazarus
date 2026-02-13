@@ -2562,9 +2562,17 @@ html {
     transition: all var(--transition-base);
 }
 
-.heritage-stat:hover {
-    border-color: var(--border-default);
-    transform: translateY(-4px);
+@media (prefers-reduced-motion: no-preference) {
+    .heritage-stat:hover {
+        border-color: var(--border-default);
+        transform: translateY(-4px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .heritage-stat:hover {
+        border-color: var(--border-default);
+    }
 }
 
 .heritage-value {
@@ -2617,10 +2625,19 @@ html {
     transition: all var(--transition-base);
 }
 
-.cert-card:hover {
-    border-color: var(--color-red);
-    background: var(--color-surface-light);
-    transform: translateY(-4px);
+@media (prefers-reduced-motion: no-preference) {
+    .cert-card:hover {
+        border-color: var(--color-red);
+        background: var(--color-surface-light);
+        transform: translateY(-4px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cert-card:hover {
+        border-color: var(--color-red);
+        background: var(--color-surface-light);
+    }
 }
 
 .cert-badge-large {

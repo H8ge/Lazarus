@@ -22,6 +22,7 @@ const CustomConfigurator = (() => {
         minHollowGap: 2.0,            // mm between hollows
         minFeatureSize: 1.5,          // mm smallest detail
         maxWeightPerMeter: 25,        // kg/m practical limit
+        maxHollowAreaRatio: 0.95,     // Max 95% of outer area can be hollow (leave material for structural integrity)
     };
 
     // ========================================================================
@@ -515,7 +516,7 @@ const CustomConfigurator = (() => {
         for (const h of state.hollows) hollowAreaTotal += hollowArea(h);
 
         // Validate that hollows don't exceed outer area
-        if (hollowAreaTotal > outerArea * 0.95) {
+        if (hollowAreaTotal > outerArea * PRESS.maxHollowAreaRatio) {
             return { 
                 valid: false, 
                 error: 'hollow_area_too_large',
