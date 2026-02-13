@@ -122,6 +122,10 @@ img {
     display: block;
 }
 
+h3, h4, h5, h6 {
+    font-weight: 500;
+}
+
 
 /* ==========================================================================
    SCROLLBAR
@@ -704,6 +708,25 @@ html {
     line-height: 1.75;
     color: var(--color-gray-400);
     margin-bottom: 24px;
+}
+
+.capability-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.capability-spec {
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--color-gray-500);
+    background: var(--color-black-light);
+    padding: 6px 12px;
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--border-subtle);
+    letter-spacing: 0.5px;
 }
 
 .capability-link {
