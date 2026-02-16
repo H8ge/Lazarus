@@ -58,9 +58,9 @@
     --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 
     /* Layout */
-    --container-max: 1200px;
+    --container-max: 1600px;
     --section-padding: 140px;
-    --nav-height: 72px;
+    --nav-height: 90px;
 
     /* Transitions */
     --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -292,9 +292,10 @@ html {
     padding: 0;
     height: var(--nav-height);
     display: flex;
-    align-items: center;
+    align-items: stretch;
     transition: all var(--transition-slow);
     background: transparent;
+    min-height: var(--nav-height);
 }
 
 .nav.scrolled {
@@ -302,6 +303,8 @@ html {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-subtle);
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .nav-inner {
@@ -309,6 +312,8 @@ html {
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    padding: 0 40px;
+    height: 100%;
 }
 
 .nav-logo {
@@ -319,7 +324,7 @@ html {
 }
 
 .nav-logo-img {
-    height: 28px;
+    height: 44px;
     width: auto;
 }
 
