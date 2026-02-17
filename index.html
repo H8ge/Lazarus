@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STAELER — Aluminiumprofile & Strangpresslösungen</title>
     <meta name="description" content="STAELER — Seit Jahrzehnten Ihr erfahrener Partner für hochpräzise Aluminium-Strangpressprofile und Stahl-Strukturprofile. 28 MN Presskapazität, individuelle Querschnitte, EN-zertifizierte Qualität.">
-    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -17,9 +17,9 @@
          NAVIGATION — EXALPRO-inspired minimal nav
          ================================================================ -->
     <nav class="nav" id="nav">
-        <div class="nav-inner container">
+        <div class="nav-inner">
             <a href="#" class="nav-logo">
-                <img src="assets/logo.svg" alt="STAELER" class="nav-logo-img">
+                <img src="assets/logo.png" alt="STAELER" class="nav-logo-img">
             </a>
             <div class="nav-right">
                 <span class="nav-tagline" data-i18n="nav.tagline">Profiltechnik seit Jahrzehnten</span>
@@ -61,6 +61,13 @@
                     <span data-i18n="hero.title2">in jedem</span><br>
                     <span class="hero-accent" data-i18n="hero.title3">Profil.</span>
                 </h1>
+                <div class="hero-specs" data-animate="fade-up" data-delay="50">
+                    <span class="hero-spec">28 MN Press Capacity</span>
+                    <span class="hero-spec-sep">•</span>
+                    <span class="hero-spec">⌀ 300mm Max</span>
+                    <span class="hero-spec-sep">•</span>
+                    <span class="hero-spec">EN Certified</span>
+                </div>
                 <p class="hero-text" data-animate="fade-up" data-delay="100" data-i18n="hero.text1">
                     Mit jahrzehntelanger Erfahrung in der Aluminium-Strangpressung fertigen wir hochkomplexe Profilquerschnitte auf modernsten Pressen — von der Entwicklung über die Extrusion bis zur Oberflächenveredelung. Alles aus einer Hand.
                 </p>
@@ -169,6 +176,31 @@
     </section>
 
     <!-- ================================================================
+         COMPANY HERITAGE — Trust & Experience
+         ================================================================ -->
+    <section class="section heritage-section" id="heritage">
+        <div class="container">
+            <div class="heritage-content">
+                <div class="heritage-stat">
+                    <span class="heritage-value">40+</span>
+                    <span class="heritage-label" data-i18n="heritage.years">Years of Manufacturing Excellence</span>
+                    <p class="heritage-desc" data-i18n="heritage.years.desc">Four decades of aluminum extrusion expertise, now complemented by our modern 2021 press installation.</p>
+                </div>
+                <div class="heritage-stat">
+                    <span class="heritage-value">100%</span>
+                    <span class="heritage-label" data-i18n="heritage.family">Family-Owned</span>
+                    <p class="heritage-desc" data-i18n="heritage.family.desc">Generational commitment to precision manufacturing and long-term customer partnerships.</p>
+                </div>
+                <div class="heritage-stat">
+                    <span class="heritage-value">EN</span>
+                    <span class="heritage-label" data-i18n="heritage.standards">European Standards</span>
+                    <p class="heritage-desc" data-i18n="heritage.standards.desc">Full compliance with EN 755, EN 573, and EN 10204 certifications on all deliveries.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================
          CAPABILITIES / SERVICES
          ================================================================ -->
     <section class="section capabilities-section" id="capabilities">
@@ -182,24 +214,48 @@
                     <div class="capability-number">01</div>
                     <h3 class="capability-title" data-i18n="services.s3.title">Aluminium-Strangpressung</h3>
                     <p class="capability-desc" data-i18n="services.s3.desc">Individuelle Aluminiumprofile auf einer der modernsten mittelgroßen Strangpressen Europas. Von Fensterprofilen bis zu Kühlkörpern und Industrieprofilen — zeichnen Sie Ihr Profil, wir fertigen es.</p>
+                    <div class="capability-specs">
+                        <span class="capability-spec">28 MN Presskraft</span>
+                        <span class="capability-spec">⌀ 300mm Max</span>
+                        <span class="capability-spec">EN 755 konform</span>
+                        <span class="capability-spec">3-5 Wochen Lieferzeit</span>
+                    </div>
                     <a href="#configurator" class="capability-link" data-i18n="services.s3.link">Profil zeichnen →</a>
                 </div>
                 <div class="capability-card" data-animate="fade-up" data-delay="100">
                     <div class="capability-number">02</div>
                     <h3 class="capability-title" data-i18n="services.s1.title">Profilkonfiguration</h3>
                     <p class="capability-desc" data-i18n="services.s1.desc">Nutzen Sie unseren interaktiven Konfigurator für exakte Profiltypen, Maße, Werkstoffe und Oberflächen. Sofortige Gewichts- und Preiskalkulationen für Standard- und Strangpressprofile.</p>
+                    <div class="capability-specs">
+                        <span class="capability-spec">Standard & Custom</span>
+                        <span class="capability-spec">Sofortberechnung</span>
+                        <span class="capability-spec">Materialnormen</span>
+                        <span class="capability-spec">EN 10204 Zertifikate</span>
+                    </div>
                     <a href="#configurator" class="capability-link" data-i18n="services.s1.link">Zum Konfigurator →</a>
                 </div>
                 <div class="capability-card" data-animate="fade-up" data-delay="200">
                     <div class="capability-number">03</div>
                     <h3 class="capability-title" data-i18n="services.s2.title">Stahlbeschaffung & Logistik</h3>
                     <p class="capability-desc" data-i18n="services.s2.desc">Stahlprofile (IPE, HEA, UPN, Hohlprofile) von zertifizierten europäischen Walzwerken. Wir übernehmen Beschaffung, Qualitätssicherung und Logistik — Sie erhalten die Profile frei Baustelle.</p>
+                    <div class="capability-specs">
+                        <span class="capability-spec">Toleranzklasse A</span>
+                        <span class="capability-spec">S235-S355</span>
+                        <span class="capability-spec">EN 10210 / 10219</span>
+                        <span class="capability-spec">2-3 Wochen Lieferzeit</span>
+                    </div>
                     <a href="#contact" class="capability-link" data-i18n="services.s2.link">Anfrage stellen →</a>
                 </div>
                 <div class="capability-card" data-animate="fade-up" data-delay="300">
                     <div class="capability-number">04</div>
                     <h3 class="capability-title" data-i18n="services.s4.title">Oberflächenveredelung & Zertifizierung</h3>
                     <p class="capability-desc" data-i18n="services.s4.desc">Eloxierung, Pulverbeschichtung, Harteloxal — alle gängigen Verfahren. Jede Lieferung mit EN 10204 Werkszeugnissen (2.1, 3.1 oder 3.2) und vollständiger Rückverfolgbarkeit.</p>
+                    <div class="capability-specs">
+                        <span class="capability-spec">Eloxal 15-25µm</span>
+                        <span class="capability-spec">Pulver 60-120µm</span>
+                        <span class="capability-spec">RAL & Sonderfarben</span>
+                        <span class="capability-spec">Qualicoat zertifiziert</span>
+                    </div>
                     <a href="#specs" class="capability-link" data-i18n="services.s4.link">Spezifikationen →</a>
                 </div>
             </div>
@@ -445,11 +501,11 @@
                 <div class="cc-main-layout">
                     <div class="cc-canvas-area">
                         <div class="cc-toolbar">
-                            <button class="cc-tool-btn active" data-mode="draw-outer" title="Draw outer contour (polygon)">
+                            <button class="cc-tool-btn active" data-mode="draw-outer" title="Draw outer contour (polygon)" aria-label="Draw outer contour">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 21.5 12 28 2 21.5 2 8.5" transform="scale(0.8) translate(3,1)"/></svg>
                                 <span data-i18n="cc.toolbar.outer">Outer Contour</span>
                             </button>
-                            <button class="cc-tool-btn" data-mode="draw-hollow" title="Draw hollow polygon inside outer">
+                            <button class="cc-tool-btn" data-mode="draw-hollow" title="Draw hollow polygon inside outer" aria-label="Draw hollow polygon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="10" height="10" rx="0.5" stroke-dasharray="3 2"/></svg>
                                 <span data-i18n="cc.toolbar.hollow">Hollow (Poly)</span>
                             </button>
@@ -763,11 +819,11 @@
     <section class="cta-section">
         <div class="container">
             <div class="cta-inner" data-animate="fade-up">
-                <h2 class="cta-title" data-i18n="cta.title">Ihr nächstes Projekt beginnt hier.</h2>
-                <p class="cta-desc" data-i18n="cta.desc">Konfigurieren Sie Ihr Profil online oder senden Sie uns Ihre technische Zeichnung — unser erfahrenes Team erstellt Ihnen innerhalb von 48 Stunden ein verbindliches Angebot.</p>
+                <h2 class="cta-title" data-i18n="cta.title">Fordern Sie eine technische Beratung an.</h2>
+                <p class="cta-desc" data-i18n="cta.desc">Nutzen Sie unseren Profil-Konfigurator für eine Erstschätzung oder senden Sie uns Ihre technische Zeichnung — unser Vertriebsingenieur-Team erstellt Ihnen innerhalb von 48 Stunden ein verbindliches Angebot mit vollständiger Spezifikation.</p>
                 <div class="cta-actions">
                     <a href="#configurator" class="btn btn-primary btn-lg" data-i18n="cta.configure">Profil konfigurieren</a>
-                    <a href="#contact" class="btn btn-outline btn-lg" data-i18n="cta.contact">Zeichnung hochladen</a>
+                    <a href="#contact" class="btn btn-outline btn-lg" data-i18n="cta.contact">Technische Anfrage stellen</a>
                 </div>
             </div>
         </div>
@@ -918,12 +974,66 @@
         </div>
     </section>
 
+    <!-- ================================================================
+         CERTIFICATIONS & STANDARDS
+         ================================================================ -->
+    <section class="section certifications-section" id="certifications">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label" data-i18n="certs.tag">Quality Assurance</span>
+                <h2 class="section-title" data-i18n="certs.title">Certifications & Standards</h2>
+                <p class="section-desc" data-i18n="certs.desc">All products delivered with full traceability and compliance documentation</p>
+            </div>
+            <div class="certifications-grid">
+                <div class="cert-card">
+                    <div class="cert-badge-large">
+                        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M32 8l8 16h18l-14 11 5 17-17-13-17 13 5-17-14-11h18z"/>
+                        </svg>
+                    </div>
+                    <h3 class="cert-card-title" data-i18n="certs.en755.title">EN 755 Compliance</h3>
+                    <p class="cert-card-desc" data-i18n="certs.en755.desc">Aluminum extruded profiles meet European standard for dimensional tolerances and quality specifications</p>
+                </div>
+                <div class="cert-card">
+                    <div class="cert-badge-large">
+                        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="32" cy="32" r="24"/>
+                            <path d="M20 32l8 8 16-16"/>
+                        </svg>
+                    </div>
+                    <h3 class="cert-card-title" data-i18n="certs.en10204.title">EN 10204 Certificates</h3>
+                    <p class="cert-card-desc" data-i18n="certs.en10204.desc">Material inspection certificates 2.1, 3.1, and 3.2 available for complete traceability</p>
+                </div>
+                <div class="cert-card">
+                    <div class="cert-badge-large">
+                        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="16" y="16" width="32" height="32" rx="4"/>
+                            <path d="M24 32h16M32 24v16"/>
+                        </svg>
+                    </div>
+                    <h3 class="cert-card-title" data-i18n="certs.din.title">DIN Standards</h3>
+                    <p class="cert-card-desc" data-i18n="certs.din.desc">Strict adherence to German industrial standards for steel and aluminum profiles</p>
+                </div>
+                <div class="cert-card">
+                    <div class="cert-badge-large">
+                        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M32 12v40M12 32h40"/>
+                            <circle cx="32" cy="32" r="18"/>
+                        </svg>
+                    </div>
+                    <h3 class="cert-card-title" data-i18n="certs.network.title">Certified Mill Network</h3>
+                    <p class="cert-card-desc" data-i18n="certs.network.desc">Partner mills across Europe hold ISO 9001, ISO 14001, and industry-specific certifications</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-top">
                 <div class="footer-brand">
-                    <img src="assets/logo.svg" alt="STAELER" class="footer-logo">
+                    <img src="assets/logo.png" alt="STAELER" class="footer-logo">
                     <p class="footer-tagline" data-i18n="footer.tagline">Ihr erfahrener Partner für Aluminium-Strangpressprofile und Stahl-Strukturprofile in Europa.</p>
                 </div>
                 <div class="footer-links">

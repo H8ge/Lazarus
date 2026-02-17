@@ -22,6 +22,7 @@ const CustomConfigurator = (() => {
         minHollowGap: 2.0,            // mm between hollows
         minFeatureSize: 1.5,          // mm smallest detail
         maxWeightPerMeter: 25,        // kg/m practical limit
+        maxHollowAreaRatio: 0.95,     // Max 95% of outer area can be hollow (leave material for structural integrity)
     };
 
     // ========================================================================
@@ -514,7 +515,18 @@ const CustomConfigurator = (() => {
         let hollowAreaTotal = 0;
         for (const h of state.hollows) hollowAreaTotal += hollowArea(h);
 
-        const netArea = outerArea - hollowAreaTotal;       // mm²
+        // Validate that hollows don't exceed outer area
+        if (hollowAreaTotal > outerArea * PRESS.maxHollowAreaRatio) {
+            return { 
+                valid: false, 
+                error: 'hollow_area_too_large',
+                hollowAreaTotal,
+                outerArea
+            };
+        }
+
+        // Ensure net area never goes negative
+        const netArea = Math.max(0, outerArea - hollowAreaTotal);       // mm²
         const netAreaM2 = netArea / 1e6;                   // m²
         const density = 2700;                               // kg/m³ aluminum
         const weightPerMeter = netAreaM2 * density;         // kg/m
@@ -1475,9 +1487,18 @@ const CustomConfigurator = (() => {
         if (!infoEl) return;
 
         if (!profile.valid) {
-            infoEl.innerHTML = '<p class="cc-info-empty">Draw an outer profile to see calculations</p>';
+            if (profile.error === 'hollow_area_too_large') {
+                infoEl.innerHTML = '<p class="cc-info-empty">Hollow areas cannot exceed the outer profile area</p>';
+                if (warningsEl) {
+                    warningsEl.innerHTML = `<div class="cc-warning cc-warning-error">
+                        <strong>Invalid profile:</strong> Hollow area (${profile.hollowAreaTotal.toFixed(1)} mm²) exceeds outer area (${profile.outerArea.toFixed(1)} mm²). Reduce hollow sizes or increase outer profile.
+                    </div>`;
+                }
+            } else {
+                infoEl.innerHTML = '<p class="cc-info-empty">Draw an outer profile to see calculations</p>';
+                if (warningsEl) warningsEl.innerHTML = '';
+            }
             if (quoteEl) quoteEl.innerHTML = '';
-            if (warningsEl) warningsEl.innerHTML = '';
             return;
         }
 
