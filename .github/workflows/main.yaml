@@ -15,6 +15,7 @@ jobs:
           port: 23
           username: ${{ vars.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
+          concurrency: 1
           localDir: "./"
           remoteDir: "./"
           exclude: |
