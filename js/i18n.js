@@ -40,6 +40,9 @@ const I18n = (() => {
             pl:'Uzupełnione o naszą sprawdzoną sieć certyfikowanych europejskich walcowni, dostarczamy profile stalowe i aluminiowe jako kompleksowe rozwiązanie — terminowo, zgodnie z normami i optymalnie kosztowo.',
             es:'Complementado con nuestra red consolidada de laminadores europeos certificados, entregamos perfiles de acero y aluminio como solución integral — a tiempo, conforme a normas y con costos optimizados.',
         },
+        'hero.badge.force':     { de:'28 MN Presskapazität', en:'28 MN Press Capacity', fr:'Capacité de presse 28 MN', pl:'Prasa 28 MN', es:'Capacidad de prensa 28 MN' },
+        'hero.badge.circle':    { de:'⌀ 300mm Max', en:'⌀ 300mm Max', fr:'⌀ 300mm Max', pl:'⌀ 300mm Max', es:'⌀ 300mm Máx' },
+        'hero.badge.cert':      { de:'EN-Zertifiziert', en:'EN Certified', fr:'Certifié EN', pl:'Certyfikat EN', es:'Certificado EN' },
         'hero.cta.configure':   { de:'Profil konfigurieren', en:'Configure Profile', fr:'Configurer un profilé', pl:'Konfiguruj profil', es:'Configurar perfil' },
         'hero.cta.contact':     { de:'Kontakt aufnehmen', en:'Get in Touch', fr:'Nous contacter', pl:'Skontaktuj się', es:'Contactar' },
         // Capacity Bar

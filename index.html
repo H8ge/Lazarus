@@ -10,6 +10,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+    }
+    </script>
 </head>
 <body>
 
@@ -61,6 +69,13 @@
                     <span data-i18n="hero.title2">in jedem</span><br>
                     <span class="hero-accent" data-i18n="hero.title3">Profil.</span>
                 </h1>
+                <div class="hero-capacity-badge" data-animate="fade-up" data-delay="80">
+                    <span data-i18n="hero.badge.force">28 MN Presskapazität</span>
+                    <span class="hero-badge-dot">&middot;</span>
+                    <span data-i18n="hero.badge.circle">&oslash; 300mm Max</span>
+                    <span class="hero-badge-dot">&middot;</span>
+                    <span data-i18n="hero.badge.cert">EN-Zertifiziert</span>
+                </div>
                 <p class="hero-text" data-animate="fade-up" data-delay="100" data-i18n="hero.text1">
                     Mit jahrzehntelanger Erfahrung in der Aluminium-Strangpressung fertigen wir hochkomplexe Profilquerschnitte auf modernsten Pressen — von der Entwicklung über die Extrusion bis zur Oberflächenveredelung. Alles aus einer Hand.
                 </p>
@@ -73,58 +88,7 @@
                 </div>
             </div>
             <div class="hero-visual" data-animate="fade-left">
-                <!-- Premium SVG aluminum multi-chamber profile cross-section -->
-                <svg class="hero-profile-svg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="metalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#d4d4d4"/>
-                            <stop offset="25%" stop-color="#a3a3a3"/>
-                            <stop offset="50%" stop-color="#c0c0c0"/>
-                            <stop offset="75%" stop-color="#8a8a8a"/>
-                            <stop offset="100%" stop-color="#b0b0b0"/>
-                        </linearGradient>
-                        <linearGradient id="metalGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stop-color="#b8b8b8"/>
-                            <stop offset="50%" stop-color="#9a9a9a"/>
-                            <stop offset="100%" stop-color="#c8c8c8"/>
-                        </linearGradient>
-                        <filter id="profileShadow">
-                            <feDropShadow dx="4" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.4"/>
-                        </filter>
-                    </defs>
-                    <!-- Multi-chamber window frame profile -->
-                    <g transform="translate(50, 60)" filter="url(#profileShadow)">
-                        <!-- Outer frame -->
-                        <path d="M0,0 L400,0 L400,380 L0,380 Z" fill="url(#metalGrad)" stroke="#888" stroke-width="0.5"/>
-                        <!-- Top chambers -->
-                        <rect x="8" y="8" width="180" height="100" rx="3" fill="#0a0a0a"/>
-                        <rect x="196" y="8" width="196" height="100" rx="3" fill="#0a0a0a"/>
-                        <!-- Middle structural rib -->
-                        <rect x="0" y="108" width="400" height="16" fill="url(#metalGrad2)"/>
-                        <!-- Center chambers row -->
-                        <rect x="8" y="132" width="120" height="80" rx="3" fill="#0a0a0a"/>
-                        <rect x="136" y="132" width="120" height="80" rx="3" fill="#0a0a0a"/>
-                        <rect x="264" y="132" width="128" height="80" rx="3" fill="#0a0a0a"/>
-                        <!-- Lower structural rib -->
-                        <rect x="0" y="212" width="400" height="14" fill="url(#metalGrad2)"/>
-                        <!-- Lower chambers -->
-                        <rect x="8" y="234" width="90" height="64" rx="3" fill="#0a0a0a"/>
-                        <rect x="106" y="234" width="90" height="64" rx="3" fill="#0a0a0a"/>
-                        <rect x="204" y="234" width="90" height="64" rx="3" fill="#0a0a0a"/>
-                        <rect x="302" y="234" width="90" height="64" rx="3" fill="#0a0a0a"/>
-                        <!-- Bottom gasket channel -->
-                        <rect x="0" y="298" width="400" height="12" fill="url(#metalGrad2)"/>
-                        <!-- Bottom chambers -->
-                        <rect x="8" y="318" width="184" height="54" rx="3" fill="#0a0a0a"/>
-                        <rect x="200" y="318" width="192" height="54" rx="3" fill="#0a0a0a"/>
-                        <!-- External lip -->
-                        <rect x="-20" y="140" width="20" height="100" rx="4" fill="url(#metalGrad)"/>
-                        <rect x="400" y="100" width="22" height="160" rx="4" fill="url(#metalGrad)"/>
-                        <!-- Gasket grooves -->
-                        <rect x="-12" y="156" width="6" height="68" rx="2" fill="#0a0a0a"/>
-                        <rect x="408" y="120" width="6" height="120" rx="2" fill="#0a0a0a"/>
-                    </g>
-                </svg>
+                <canvas id="hero3d"></canvas>
             </div>
         </div>
         <!-- Scroll indicator -->
@@ -961,5 +925,6 @@
     <script src="js/configurator.js"></script>
     <script src="js/custom-configurator.js"></script>
     <script src="js/app.js"></script>
+    <script type="module" src="js/hero3d.js"></script>
 </body>
 </html>
