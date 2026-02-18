@@ -21,137 +21,152 @@ import * as THREE from 'three';
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.2;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     // ── Scene & Camera ──────────────────────────────────────────────────
     const scene = new THREE.Scene();
 
-    const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 2000);
-    camera.position.set(90, 60, 120);
-    camera.lookAt(0, 0, 0);
+    // Camera: close-up, looking at the near face of the profile at an angle
+    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 5000);
+    camera.position.set(70, 45, 95);
+    camera.lookAt(10, -5, -40);
 
     // ── Lighting ────────────────────────────────────────────────────────
-    // Key light — strong from upper-right-front
-    const keyLight = new THREE.DirectionalLight(0xffffff, 4);
-    keyLight.position.set(80, 100, 60);
+    // Strong key light — illuminates the cross-section face from upper-right
+    const keyLight = new THREE.DirectionalLight(0xffffff, 5);
+    keyLight.position.set(60, 80, 120);
     scene.add(keyLight);
 
-    // Fill light — softer, from the left
-    const fillLight = new THREE.DirectionalLight(0xb0c4de, 1.2);
-    fillLight.position.set(-60, 20, 40);
+    // Secondary key — more frontal, lights the cross-section face directly
+    const faceLight = new THREE.DirectionalLight(0xffffff, 3.5);
+    faceLight.position.set(30, 30, 150);
+    scene.add(faceLight);
+
+    // Fill light — from the left for the body
+    const fillLight = new THREE.DirectionalLight(0x8899bb, 1.5);
+    fillLight.position.set(-80, 20, 0);
     scene.add(fillLight);
 
-    // Rim light — from behind to outline edges
-    const rimLight = new THREE.DirectionalLight(0xffffff, 2.5);
-    rimLight.position.set(-20, 40, -80);
+    // Rim/edge light — from behind to outline the profile body edges
+    const rimLight = new THREE.DirectionalLight(0xffffff, 3);
+    rimLight.position.set(-30, 60, -120);
     scene.add(rimLight);
 
-    // Bottom-front subtle fill
-    const bottomLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    bottomLight.position.set(0, -60, 40);
-    scene.add(bottomLight);
+    // Subtle top highlight
+    const topLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    topLight.position.set(0, 120, 0);
+    scene.add(topLight);
 
-    // Very subtle ambient to avoid pure-black areas
-    const ambient = new THREE.AmbientLight(0x1a1a1a, 1);
+    // Very subtle ambient
+    const ambient = new THREE.AmbientLight(0x222222, 1);
     scene.add(ambient);
 
     // ── NUT-8 40×40 T-Slot Profile Shape ────────────────────────────────
+    // Accurate cross-section with 4 T-slots, center bore, 4 corner chambers
     function createNut8Shape() {
-        const S = 40;           // overall size
-        const H = S / 2;        // half = 20
-        const slotW = 8.2;      // slot opening width
-        const sHW = slotW / 2;  // half slot width = 4.1
-        const ucW = 16.5;       // undercut width
-        const uHW = ucW / 2;    // half undercut = 8.25
-        const slotD = 10;       // slot depth from face
-        const lipT = 1.8;       // lip overhang thickness
-        const wallT = 2.5;      // wall thickness
-        const coreR = 5.5;      // center bore radius
+        const H = 20;         // half of 40mm
+        const sW = 4.1;       // half slot opening (8.2mm total)
+        const uW = 8.0;       // half undercut width (16mm total)
+        const sD = 10;        // slot depth from face
+        const lip = 1.8;      // lip thickness
+        const wall = 2.5;     // core wall thickness
 
         const shape = new THREE.Shape();
 
-        // Outer contour — clockwise, starting top-left corner
-        // Top-left to top-right, with top T-slot
+        // Build outer contour clockwise with 4 T-slot indentations
+        // Each face: go along face -> enter slot -> undercut -> back out
+        // Connect corners through internal web structure
+
+        // Start at top-left corner
         shape.moveTo(-H, H);
-        shape.lineTo(-sHW, H);
-        shape.lineTo(-sHW, H - lipT);
-        shape.lineTo(-uHW, H - lipT);
-        shape.lineTo(-uHW, H - slotD);
-        shape.lineTo(-H + wallT, H - slotD);
-        shape.lineTo(-H + wallT, H - wallT);
-        shape.lineTo(-H + slotD, H - wallT);
-        shape.lineTo(-H + slotD, uHW);
-        shape.lineTo(-H + lipT, uHW);
-        shape.lineTo(-H + lipT, sHW);
-        shape.lineTo(-H, sHW);
 
-        // Left T-slot
-        shape.lineTo(-H, -sHW);
-        shape.lineTo(-H + lipT, -sHW);
-        shape.lineTo(-H + lipT, -uHW);
-        shape.lineTo(-H + slotD, -uHW);
-        shape.lineTo(-H + slotD, -H + wallT);
-        shape.lineTo(-H + wallT, -H + wallT);
-        shape.lineTo(-H + wallT, -H + slotD);
-        shape.lineTo(-uHW, -H + slotD);
-        shape.lineTo(-uHW, -H + lipT);
-        shape.lineTo(-sHW, -H + lipT);
-        shape.lineTo(-sHW, -H);
+        // ── Top face (left to right) with T-slot ──
+        shape.lineTo(-sW, H);
+        shape.lineTo(-sW, H - lip);
+        shape.lineTo(-uW, H - lip);
+        shape.lineTo(-uW, H - sD);
+        // Connect to top-left internal corner
+        shape.lineTo(-H + wall, H - sD);
+        shape.lineTo(-H + wall, H - wall);
+        shape.lineTo(-H + sD, H - wall);
+        // Go up to left T-slot upper entry
+        shape.lineTo(-H + sD, uW);
+        shape.lineTo(-H + lip, uW);
+        shape.lineTo(-H + lip, sW);
+        shape.lineTo(-H, sW);
 
-        // Bottom T-slot
-        shape.lineTo(sHW, -H);
-        shape.lineTo(sHW, -H + lipT);
-        shape.lineTo(uHW, -H + lipT);
-        shape.lineTo(uHW, -H + slotD);
-        shape.lineTo(H - wallT, -H + slotD);
-        shape.lineTo(H - wallT, -H + wallT);
-        shape.lineTo(H - slotD, -H + wallT);
-        shape.lineTo(H - slotD, -uHW);
-        shape.lineTo(H - lipT, -uHW);
-        shape.lineTo(H - lipT, -sHW);
-        shape.lineTo(H, -sHW);
+        // ── Left face (top to bottom) with T-slot ──
+        shape.lineTo(-H, -sW);
+        shape.lineTo(-H + lip, -sW);
+        shape.lineTo(-H + lip, -uW);
+        shape.lineTo(-H + sD, -uW);
+        // Connect to bottom-left internal corner
+        shape.lineTo(-H + sD, -H + wall);
+        shape.lineTo(-H + wall, -H + wall);
+        shape.lineTo(-H + wall, -H + sD);
+        shape.lineTo(-uW, -H + sD);
+        shape.lineTo(-uW, -H + lip);
+        shape.lineTo(-sW, -H + lip);
+        shape.lineTo(-sW, -H);
 
-        // Right T-slot
-        shape.lineTo(H, sHW);
-        shape.lineTo(H - lipT, sHW);
-        shape.lineTo(H - lipT, uHW);
-        shape.lineTo(H - slotD, uHW);
-        shape.lineTo(H - slotD, H - wallT);
-        shape.lineTo(H - wallT, H - wallT);
-        shape.lineTo(H - wallT, H - slotD);
-        shape.lineTo(uHW, H - slotD);
-        shape.lineTo(uHW, H - lipT);
-        shape.lineTo(sHW, H - lipT);
-        shape.lineTo(sHW, H);
-        shape.lineTo(-H, H); // close
+        // ── Bottom face (left to right) with T-slot ──
+        shape.lineTo(sW, -H);
+        shape.lineTo(sW, -H + lip);
+        shape.lineTo(uW, -H + lip);
+        shape.lineTo(uW, -H + sD);
+        // Connect to bottom-right internal corner
+        shape.lineTo(H - wall, -H + sD);
+        shape.lineTo(H - wall, -H + wall);
+        shape.lineTo(H - sD, -H + wall);
+        shape.lineTo(H - sD, -uW);
+        shape.lineTo(H - lip, -uW);
+        shape.lineTo(H - lip, -sW);
+        shape.lineTo(H, -sW);
 
-        // Center bore
+        // ── Right face (bottom to top) with T-slot ──
+        shape.lineTo(H, sW);
+        shape.lineTo(H - lip, sW);
+        shape.lineTo(H - lip, uW);
+        shape.lineTo(H - sD, uW);
+        // Connect to top-right internal corner
+        shape.lineTo(H - sD, H - wall);
+        shape.lineTo(H - wall, H - wall);
+        shape.lineTo(H - wall, H - sD);
+        shape.lineTo(uW, H - sD);
+        shape.lineTo(uW, H - lip);
+        shape.lineTo(sW, H - lip);
+        shape.lineTo(sW, H);
+
+        // Close back to start
+        shape.lineTo(-H, H);
+
+        // ── Center bore (M8 tapping hole, ~6.8mm dia) ──
         const bore = new THREE.Path();
-        const segments = 32;
-        for (let i = 0; i <= segments; i++) {
-            const angle = (i / segments) * Math.PI * 2;
-            const x = Math.cos(angle) * coreR;
-            const y = Math.sin(angle) * coreR;
+        const boreR = 3.4;
+        const segs = 32;
+        for (let i = 0; i <= segs; i++) {
+            const a = (i / segs) * Math.PI * 2;
+            const x = Math.cos(a) * boreR;
+            const y = Math.sin(a) * boreR;
             if (i === 0) bore.moveTo(x, y);
             else bore.lineTo(x, y);
         }
         shape.holes.push(bore);
 
-        // Corner chambers — 4 roughly trapezoidal internal hollows
-        const chamberInset = wallT + 0.5;
-        const chamberSize = slotD - wallT - 1;
-
+        // ── 4 corner chambers (triangular/rectangular internal voids) ──
+        const ci = wall + 0.8; // inset from outer edge
+        const cs = sD - wall - 1.5; // chamber size
         [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(([sx, sy]) => {
             const ch = new THREE.Path();
-            const ox = sx * (H - chamberInset - chamberSize / 2);
-            const oy = sy * (H - chamberInset - chamberSize / 2);
-            const cs = chamberSize / 2;
-            ch.moveTo(ox - cs, oy - cs);
-            ch.lineTo(ox + cs, oy - cs);
-            ch.lineTo(ox + cs, oy + cs);
-            ch.lineTo(ox - cs, oy + cs);
-            ch.lineTo(ox - cs, oy - cs);
+            const ox = sx * (H - ci - cs / 2);
+            const oy = sy * (H - ci - cs / 2);
+            const r = cs / 2;
+            ch.moveTo(ox - r, oy - r);
+            ch.lineTo(ox + r, oy - r);
+            ch.lineTo(ox + r, oy + r);
+            ch.lineTo(ox - r, oy + r);
+            ch.lineTo(ox - r, oy - r);
             shape.holes.push(ch);
         });
 
@@ -160,66 +175,82 @@ import * as THREE from 'three';
 
     // ── Build the extruded mesh ─────────────────────────────────────────
     const profileShape = createNut8Shape();
-    const extrudeLen = 280;
+    const extrudeLen = 800; // very long so it extends out of frame
     const geometry = new THREE.ExtrudeGeometry(profileShape, {
         depth: extrudeLen,
         bevelEnabled: false,
         steps: 1,
     });
 
-    // Center the geometry
+    // Don't center on Z — we want the near face visible and the body extending away
     geometry.computeBoundingBox();
     const bbox = geometry.boundingBox;
-    const cx = (bbox.max.x + bbox.min.x) / 2;
-    const cy = (bbox.max.y + bbox.min.y) / 2;
-    const cz = (bbox.max.z + bbox.min.z) / 2;
-    geometry.translate(-cx, -cy, -cz);
+    const centerX = (bbox.max.x + bbox.min.x) / 2;
+    const centerY = (bbox.max.y + bbox.min.y) / 2;
+    geometry.translate(-centerX, -centerY, 0);
 
-    // ── Material — dark brushed aluminum ────────────────────────────────
-    const material = new THREE.MeshPhysicalMaterial({
-        color: 0x1a1a1a,
-        metalness: 0.92,
-        roughness: 0.38,
-        clearcoat: 0.4,
-        clearcoatRoughness: 0.25,
-        reflectivity: 0.6,
-        envMapIntensity: 1.0,
+    // ── Materials ───────────────────────────────────────────────────────
+    // ExtrudeGeometry material groups: index 0 = side faces, index 1 = cap faces
+    // We use an array: [sideMaterial, capMaterial]
+
+    // Side material — dark anodized aluminum body
+    const sideMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x1a1a1e,
+        metalness: 0.95,
+        roughness: 0.4,
+        clearcoat: 0.3,
+        clearcoatRoughness: 0.3,
+        reflectivity: 0.5,
     });
 
-    // Build a simple cube env map for reflections without loading HDR
-    const envScene = new THREE.Scene();
-    const envCam = new THREE.CubeCamera(1, 1000, new THREE.WebGLCubeRenderTarget(128));
-    // Add some bright surfaces to the env scene for reflections
-    const envBox = new THREE.Mesh(
-        new THREE.SphereGeometry(400, 16, 16),
-        new THREE.MeshBasicMaterial({
-            color: 0x222222,
-            side: THREE.BackSide,
-        })
-    );
-    envScene.add(envBox);
+    // Cap material — bright machined/cut aluminum cross-section face
+    const capMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x999999,
+        metalness: 0.95,
+        roughness: 0.2,
+        clearcoat: 0.6,
+        clearcoatRoughness: 0.1,
+        reflectivity: 0.9,
+    });
 
-    // Add bright spots for nice reflections
+    // Build procedural env map for reflections (no external HDR)
+    const envScene = new THREE.Scene();
+    const envTarget = new THREE.WebGLCubeRenderTarget(256);
+    const envCam = new THREE.CubeCamera(1, 2000, envTarget);
+    const envSphere = new THREE.Mesh(
+        new THREE.SphereGeometry(500, 16, 16),
+        new THREE.MeshBasicMaterial({ color: 0x111111, side: THREE.BackSide })
+    );
+    envScene.add(envSphere);
+
+    // Bright spots that will reflect on the metallic surfaces
     [
-        { pos: [200, 200, 100], color: 0xffffff, size: 40 },
-        { pos: [-150, 100, 200], color: 0x8899aa, size: 30 },
-        { pos: [0, -150, 150], color: 0x445566, size: 25 },
-        { pos: [100, 50, -200], color: 0xaabbcc, size: 35 },
+        { pos: [300, 300, 100], color: 0xffffff, size: 80 },
+        { pos: [-200, 200, 300], color: 0xccccdd, size: 60 },
+        { pos: [100, -200, 200], color: 0x8899aa, size: 50 },
+        { pos: [-100, 100, -300], color: 0xddddee, size: 70 },
+        { pos: [200, 0, -100], color: 0xaabbcc, size: 55 },
+        { pos: [0, 300, -200], color: 0xffffff, size: 65 },
     ].forEach(({ pos, color, size }) => {
-        const light = new THREE.Mesh(
+        const m = new THREE.Mesh(
             new THREE.SphereGeometry(size, 8, 8),
             new THREE.MeshBasicMaterial({ color })
         );
-        light.position.set(...pos);
-        envScene.add(light);
+        m.position.set(...pos);
+        envScene.add(m);
     });
 
-    const mesh = new THREE.Mesh(geometry, material);
+    const mesh = new THREE.Mesh(geometry, [sideMaterial, capMaterial]);
 
-    // Rotate to show at a dramatic angle — tilted diagonal like in the mockup
-    mesh.rotation.x = -0.45;
-    mesh.rotation.y = -0.6;
-    mesh.rotation.z = 0.25;
+    // Rotate so the profile extends diagonally from lower-left to upper-right
+    // with the cross-section face facing toward the camera
+    mesh.rotation.x = -0.35;
+    mesh.rotation.y = 0.55;
+    mesh.rotation.z = -0.75;
+
+    // Position: shift right and slightly down so the near face is visible
+    // and the body extends out of frame to the upper right
+    mesh.position.set(15, -10, -200);
 
     scene.add(mesh);
 
@@ -227,8 +258,13 @@ import * as THREE from 'three';
     function generateEnvMap() {
         envCam.position.set(0, 0, 0);
         envCam.update(renderer, envScene);
-        material.envMap = envCam.renderTarget.texture;
-        material.needsUpdate = true;
+        const envMap = envTarget.texture;
+        sideMaterial.envMap = envMap;
+        sideMaterial.envMapIntensity = 1.2;
+        sideMaterial.needsUpdate = true;
+        capMaterial.envMap = envMap;
+        capMaterial.envMapIntensity = 2.0;
+        capMaterial.needsUpdate = true;
     }
 
     // ── Mouse tracking ──────────────────────────────────────────────────
@@ -249,6 +285,7 @@ import * as THREE from 'three';
     function resize() {
         const w = container.clientWidth;
         const h = container.clientHeight;
+        if (w === 0 || h === 0) return;
         renderer.setSize(w, h);
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
@@ -281,10 +318,10 @@ import * as THREE from 'three';
         smoothMouse.x += (mouse.x - smoothMouse.x) * 0.04;
         smoothMouse.y += (mouse.y - smoothMouse.y) * 0.04;
 
-        // Apply mouse-reactive rotation (subtle)
-        mesh.rotation.x = baseRotation.x + smoothMouse.y * 0.15;
-        mesh.rotation.y = baseRotation.y + smoothMouse.x * 0.25;
-        mesh.rotation.z = baseRotation.z + smoothMouse.x * 0.05;
+        // Apply mouse-reactive rotation (subtle shifts)
+        mesh.rotation.x = baseRotation.x + smoothMouse.y * 0.12;
+        mesh.rotation.y = baseRotation.y + smoothMouse.x * 0.18;
+        mesh.rotation.z = baseRotation.z + smoothMouse.x * 0.04;
 
         renderer.render(scene, camera);
     }
