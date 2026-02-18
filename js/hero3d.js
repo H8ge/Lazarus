@@ -11,7 +11,7 @@ import * as THREE from 'three';
     const canvas = document.getElementById('hero3d');
     if (!canvas) return;
 
-    const container = canvas.parentElement;
+    const container = canvas.closest('.hero');
 
     // ── Renderer ────────────────────────────────────────────────────────
     const renderer = new THREE.WebGLRenderer({
@@ -27,10 +27,11 @@ import * as THREE from 'three';
     // ── Scene & Camera ──────────────────────────────────────────────────
     const scene = new THREE.Scene();
 
-    // Camera: close-up, looking at the near face of the profile at an angle
-    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 5000);
-    camera.position.set(70, 45, 95);
-    camera.lookAt(10, -5, -40);
+    // Camera: positioned to show the cross-section face prominently on the right
+    // side of the viewport, with the body extending diagonally upper-right
+    const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 5000);
+    camera.position.set(0, 5, 100);
+    camera.lookAt(15, -5, 0);
 
     // ── Lighting ────────────────────────────────────────────────────────
     // Strong key light — illuminates the cross-section face from upper-right
@@ -224,15 +225,15 @@ import * as THREE from 'three';
 
     const mesh = new THREE.Mesh(geometry, [sideMaterial, capMaterial]);
 
-    // Rotate so the profile extends diagonally from lower-left to upper-right
-    // with the cross-section face facing toward the camera
-    mesh.rotation.x = -0.35;
-    mesh.rotation.y = 0.55;
-    mesh.rotation.z = -0.75;
+    // Rotate so the profile body extends diagonally from lower-left to upper-right
+    // Cross-section face angled toward the camera at a 3/4 view
+    mesh.rotation.x = -0.25;
+    mesh.rotation.y = 0.45;
+    mesh.rotation.z = -0.65;
 
-    // Position: shift right and slightly down so the near face is visible
-    // and the body extends out of frame to the upper right
-    mesh.position.set(15, -10, -200);
+    // Position: offset right and slightly down. Near face visible in center-right,
+    // body extends out of frame to the upper-right (extrusion is 800mm long)
+    mesh.position.set(28, -12, 0);
 
     scene.add(mesh);
 

@@ -475,6 +475,8 @@ html {
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     align-items: center;
+    position: relative;
+    z-index: 2;
 }
 
 .hero-content {
@@ -519,11 +521,13 @@ html {
 
 #hero3d {
     position: absolute;
-    top: -15%;
-    left: -20%;
-    width: 140%;
-    height: 130%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
     display: block;
+    pointer-events: none;
 }
 
 .hero-capacity-badge {
@@ -2556,10 +2560,7 @@ html {
     }
 
     #hero3d {
-        top: -10%;
-        left: -10%;
-        width: 120%;
-        height: 120%;
+        /* canvas now fills full hero section */
     }
 
     .hero-capacity-badge {
@@ -2849,7 +2850,7 @@ html {
     }
 
     #hero3d {
-        min-height: 260px;
+        /* canvas fills full hero section */
     }
 
     .hero-capacity-badge {
