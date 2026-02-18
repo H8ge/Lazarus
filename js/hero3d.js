@@ -63,85 +63,67 @@ import * as THREE from 'three';
     scene.add(ambient);
 
     // ── NUT-8 40×40 T-Slot Profile Shape ────────────────────────────────
-    // Accurate cross-section with 4 T-slots, center bore, 4 corner chambers
+    // Simple outer contour tracing only the outer boundary with T-slot
+    // notches cut into each face. Holes handle internal voids.
     function createNut8Shape() {
-        const H = 20;         // half of 40mm
-        const sW = 4.1;       // half slot opening (8.2mm total)
-        const uW = 8.0;       // half undercut width (16mm total)
-        const sD = 10;        // slot depth from face
-        const lip = 1.8;      // lip thickness
-        const wall = 2.5;     // core wall thickness
+        const H = 20;       // half of 40mm
+        const sW = 4.1;     // half slot opening (8.2mm total)
+        const uW = 8.0;     // half undercut width (16mm total)
+        const sD = 10;      // slot depth from face
+        const lip = 1.8;    // narrow lip thickness
 
         const shape = new THREE.Shape();
 
-        // Build outer contour clockwise with 4 T-slot indentations
-        // Each face: go along face -> enter slot -> undercut -> back out
-        // Connect corners through internal web structure
+        // Outer contour — simple polygon, clockwise from top-left.
+        // Each face dips inward to trace the T-slot cavity, then returns
+        // to the outer face. No internal web traversal.
 
-        // Start at top-left corner
+        // ── Top face (left → right), slot opens downward ──────────────
         shape.moveTo(-H, H);
+        shape.lineTo(-sW, H);           // face to left edge of slot
+        shape.lineTo(-sW, H - lip);     // down into narrow left wall
+        shape.lineTo(-uW, H - lip);     // step left (wider undercut)
+        shape.lineTo(-uW, H - sD);      // down to slot bottom
+        shape.lineTo( uW, H - sD);      // across slot bottom
+        shape.lineTo( uW, H - lip);     // up from slot bottom
+        shape.lineTo( sW, H - lip);     // step right (back to narrow)
+        shape.lineTo( sW, H);           // up narrow right wall
+        shape.lineTo( H, H);            // face to top-right corner
 
-        // ── Top face (left to right) with T-slot ──
-        shape.lineTo(-sW, H);
-        shape.lineTo(-sW, H - lip);
-        shape.lineTo(-uW, H - lip);
-        shape.lineTo(-uW, H - sD);
-        // Connect to top-left internal corner
-        shape.lineTo(-H + wall, H - sD);
-        shape.lineTo(-H + wall, H - wall);
-        shape.lineTo(-H + sD, H - wall);
-        // Go up to left T-slot upper entry
-        shape.lineTo(-H + sD, uW);
-        shape.lineTo(-H + lip, uW);
-        shape.lineTo(-H + lip, sW);
-        shape.lineTo(-H, sW);
+        // ── Right face (top → bottom), slot opens rightward ───────────
+        shape.lineTo( H,  sW);          // face to top edge of slot
+        shape.lineTo( H - lip,  sW);    // left into narrow top wall
+        shape.lineTo( H - lip,  uW);    // step up (wider undercut)
+        shape.lineTo( H - sD,   uW);    // left to slot bottom
+        shape.lineTo( H - sD,  -uW);    // down across slot bottom
+        shape.lineTo( H - lip, -uW);    // right from slot bottom
+        shape.lineTo( H - lip, -sW);    // step down (back to narrow)
+        shape.lineTo( H,       -sW);    // right out of slot
+        shape.lineTo( H,       -H);     // face to bottom-right corner
 
-        // ── Left face (top to bottom) with T-slot ──
-        shape.lineTo(-H, -sW);
-        shape.lineTo(-H + lip, -sW);
-        shape.lineTo(-H + lip, -uW);
-        shape.lineTo(-H + sD, -uW);
-        // Connect to bottom-left internal corner
-        shape.lineTo(-H + sD, -H + wall);
-        shape.lineTo(-H + wall, -H + wall);
-        shape.lineTo(-H + wall, -H + sD);
-        shape.lineTo(-uW, -H + sD);
-        shape.lineTo(-uW, -H + lip);
-        shape.lineTo(-sW, -H + lip);
-        shape.lineTo(-sW, -H);
+        // ── Bottom face (right → left), slot opens downward ───────────
+        shape.lineTo( sW, -H);          // face to right edge of slot
+        shape.lineTo( sW, -H + lip);    // up into narrow right wall
+        shape.lineTo( uW, -H + lip);    // step right (wider undercut)
+        shape.lineTo( uW, -H + sD);     // up to slot bottom
+        shape.lineTo(-uW, -H + sD);     // across slot bottom
+        shape.lineTo(-uW, -H + lip);    // down from slot bottom
+        shape.lineTo(-sW, -H + lip);    // step left (back to narrow)
+        shape.lineTo(-sW, -H);          // down narrow left wall
+        shape.lineTo(-H,  -H);          // face to bottom-left corner
 
-        // ── Bottom face (left to right) with T-slot ──
-        shape.lineTo(sW, -H);
-        shape.lineTo(sW, -H + lip);
-        shape.lineTo(uW, -H + lip);
-        shape.lineTo(uW, -H + sD);
-        // Connect to bottom-right internal corner
-        shape.lineTo(H - wall, -H + sD);
-        shape.lineTo(H - wall, -H + wall);
-        shape.lineTo(H - sD, -H + wall);
-        shape.lineTo(H - sD, -uW);
-        shape.lineTo(H - lip, -uW);
-        shape.lineTo(H - lip, -sW);
-        shape.lineTo(H, -sW);
+        // ── Left face (bottom → top), slot opens leftward ─────────────
+        shape.lineTo(-H, -sW);          // face to bottom edge of slot
+        shape.lineTo(-H + lip, -sW);    // right into narrow bottom wall
+        shape.lineTo(-H + lip, -uW);    // step down (wider undercut)
+        shape.lineTo(-H + sD,  -uW);    // right to slot bottom
+        shape.lineTo(-H + sD,   uW);    // up across slot bottom
+        shape.lineTo(-H + lip,  uW);    // left from slot bottom
+        shape.lineTo(-H + lip,  sW);    // step up (back to narrow)
+        shape.lineTo(-H,        sW);    // left out of slot
+        shape.lineTo(-H,        H);     // closes back to top-left corner
 
-        // ── Right face (bottom to top) with T-slot ──
-        shape.lineTo(H, sW);
-        shape.lineTo(H - lip, sW);
-        shape.lineTo(H - lip, uW);
-        shape.lineTo(H - sD, uW);
-        // Connect to top-right internal corner
-        shape.lineTo(H - sD, H - wall);
-        shape.lineTo(H - wall, H - wall);
-        shape.lineTo(H - wall, H - sD);
-        shape.lineTo(uW, H - sD);
-        shape.lineTo(uW, H - lip);
-        shape.lineTo(sW, H - lip);
-        shape.lineTo(sW, H);
-
-        // Close back to start
-        shape.lineTo(-H, H);
-
-        // ── Center bore (M8 tapping hole, ~6.8mm dia) ──
+        // ── Center bore (M8 tapping hole, ~6.8mm dia) ─────────────────
         const bore = new THREE.Path();
         const boreR = 3.4;
         const segs = 32;
@@ -154,9 +136,9 @@ import * as THREE from 'three';
         }
         shape.holes.push(bore);
 
-        // ── 4 corner chambers (triangular/rectangular internal voids) ──
-        const ci = wall + 0.8; // inset from outer edge
-        const cs = sD - wall - 1.5; // chamber size
+        // ── 4 corner chambers (rectangular internal voids) ────────────
+        const ci = 3.3;   // inset from outer corner
+        const cs = 6.0;   // chamber size (square)
         [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(([sx, sy]) => {
             const ch = new THREE.Path();
             const ox = sx * (H - ci - cs / 2);
