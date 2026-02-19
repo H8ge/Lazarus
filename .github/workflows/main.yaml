@@ -17,6 +17,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           concurrency: 1
           localDir: "./"
-          remoteDir: "./"
+          remoteDir: ${{ vars.FTP_REMOTE_DIR }}
           exclude: |
             .*/**
