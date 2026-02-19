@@ -34,34 +34,46 @@ import * as THREE from 'three';
     camera.lookAt(15, -5, 0);
 
     // ── Lighting ────────────────────────────────────────────────────────
-    // Strong key light — illuminates the cross-section face from upper-right
-    const keyLight = new THREE.DirectionalLight(0xffffff, 4.5);
-    keyLight.position.set(40, 40, 160);
-    scene.add(keyLight);
+    // Studio product-photography setup:
+    // — Two SpotLights near the cross-section face, both with inverse-square
+    //   decay so the body fades naturally to black along its length.
+    // — Dark ambient so shadows stay deep.
 
-    // Secondary key — more frontal, lights the cross-section face directly
-    const faceLight = new THREE.DirectionalLight(0xffffff, 5);
-    faceLight.position.set(20, 10, 200);
-    scene.add(faceLight);
+    // Primary key spot — upper-front, slightly left.
+    // Illuminates the cross-section face strongly and creates the specular
+    // streak along the top-left edge of the body as it grazes past.
+    const keySpot = new THREE.SpotLight(0xffffff, 700);
+    keySpot.position.set(10, 90, 140);
+    keySpot.target.position.set(40, -15, -60);
+    keySpot.angle = Math.PI / 5.5;  // ~33° cone
+    keySpot.penumbra = 0.5;
+    keySpot.decay = 2;              // inverse-square — bright near face, dark far end
+    keySpot.distance = 520;
+    scene.add(keySpot);
+    scene.add(keySpot.target);
 
-    // Fill light — from the left for the body
-    const fillLight = new THREE.DirectionalLight(0x8899bb, 0.8);
-    fillLight.position.set(-120, 0, 40);
-    scene.add(fillLight);
+    // Top strip light — steep downward angle, narrower cone.
+    // Creates the characteristic thin specular line along the raised profile edges.
+    const topStrip = new THREE.SpotLight(0xd0dcf0, 400);
+    topStrip.position.set(-15, 140, 70);
+    topStrip.target.position.set(42, -15, -130);
+    topStrip.angle = Math.PI / 9;   // ~20° narrow
+    topStrip.penumbra = 0.35;
+    topStrip.decay = 2;
+    topStrip.distance = 460;
+    scene.add(topStrip);
+    scene.add(topStrip.target);
 
-    // Rim/edge light — from behind to outline the profile body edges
-    const rimLight = new THREE.DirectionalLight(0xffffff, 3.5);
-    rimLight.position.set(-60, 80, -160);
+    // Cold blue rim — from upper-behind, barely visible.
+    // Separates the profile silhouette from the dark background.
+    const rimLight = new THREE.DirectionalLight(0x0d1a30, 3.5);
+    rimLight.position.set(50, 60, -300);
     scene.add(rimLight);
 
-    // Subtle top highlight
-    const topLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    topLight.position.set(0, 160, 40);
-    scene.add(topLight);
-
-    // Very subtle ambient
-    const ambient = new THREE.AmbientLight(0x222222, 1);
+    // Near-black ambient — shadows stay almost fully dark
+    const ambient = new THREE.AmbientLight(0x040406, 1);
     scene.add(ambient);
+
 
     // ── NUT-8 40×40 T-Slot Profile Shape ────────────────────────────────
     // Simple outer contour tracing only the outer boundary with T-slot
@@ -177,43 +189,43 @@ import * as THREE from 'three';
     // We use an array: [sideMaterial, capMaterial]
 
     // Side material — dark anodized aluminum body
+    // Slightly higher roughness so the body stays dark, spotlight specular stays tight
     const sideMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0x1a1a1e,
+        color: 0x18181c,
         metalness: 0.95,
-        roughness: 0.4,
-        clearcoat: 0.3,
-        clearcoatRoughness: 0.3,
-        reflectivity: 0.5,
+        roughness: 0.45,
+        clearcoat: 0.2,
+        clearcoatRoughness: 0.4,
     });
 
-    // Cap material — bright machined/cut aluminum cross-section face
+    // Cap material — machined aluminum cross-section face
+    // Cooler silver, low roughness = tight reflections for that studio-lit look
     const capMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0x999999,
-        metalness: 0.95,
-        roughness: 0.2,
-        clearcoat: 0.6,
-        clearcoatRoughness: 0.1,
-        reflectivity: 0.9,
+        color: 0xb8c4d0,
+        metalness: 0.9,
+        roughness: 0.18,
+        clearcoat: 0.8,
+        clearcoatRoughness: 0.08,
     });
 
-    // Build procedural env map for reflections (no external HDR)
+    // Build procedural env map — studio setup for metallic reflections
+    // Dark background + two bright overhead softboxes
     const envScene = new THREE.Scene();
     const envTarget = new THREE.WebGLCubeRenderTarget(256);
     const envCam = new THREE.CubeCamera(1, 2000, envTarget);
     const envSphere = new THREE.Mesh(
         new THREE.SphereGeometry(500, 16, 16),
-        new THREE.MeshBasicMaterial({ color: 0x111111, side: THREE.BackSide })
+        new THREE.MeshBasicMaterial({ color: 0x060608, side: THREE.BackSide })
     );
     envScene.add(envSphere);
 
-    // Bright spots that will reflect on the metallic surfaces
+    // Two studio softboxes — top-left and top-front — reflect as tight highlights
+    // on the metallic cross-section face and top-edge of the body
     [
-        { pos: [300, 300, 100], color: 0xffffff, size: 80 },
-        { pos: [-200, 200, 300], color: 0xccccdd, size: 60 },
-        { pos: [100, -200, 200], color: 0x8899aa, size: 50 },
-        { pos: [-100, 100, -300], color: 0xddddee, size: 70 },
-        { pos: [200, 0, -100], color: 0xaabbcc, size: 55 },
-        { pos: [0, 300, -200], color: 0xffffff, size: 65 },
+        { pos: [-80, 400, 100],  color: 0xffffff, size: 120 },   // top-left softbox
+        { pos: [40,  380, 200],  color: 0xddeeff, size: 100 },   // top-front softbox
+        { pos: [300, 60,  -50],  color: 0x080810, size: 180 },   // right void
+        { pos: [-200, -100, 80], color: 0x050508, size: 150 },   // bottom void
     ].forEach(({ pos, color, size }) => {
         const m = new THREE.Mesh(
             new THREE.SphereGeometry(size, 8, 8),
@@ -245,10 +257,10 @@ import * as THREE from 'three';
         envCam.update(renderer, envScene);
         const envMap = envTarget.texture;
         sideMaterial.envMap = envMap;
-        sideMaterial.envMapIntensity = 1.2;
+        sideMaterial.envMapIntensity = 0.8;   // subtle body reflections
         sideMaterial.needsUpdate = true;
         capMaterial.envMap = envMap;
-        capMaterial.envMapIntensity = 2.0;
+        capMaterial.envMapIntensity = 3.0;    // strong softbox reflections on face
         capMaterial.needsUpdate = true;
     }
 
