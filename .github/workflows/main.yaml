@@ -12,7 +12,7 @@ jobs:
         uses: wangyucode/sftp-upload-action@v3
         with:
           host: ${{ vars.FTP_SERVER }}
-          port: 23
+          port: ${{ vars.FTP_PORT }}
           username: ${{ vars.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           concurrency: 1
