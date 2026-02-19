@@ -35,28 +35,28 @@ import * as THREE from 'three';
 
     // ── Lighting ────────────────────────────────────────────────────────
     // Strong key light — illuminates the cross-section face from upper-right
-    const keyLight = new THREE.DirectionalLight(0xffffff, 5);
-    keyLight.position.set(60, 80, 120);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 4.5);
+    keyLight.position.set(40, 40, 160);
     scene.add(keyLight);
 
     // Secondary key — more frontal, lights the cross-section face directly
-    const faceLight = new THREE.DirectionalLight(0xffffff, 3.5);
-    faceLight.position.set(30, 30, 150);
+    const faceLight = new THREE.DirectionalLight(0xffffff, 5);
+    faceLight.position.set(20, 10, 200);
     scene.add(faceLight);
 
     // Fill light — from the left for the body
-    const fillLight = new THREE.DirectionalLight(0x8899bb, 1.5);
-    fillLight.position.set(-80, 20, 0);
+    const fillLight = new THREE.DirectionalLight(0x8899bb, 0.8);
+    fillLight.position.set(-120, 0, 40);
     scene.add(fillLight);
 
     // Rim/edge light — from behind to outline the profile body edges
-    const rimLight = new THREE.DirectionalLight(0xffffff, 3);
-    rimLight.position.set(-30, 60, -120);
+    const rimLight = new THREE.DirectionalLight(0xffffff, 3.5);
+    rimLight.position.set(-60, 80, -160);
     scene.add(rimLight);
 
     // Subtle top highlight
-    const topLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    topLight.position.set(0, 120, 0);
+    const topLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    topLight.position.set(0, 160, 40);
     scene.add(topLight);
 
     // Very subtle ambient
@@ -225,15 +225,17 @@ import * as THREE from 'three';
 
     const mesh = new THREE.Mesh(geometry, [sideMaterial, capMaterial]);
 
+    mesh.scale.set(0.4, 0.4, 0.4); // uniform scale
+
     // Rotate so the profile body extends diagonally from lower-left to upper-right
     // Cross-section face angled toward the camera at a 3/4 view
-    mesh.rotation.x = -0.25;
-    mesh.rotation.y = 0.45;
-    mesh.rotation.z = -0.65;
+    mesh.rotation.x = -4.0;
+    mesh.rotation.y = 0.8;
+    mesh.rotation.z = -0.0;
 
     // Position: offset right and slightly down. Near face visible in center-right,
     // body extends out of frame to the upper-right (extrusion is 800mm long)
-    mesh.position.set(28, -12, 0);
+    mesh.position.set(38, -6, 0);
 
     scene.add(mesh);
 
