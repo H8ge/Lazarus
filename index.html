@@ -25,7 +25,7 @@
          NAVIGATION — EXALPRO-inspired minimal nav
          ================================================================ -->
     <nav class="nav" id="nav">
-        <div class="nav-inner container">
+        <div class="nav-inner nav-inner-full">
             <a href="#" class="nav-logo">
                 <img src="assets/logo.svg" alt="STAELER" class="nav-logo-img">
             </a>
@@ -61,9 +61,16 @@
     <!-- ================================================================
          HERO — Split layout: text left, profile visual right
          ================================================================ -->
-    <section class="hero" id="hero">
-        <canvas id="hero3d"></canvas>
-        <div class="hero-inner container">
+<section class="hero" id="hero">
+    <canvas id="hero3d"></canvas>
+
+    <div class="hero-inner hero-inner-full">
+        <div class="hero-content container">
+
+        </div>
+
+        <div class="hero-visual" data-animate="fade-left"></div>
+    </div>
             <div class="hero-content">
                 <h1 class="hero-title" data-animate="fade-up">
                     <span data-i18n="hero.title1">Präzision</span><br>

@@ -44,31 +44,31 @@ import * as THREE from 'three';
     // Primary key — upper-front-left, strong.
     // Illuminates the cross-section face most (it faces the camera/this light).
     // Creates the main brightness on the top face of the body.
-    const keyLight = new THREE.DirectionalLight(0xffffff, 5.5);
-    keyLight.position.set(20, 80, 200);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 15);
+    keyLight.position.set(-520, 380, 200);
     scene.add(keyLight);
 
     // Top edge strip — steep downward angle from slightly left.
     // Grazes the raised T-slot lips and corner rails, creating the
     // characteristic bright specular line running along the body length.
-    const edgeLight = new THREE.DirectionalLight(0xcce0ff, 4.5);
-    edgeLight.position.set(-25, 160, 60);
+    const edgeLight = new THREE.DirectionalLight(0xcce0ff, 0);
+    edgeLight.position.set(-325, 160, 60);
     scene.add(edgeLight);
 
     // Right-face fill — very dim, just lifts the right side from pure black
     // so you can see the profile edge against the background.
-    const fillLight = new THREE.DirectionalLight(0x151a22, 6.0);
+    const fillLight = new THREE.DirectionalLight(0x151a22, 0);
     fillLight.position.set(160, 10, 40);
     scene.add(fillLight);
 
     // Cold rim from behind — blue-tinted, barely visible.
     // Adds a thin luminous outline to separate the profile from the background.
-    const rimLight = new THREE.DirectionalLight(0x0a1828, 8.0);
-    rimLight.position.set(60, 80, -280);
+    const rimLight = new THREE.DirectionalLight(0x0a1828, 0);
+    rimLight.position.set(-300, 380, 580);
     scene.add(rimLight);
 
     // Near-black ambient — shadow areas stay almost fully dark
-    const ambient = new THREE.AmbientLight(0x0e0e14, 1);
+    const ambient = new THREE.AmbientLight(0x0e0e14, 0);
     scene.add(ambient);
 
 
@@ -204,6 +204,43 @@ import * as THREE from 'three';
         clearcoat: 0.8,
         clearcoatRoughness: 0.08,
     });
+
+
+
+// ── Depth-based fade helper (OPAQUE SAFE) ──────────────────────────────
+function applyDepthFade(material, fadeStart, fadeEnd) {
+
+    material.onBeforeCompile = (shader) => {
+        shader.uniforms.fadeStart = { value: fadeStart };
+        shader.uniforms.fadeEnd   = { value: fadeEnd };
+
+        shader.fragmentShader =
+            `
+            uniform float fadeStart;
+            uniform float fadeEnd;
+            ` + shader.fragmentShader;
+
+        shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <dithering_fragment>',
+            `
+            float depth = length(vViewPosition);
+            float fade = smoothstep(fadeEnd, fadeStart, depth);
+
+            vec3 bg = vec3(0.039, 0.039, 0.039); // 0x0a0a10 in linear-ish space
+gl_FragColor.rgb = mix(bg, gl_FragColor.rgb, fade * fade);
+
+            #include <dithering_fragment>
+            `
+        );
+    };
+
+    material.needsUpdate = true;
+}
+
+
+    // Fade distances tuned for hero camera
+applyDepthFade(sideMaterial, 80, 250);
+applyDepthFade(capMaterial,  80, 250);
 
     // Build procedural env map — studio reflections for metallic surfaces.
     // A mostly-dark environment with bright overhead panels creates the
