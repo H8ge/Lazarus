@@ -44,21 +44,21 @@ import * as THREE from 'three';
     // Primary key — upper-front-left, strong.
     // Illuminates the cross-section face most (it faces the camera/this light).
     // Creates the main brightness on the top face of the body.
-    const keyLight = new THREE.DirectionalLight(0xffffff, 15);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1);
     keyLight.position.set(-520, 380, 200);
     scene.add(keyLight);
 
     // Top edge strip — steep downward angle from slightly left.
     // Grazes the raised T-slot lips and corner rails, creating the
     // characteristic bright specular line running along the body length.
-    const edgeLight = new THREE.DirectionalLight(0xcce0ff, 0);
-    edgeLight.position.set(-325, 160, 60);
+    const edgeLight = new THREE.DirectionalLight(0xffffff, 0);
+    edgeLight.position.set(0, 10, 0);
     scene.add(edgeLight);
 
     // Right-face fill — very dim, just lifts the right side from pure black
     // so you can see the profile edge against the background.
-    const fillLight = new THREE.DirectionalLight(0x151a22, 0);
-    fillLight.position.set(160, 10, 40);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 10);
+    fillLight.position.set(160, 10, -40);
     scene.add(fillLight);
 
     // Cold rim from behind — blue-tinted, barely visible.
@@ -188,7 +188,7 @@ import * as THREE from 'three';
     // Side material — dark anodized aluminum body
     // Slightly higher roughness so the body stays dark, spotlight specular stays tight
     const sideMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0x18181c,
+        color: 0xb8c4d0,
         metalness: 0.95,
         roughness: 0.45,
         clearcoat: 0.2,
@@ -198,7 +198,7 @@ import * as THREE from 'three';
     // Cap material — machined aluminum cross-section face
     // Cooler silver, low roughness = tight reflections for that studio-lit look
     const capMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0xb8c4d0,
+        color: 0x18181c,
         metalness: 0.9,
         roughness: 0.18,
         clearcoat: 0.8,
