@@ -1739,14 +1739,30 @@ const CustomConfigurator = (() => {
             updateCalculations();
         });
 
-        // Request quote button
+        // Request quote button — save profile to sessionStorage, open 3D preview modal
         const reqQuoteBtn = document.getElementById('ccRequestQuote');
         if (reqQuoteBtn) {
             reqQuoteBtn.addEventListener('click', () => {
-                const modal = document.getElementById('quoteModal');
-                const ref = 'STL-' + new Date().getFullYear() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
-                document.getElementById('modalRef').textContent = ref;
-                if (modal) modal.classList.add('active');
+                // Require a completed outer contour
+                if (!state.outer || state.outer.length < 3) {
+                    alert('Please draw an outer contour first.');
+                    return;
+                }
+
+                // Serialise points as [[x,y]] arrays for cross-module use
+                const profileData = {
+                    outer: state.outer.map(p => [p.x, p.y]),
+                    hollows: state.hollows.map(h => h.map(p => [p.x, p.y])),
+                };
+
+                // Persist for session — hero3d.js reads this on next load
+                try { sessionStorage.setItem('staeler_custom_profile', JSON.stringify(profileData)); } catch (_) {}
+
+                // Live-update the hero 3D in the same tab (no reload needed)
+                document.dispatchEvent(new CustomEvent('staeler:profileUpdate', { detail: profileData }));
+
+                // Open the 3D quote preview modal
+                document.dispatchEvent(new CustomEvent('staeler:openProfile3DModal', { detail: profileData }));
             });
         }
 

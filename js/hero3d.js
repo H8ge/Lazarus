@@ -4,6 +4,7 @@
    ========================================================================== */
 
 import * as THREE from 'three';
+import { buildShape, buildProfileMesh } from './profile3d.js';
 
 (function () {
     'use strict';
@@ -165,28 +166,51 @@ import * as THREE from 'three';
         return shape;
     }
 
-    // ── Build the extruded mesh ─────────────────────────────────────────
-    const profileShape = createNut8Shape();
-    const extrudeLen = 800; // very long so it extends out of frame
+    // ── Build profile shape ─────────────────────────────────────────────
+    // Check sessionStorage for a custom profile drawn in this session.
+    // If found, use it instead of the default NUT-8. On page reload or
+    // for all other visitors, falls back to the standard NUT-8 shape.
+    function getHeroShape() {
+        try {
+            const saved = sessionStorage.getItem('staeler_custom_profile');
+            if (saved) {
+                const { outer, hollows } = JSON.parse(saved);
+                if (outer && outer.length >= 3) return { outer, hollows: hollows || [] };
+            }
+        } catch (_) { /* malformed JSON — ignore */ }
+        return null;
+    }
+
+    const customProfile = getHeroShape();
+    let profileShape, heroScale;
+
+    if (customProfile) {
+        profileShape = buildShape(customProfile.outer, customProfile.hollows);
+        // Scale so the profile matches the visual size of the standard NUT-8
+        const xs = customProfile.outer.map(p => Array.isArray(p) ? p[0] : p.x);
+        const ys = customProfile.outer.map(p => Array.isArray(p) ? p[1] : p.y);
+        const maxDim = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
+        heroScale = maxDim > 0 ? (40 / maxDim) * 0.4 : 0.4;
+    } else {
+        profileShape = createNut8Shape();
+        heroScale = 0.4;
+    }
+
+    const extrudeLen = 800;
     const geometry = new THREE.ExtrudeGeometry(profileShape, {
         depth: extrudeLen,
         bevelEnabled: false,
         steps: 1,
     });
-
-    // Don't center on Z — we want the near face visible and the body extending away
     geometry.computeBoundingBox();
     const bbox = geometry.boundingBox;
-    const centerX = (bbox.max.x + bbox.min.x) / 2;
-    const centerY = (bbox.max.y + bbox.min.y) / 2;
-    geometry.translate(-centerX, -centerY, 0);
+    geometry.translate(
+        -(bbox.max.x + bbox.min.x) / 2,
+        -(bbox.max.y + bbox.min.y) / 2,
+        0
+    );
 
     // ── Materials ───────────────────────────────────────────────────────
-    // ExtrudeGeometry material groups: index 0 = side faces, index 1 = cap faces
-    // We use an array: [sideMaterial, capMaterial]
-
-    // Side material — dark anodized aluminum body
-    // Slightly higher roughness so the body stays dark, spotlight specular stays tight
     const sideMaterial = new THREE.MeshPhysicalMaterial({
         color: 0xb8c4d0,
         metalness: 0.95,
@@ -194,9 +218,6 @@ import * as THREE from 'three';
         clearcoat: 0.2,
         clearcoatRoughness: 0.4,
     });
-
-    // Cap material — machined aluminum cross-section face
-    // Cooler silver, low roughness = tight reflections for that studio-lit look
     const capMaterial = new THREE.MeshPhysicalMaterial({
         color: 0x18181c,
         metalness: 0.9,
@@ -205,84 +226,54 @@ import * as THREE from 'three';
         clearcoatRoughness: 0.08,
     });
 
+    // ── Depth-based fade — profile fades to background along its length ──
+    function applyDepthFade(material, fadeStart, fadeEnd) {
+        material.onBeforeCompile = (shader) => {
+            shader.uniforms.fadeStart = { value: fadeStart };
+            shader.uniforms.fadeEnd   = { value: fadeEnd };
+            shader.fragmentShader = `uniform float fadeStart;\nuniform float fadeEnd;\n` + shader.fragmentShader;
+            shader.fragmentShader = shader.fragmentShader.replace(
+                '#include <dithering_fragment>',
+                `float depth = length(vViewPosition);
+                float fade = smoothstep(fadeEnd, fadeStart, depth);
+                vec3 bg = vec3(0.039, 0.039, 0.039);
+                gl_FragColor.rgb = mix(bg, gl_FragColor.rgb, fade * fade);
+                #include <dithering_fragment>`
+            );
+        };
+        material.needsUpdate = true;
+    }
 
+    // Fade distances tuned for hero camera (z=100)
+    applyDepthFade(sideMaterial, 80, 250);
+    applyDepthFade(capMaterial,  80, 250);
 
-// ── Depth-based fade helper (OPAQUE SAFE) ──────────────────────────────
-function applyDepthFade(material, fadeStart, fadeEnd) {
-
-    material.onBeforeCompile = (shader) => {
-        shader.uniforms.fadeStart = { value: fadeStart };
-        shader.uniforms.fadeEnd   = { value: fadeEnd };
-
-        shader.fragmentShader =
-            `
-            uniform float fadeStart;
-            uniform float fadeEnd;
-            ` + shader.fragmentShader;
-
-        shader.fragmentShader = shader.fragmentShader.replace(
-            '#include <dithering_fragment>',
-            `
-            float depth = length(vViewPosition);
-            float fade = smoothstep(fadeEnd, fadeStart, depth);
-
-            vec3 bg = vec3(0.039, 0.039, 0.039); // 0x0a0a10 in linear-ish space
-gl_FragColor.rgb = mix(bg, gl_FragColor.rgb, fade * fade);
-
-            #include <dithering_fragment>
-            `
-        );
-    };
-
-    material.needsUpdate = true;
-}
-
-
-    // Fade distances tuned for hero camera
-applyDepthFade(sideMaterial, 80, 250);
-applyDepthFade(capMaterial,  80, 250);
-
-    // Build procedural env map — studio reflections for metallic surfaces.
-    // A mostly-dark environment with bright overhead panels creates the
-    // sharp rectangular highlights characteristic of product photography.
+    // ── Env map ─────────────────────────────────────────────────────────
     const envScene = new THREE.Scene();
     const envTarget = new THREE.WebGLCubeRenderTarget(256);
     const envCam = new THREE.CubeCamera(1, 2000, envTarget);
-    const envSphere = new THREE.Mesh(
+    envScene.add(new THREE.Mesh(
         new THREE.SphereGeometry(500, 16, 16),
         new THREE.MeshBasicMaterial({ color: 0x0a0a10, side: THREE.BackSide })
-    );
-    envScene.add(envSphere);
-
-    // Bright studio panels — reflect as crisp highlights on the metallic faces
+    ));
     [
-        { pos: [-60, 420, 120], color: 0xffffff, size: 110 }, // main top softbox
-        { pos: [ 30, 400, 220], color: 0xddeeff, size: 90  }, // front softbox
-        { pos: [-180, 200, 80], color: 0x889aaa, size: 70  }, // left mid fill
-        { pos: [ 200, 150, 60], color: 0x222233, size: 130 }, // right dark
+        { pos: [-60, 420, 120], color: 0xffffff, size: 110 },
+        { pos: [ 30, 400, 220], color: 0xddeeff, size: 90  },
+        { pos: [-180, 200, 80], color: 0x889aaa, size: 70  },
+        { pos: [ 200, 150, 60], color: 0x222233, size: 130 },
     ].forEach(({ pos, color, size }) => {
-        const m = new THREE.Mesh(
-            new THREE.SphereGeometry(size, 8, 8),
-            new THREE.MeshBasicMaterial({ color })
-        );
+        const m = new THREE.Mesh(new THREE.SphereGeometry(size, 8, 8), new THREE.MeshBasicMaterial({ color }));
         m.position.set(...pos);
         envScene.add(m);
     });
 
+    // ── Mesh ────────────────────────────────────────────────────────────
     const mesh = new THREE.Mesh(geometry, [sideMaterial, capMaterial]);
-
-    mesh.scale.set(0.4, 0.4, 0.4); // uniform scale
-
-    // Rotate so the profile body extends diagonally from lower-left to upper-right
-    // Cross-section face angled toward the camera at a 3/4 view
+    mesh.scale.set(heroScale, heroScale, heroScale);
     mesh.rotation.x = -4.0;
     mesh.rotation.y = 0.8;
-    mesh.rotation.z = -0.0;
-
-    // Position: offset right and slightly down. Near face visible in center-right,
-    // body extends out of frame to the upper-right (extrusion is 800mm long)
+    mesh.rotation.z = 0;
     mesh.position.set(38, -6, 0);
-
     scene.add(mesh);
 
     // ── Generate env map ────────────────────────────────────────────────
@@ -294,9 +285,32 @@ applyDepthFade(capMaterial,  80, 250);
         sideMaterial.envMapIntensity = 1.5;
         sideMaterial.needsUpdate = true;
         capMaterial.envMap = envMap;
-        capMaterial.envMapIntensity = 4.0;    // strong softbox reflections on face
+        capMaterial.envMapIntensity = 4.0;
         capMaterial.needsUpdate = true;
     }
+
+    // ── Live hero swap: when user requests quote, swap to their profile ──
+    document.addEventListener('staeler:profileUpdate', (e) => {
+        const { outer, hollows } = e.detail;
+        const newShape = buildShape(outer, hollows || []);
+
+        const xs = outer.map(p => Array.isArray(p) ? p[0] : p.x);
+        const ys = outer.map(p => Array.isArray(p) ? p[1] : p.y);
+        const maxDim = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
+        const newScale = maxDim > 0 ? (40 / maxDim) * 0.4 : 0.4;
+
+        const newGeo = new THREE.ExtrudeGeometry(newShape, { depth: 800, bevelEnabled: false, steps: 1 });
+        newGeo.computeBoundingBox();
+        const nb = newGeo.boundingBox;
+        newGeo.translate(-(nb.max.x + nb.min.x) / 2, -(nb.max.y + nb.min.y) / 2, 0);
+
+        mesh.geometry.dispose();
+        mesh.geometry = newGeo;
+        mesh.scale.set(newScale, newScale, newScale);
+
+        // Regenerate env map for the new geometry
+        envGenerated = false;
+    });
 
     // ── Mouse tracking ──────────────────────────────────────────────────
     const mouse = { x: 0, y: 0 };
