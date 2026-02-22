@@ -1,8 +1,12 @@
 /* ==========================================================================
    STAELER Custom Profile Configurator
    Canvas-based drawing tool for custom aluminum extrusion profiles.
-   Users draw cross-sections, get real-time constraint validation
-   and pricing estimates based on extrusion manufacturing parameters.
+   Users draw cross-sections with boolean cut operations (like Fusion 360
+   sketch mode), get real-time constraint validation and pricing estimates.
+
+   Positive shape = outer contour
+   Negative shapes = cuts that boolean-subtract from the outer
+   Result = computed via polygon-clipping (Martinez-Rueda-Feito algorithm)
    ========================================================================== */
 
 const CustomConfigurator = (() => {
@@ -28,7 +32,6 @@ const CustomConfigurator = (() => {
     // PRICING MODEL — Aluminum Extrusion
     // ========================================================================
     const PRICING = {
-        // Die costs by circumscribing circle range (€)
         dieCost: {
             solid: [
                 { maxDia: 80,  cost: 1800 },
@@ -47,27 +50,23 @@ const CustomConfigurator = (() => {
                 { maxDia: Infinity, cost: 18000 },
             ],
         },
-        // Additional die cost factors
         dieComplexity: {
-            perHollow: 0.20,          // +20% per additional hollow
-            asymmetry: 0.10,          // +10% if asymmetric
-            thinWall: 0.15,           // +15% if min wall < 1.5mm
-            manyCorners: 0.10,        // +10% if > 12 corners total
+            perHollow: 0.20,
+            asymmetry: 0.10,
+            thinWall: 0.15,
+            manyCorners: 0.10,
         },
-        // Material cost per kg by alloy
         materialPerKg: {
             '6060-T6': 4.20,
             '6063-T6': 4.50,
             '6082-T6': 4.90,
         },
-        // Extrusion complexity surcharge on material price
         extrusionComplexity: {
-            simple: 1.00,             // solid, few features
-            moderate: 1.08,           // 1-2 hollows
-            complex: 1.18,            // 3+ hollows or thin walls
-            veryComplex: 1.30,        // many chambers, tight tolerances
+            simple: 1.00,
+            moderate: 1.08,
+            complex: 1.18,
+            veryComplex: 1.30,
         },
-        // Surface treatments (add per kg)
         treatments: {
             'raw':        { label: 'Mill Finish',              add: 0,    labelDe: 'Pressblank' },
             'anodized':   { label: 'Anodized Natural (E6/EV1)',add: 0.55, labelDe: 'Eloxiert Natur' },
@@ -75,7 +74,6 @@ const CustomConfigurator = (() => {
             'powder':     { label: 'Powder Coated (RAL)',       add: 0.42, labelDe: 'Pulverbeschichtet' },
             'anodized_hard':{ label: 'Hard Anodized (Hardcoat)',add: 0.90, labelDe: 'Harteloxiert' },
         },
-        // Quantity tiers (total kg)
         qtyTiers: [
             { maxKg: 200,  factor: 1.40 },
             { maxKg: 500,  factor: 1.15 },
@@ -85,12 +83,12 @@ const CustomConfigurator = (() => {
             { maxKg: Infinity, factor: 0.92 },
         ],
         minOrderKg: 200,
-        standardLengths: [6000, 12000],  // mm
+        standardLengths: [6000, 12000],
         cuttingSurcharge: 0.10,
     };
 
     // ========================================================================
-    // TEMPLATES — Common extrusion profiles
+    // TEMPLATES — Common extrusion profiles (cuts as polygon arrays)
     // ========================================================================
     const TEMPLATES = {
         'rect-tube': {
@@ -98,7 +96,7 @@ const CustomConfigurator = (() => {
             nameDe: 'Rechteckrohr',
             desc: 'Simple hollow rectangle',
             outer: [{x:0,y:0},{x:60,y:0},{x:60,y:40},{x:0,y:40}],
-            hollows: [{type:'rect',x:3,y:3,w:54,h:34}],
+            cuts: [[{x:3,y:3},{x:57,y:3},{x:57,y:37},{x:3,y:37}]],
         },
         'window-frame': {
             name: 'Window Frame (2-chamber)',
@@ -108,9 +106,9 @@ const CustomConfigurator = (() => {
                 {x:0,y:0},{x:56,y:0},{x:56,y:14},{x:62,y:14},
                 {x:62,y:0},{x:76,y:0},{x:76,y:60},{x:0,y:60}
             ],
-            hollows: [
-                {type:'rect',x:2,y:2,w:52,h:26},
-                {type:'rect',x:2,y:32,w:72,h:26},
+            cuts: [
+                [{x:2,y:2},{x:54,y:2},{x:54,y:28},{x:2,y:28}],
+                [{x:2,y:32},{x:74,y:32},{x:74,y:58},{x:2,y:58}],
             ],
         },
         'window-sash': {
@@ -121,10 +119,10 @@ const CustomConfigurator = (() => {
                 {x:0,y:0},{x:70,y:0},{x:70,y:10},{x:76,y:10},
                 {x:76,y:0},{x:86,y:0},{x:86,y:58},{x:0,y:58}
             ],
-            hollows: [
-                {type:'rect',x:2,y:2,w:66,h:18},
-                {type:'rect',x:2,y:24,w:40,h:32},
-                {type:'rect',x:46,y:24,w:38,h:32},
+            cuts: [
+                [{x:2,y:2},{x:68,y:2},{x:68,y:20},{x:2,y:20}],
+                [{x:2,y:24},{x:42,y:24},{x:42,y:56},{x:2,y:56}],
+                [{x:46,y:24},{x:84,y:24},{x:84,y:56},{x:46,y:56}],
             ],
         },
         'curtain-wall': {
@@ -137,10 +135,10 @@ const CustomConfigurator = (() => {
                 {x:64,y:160},{x:64,y:136},{x:52,y:136},
                 {x:52,y:160},{x:0,y:160}
             ],
-            hollows: [
-                {type:'rect',x:3,y:3,w:46,h:154},
-                {type:'rect',x:67,y:3,w:50,h:70},
-                {type:'rect',x:67,y:80,w:50,h:77},
+            cuts: [
+                [{x:3,y:3},{x:49,y:3},{x:49,y:157},{x:3,y:157}],
+                [{x:67,y:3},{x:117,y:3},{x:117,y:73},{x:67,y:73}],
+                [{x:67,y:80},{x:117,y:80},{x:117,y:157},{x:67,y:157}],
             ],
         },
         't-slot': {
@@ -155,7 +153,7 @@ const CustomConfigurator = (() => {
                 {x:0,y:22},{x:15,y:22},{x:15,y:18},
                 {x:0,y:18},{x:0,y:12},{x:15,y:12}
             ],
-            hollows: [],
+            cuts: [],
         },
         'heatsink': {
             name: 'Heatsink Profile',
@@ -167,10 +165,8 @@ const CustomConfigurator = (() => {
                 const nFins = 8;
                 const totalW = (nFins - 1) * finGap + finW;
                 const xOff = (baseW - totalW) / 2;
-                // Top-left base
                 pts.push({x:0, y:finH + baseH});
                 pts.push({x:0, y:finH});
-                // Fins
                 for (let i = 0; i < nFins; i++) {
                     const fx = xOff + i * finGap;
                     pts.push({x:fx, y:finH});
@@ -182,7 +178,7 @@ const CustomConfigurator = (() => {
                 pts.push({x:baseW, y:finH + baseH});
                 return pts;
             })(),
-            hollows: [],
+            cuts: [],
         },
         'u-channel': {
             name: 'U-Channel',
@@ -192,14 +188,14 @@ const CustomConfigurator = (() => {
                 {x:0,y:0},{x:4,y:0},{x:4,y:46},{x:36,y:46},
                 {x:36,y:0},{x:40,y:0},{x:40,y:50},{x:0,y:50}
             ],
-            hollows: [],
+            cuts: [],
         },
         'blank': {
             name: 'Start from Scratch',
             nameDe: 'Leere Zeichnung',
             desc: 'Empty canvas',
             outer: [],
-            hollows: [],
+            cuts: [],
         },
     };
 
@@ -211,14 +207,15 @@ const CustomConfigurator = (() => {
     let canvasRect = { width: 600, height: 500 };
 
     let state = {
-        outer: [],                  // [{x,y}] polygon points in mm
-        hollows: [],                // [{type:'rect'|'polygon', ...}]
+        outer: [],                  // [{x,y}] polygon points in mm (positive shape)
+        cuts: [],                   // Array of polygon arrays [{x,y}, ...] (negative shapes)
+        resultPolygon: null,        // MultiPolygon from polygon-clipping boolean result
         drawingPoints: [],          // points being drawn currently
-        mode: 'draw-outer',         // draw-outer | draw-hollow | add-rect | select
-        selectedIndex: -1,          // index in hollows, or -2 for outer
+        mode: 'draw-outer',         // draw-outer | draw-cut | rect-cut | select
+        selectedIndex: -1,          // index in cuts, or -2 for outer
         dragging: false,
         dragOffset: {x:0, y:0},
-        draggingVertex: null,       // {source:'outer'|'hollow', hollowIdx:n, pointIdx:n}
+        draggingVertex: null,       // {source:'outer'|'cut', cutIdx:n, pointIdx:n}
         // View
         scale: 3.5,                 // pixels per mm
         offsetX: 0,
@@ -262,7 +259,7 @@ const CustomConfigurator = (() => {
     // HISTORY (Undo/Redo)
     // ========================================================================
     function saveHistory() {
-        const snapshot = JSON.stringify({ outer: state.outer, hollows: state.hollows });
+        const snapshot = JSON.stringify({ outer: state.outer, cuts: state.cuts });
         state.history = state.history.slice(0, state.historyIndex + 1);
         state.history.push(snapshot);
         state.historyIndex = state.history.length - 1;
@@ -277,9 +274,10 @@ const CustomConfigurator = (() => {
             state.historyIndex--;
             const snap = JSON.parse(state.history[state.historyIndex]);
             state.outer = snap.outer;
-            state.hollows = snap.hollows;
+            state.cuts = snap.cuts;
             state.drawingPoints = [];
             state.selectedIndex = -1;
+            computeResult();
             render();
             updateCalculations();
         }
@@ -290,7 +288,8 @@ const CustomConfigurator = (() => {
             state.historyIndex++;
             const snap = JSON.parse(state.history[state.historyIndex]);
             state.outer = snap.outer;
-            state.hollows = snap.hollows;
+            state.cuts = snap.cuts;
+            computeResult();
             render();
             updateCalculations();
         }
@@ -300,7 +299,7 @@ const CustomConfigurator = (() => {
     // GEOMETRY CALCULATIONS
     // ========================================================================
 
-    // Polygon area using Shoelace formula (signed)
+    // Polygon area using Shoelace formula (signed) — for [{x,y}] arrays
     function polygonArea(pts) {
         if (pts.length < 3) return 0;
         let area = 0;
@@ -312,17 +311,19 @@ const CustomConfigurator = (() => {
         return Math.abs(area) / 2;
     }
 
-    function rectArea(h) {
-        return h.w * h.h;
+    // Polygon area from [[x,y]] coordinate arrays (GeoJSON rings)
+    function polygonAreaFromCoords(ring) {
+        if (ring.length < 3) return 0;
+        let area = 0;
+        for (let i = 0; i < ring.length; i++) {
+            const j = (i + 1) % ring.length;
+            area += ring[i][0] * ring[j][1];
+            area -= ring[j][0] * ring[i][1];
+        }
+        return Math.abs(area) / 2;
     }
 
-    function hollowArea(h) {
-        if (h.type === 'rect') return rectArea(h);
-        if (h.type === 'polygon') return polygonArea(h.points);
-        return 0;
-    }
-
-    // Bounding box of points
+    // Bounding box of [{x,y}] points
     function boundingBox(pts) {
         if (pts.length === 0) return { minX:0, minY:0, maxX:0, maxY:0, width:0, height:0 };
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -363,27 +364,25 @@ const CustomConfigurator = (() => {
         return minDist;
     }
 
-    // Approximate minimum wall thickness
+    // Approximate minimum wall thickness (distance from cut edges to outer contour)
     function estimateMinWallThickness() {
-        if (state.outer.length < 3 || state.hollows.length === 0) return Infinity;
+        if (state.outer.length < 3 || state.cuts.length === 0) return Infinity;
 
         let minWall = Infinity;
-        const sampleDensity = 0.5; // sample every 0.5mm along edges
+        const sampleDensity = 0.5;
 
-        for (const h of state.hollows) {
-            const pts = h.type === 'rect'
-                ? [{x:h.x,y:h.y},{x:h.x+h.w,y:h.y},{x:h.x+h.w,y:h.y+h.h},{x:h.x,y:h.y+h.h}]
-                : (h.points || []);
+        for (const cut of state.cuts) {
+            if (cut.length < 3) continue;
 
-            for (let i = 0; i < pts.length; i++) {
-                const j = (i + 1) % pts.length;
-                const dx = pts[j].x - pts[i].x, dy = pts[j].y - pts[i].y;
+            for (let i = 0; i < cut.length; i++) {
+                const j = (i + 1) % cut.length;
+                const dx = cut[j].x - cut[i].x, dy = cut[j].y - cut[i].y;
                 const segLen = Math.hypot(dx, dy);
                 const steps = Math.max(2, Math.ceil(segLen / sampleDensity));
                 for (let s = 0; s <= steps; s++) {
                     const t = s / steps;
-                    const px = pts[i].x + dx * t;
-                    const py = pts[i].y + dy * t;
+                    const px = cut[i].x + dx * t;
+                    const py = cut[i].y + dy * t;
                     const dist = pointToPolygonDist(px, py, state.outer);
                     minWall = Math.min(minWall, dist);
                 }
@@ -405,13 +404,29 @@ const CustomConfigurator = (() => {
         return inside;
     }
 
-    // Count total corners across all shapes
-    function totalCorners() {
-        let n = state.outer.length;
-        for (const h of state.hollows) {
-            n += h.type === 'rect' ? 4 : (h.points ? h.points.length : 0);
+    // Number of chambers (holes) in the boolean result
+    function nResultHoles() {
+        if (!state.resultPolygon || state.resultPolygon.length === 0) return 0;
+        let holes = 0;
+        for (const poly of state.resultPolygon) {
+            holes += poly.length - 1; // rings beyond the first are holes
         }
-        return n;
+        return holes;
+    }
+
+    // Count total corners in the final result shape
+    function totalCorners() {
+        if (state.resultPolygon && state.resultPolygon.length > 0) {
+            let n = 0;
+            for (const poly of state.resultPolygon) {
+                for (const ring of poly) {
+                    // GeoJSON rings are closed (first = last), so subtract 1
+                    n += Math.max(0, ring.length - 1);
+                }
+            }
+            return n;
+        }
+        return state.outer.length;
     }
 
     // Check profile symmetry (rough approximation)
@@ -431,6 +446,50 @@ const CustomConfigurator = (() => {
         return (asymScore / state.outer.length) > 2;
     }
 
+    // ========================================================================
+    // BOOLEAN OPERATIONS — polygon-clipping
+    // ========================================================================
+
+    function computeResult() {
+        if (state.outer.length < 3) {
+            state.resultPolygon = null;
+            return;
+        }
+        if (state.cuts.length === 0) {
+            state.resultPolygon = null;
+            return;
+        }
+
+        // Convert outer to GeoJSON ring (closed)
+        const outerRing = state.outer.map(p => [p.x, p.y]);
+        outerRing.push([state.outer[0].x, state.outer[0].y]);
+        const subject = [outerRing];
+
+        // Build clip polygons from cuts
+        const clips = state.cuts.filter(c => c.length >= 3).map(cut => {
+            const ring = cut.map(p => [p.x, p.y]);
+            ring.push([cut[0].x, cut[0].y]);
+            return [ring];
+        });
+
+        if (clips.length === 0) {
+            state.resultPolygon = null;
+            return;
+        }
+
+        try {
+            if (typeof polygonClipping !== 'undefined') {
+                state.resultPolygon = polygonClipping.difference(subject, ...clips);
+            } else {
+                console.warn('polygon-clipping library not loaded');
+                state.resultPolygon = null;
+            }
+        } catch (e) {
+            console.warn('Boolean subtraction failed:', e);
+            state.resultPolygon = null;
+        }
+    }
+
 
     // ========================================================================
     // PRICING CALCULATION
@@ -440,9 +499,9 @@ const CustomConfigurator = (() => {
         const profile = PROFILES_CALC();
         if (!profile.valid) return null;
 
-        const isHollow = state.hollows.length > 0;
+        const isHollow = nResultHoles() > 0;
         const diaDiameter = profile.circumCircle;
-        const nHollows = state.hollows.length;
+        const nHollows = profile.nHollows;
 
         // Die cost
         const dieTable = isHollow ? PRICING.dieCost.hollow : PRICING.dieCost.solid;
@@ -488,8 +547,8 @@ const CustomConfigurator = (() => {
         const perMeter = grandTotal / (pieceLenM * state.quantity);
 
         return {
-            dieCost: dieCost,
-            pricePerKg: pricePerKg,
+            dieCost,
+            pricePerKg,
             pieceWeight,
             totalWeight,
             materialTotal,
@@ -511,13 +570,26 @@ const CustomConfigurator = (() => {
         }
 
         const outerArea = polygonArea(state.outer);
+        let netArea;
         let hollowAreaTotal = 0;
-        for (const h of state.hollows) hollowAreaTotal += hollowArea(h);
 
-        const netArea = outerArea - hollowAreaTotal;       // mm²
-        const netAreaM2 = netArea / 1e6;                   // m²
-        const density = 2700;                               // kg/m³ aluminum
-        const weightPerMeter = netAreaM2 * density;         // kg/m
+        if (state.resultPolygon && state.resultPolygon.length > 0) {
+            // Use the boolean result for accurate net area
+            netArea = 0;
+            for (const poly of state.resultPolygon) {
+                netArea += polygonAreaFromCoords(poly[0]);
+                for (let i = 1; i < poly.length; i++) {
+                    netArea -= polygonAreaFromCoords(poly[i]);
+                }
+            }
+            hollowAreaTotal = outerArea - netArea;
+        } else {
+            netArea = outerArea;
+        }
+
+        const netAreaM2 = netArea / 1e6;
+        const density = 2700;
+        const weightPerMeter = netAreaM2 * density;
         const circumCircle = circumscribingCircle(state.outer);
         const minWall = estimateMinWallThickness();
         const bb = boundingBox(state.outer);
@@ -531,7 +603,7 @@ const CustomConfigurator = (() => {
             circumCircle,
             minWall: minWall === Infinity ? 0 : minWall,
             bb,
-            nHollows: state.hollows.length,
+            nHollows: nResultHoles(),
         };
     }
 
@@ -557,7 +629,6 @@ const CustomConfigurator = (() => {
 
     function drawGrid() {
         const w = canvasRect.width, h = canvasRect.height;
-        const gridPx = state.gridSize * state.scale;
 
         // Minor grid
         ctx.strokeStyle = 'rgba(200, 16, 46, 0.06)';
@@ -618,8 +689,43 @@ const CustomConfigurator = (() => {
     }
 
     function drawProfile() {
-        // Draw outer profile
-        if (state.outer.length >= 3) {
+        if (state.outer.length < 3) return;
+
+        // --- Draw the result polygon (boolean output) or plain outer ---
+        if (state.resultPolygon && state.resultPolygon.length > 0) {
+            // Draw the boolean result — the actual material shape
+            for (const poly of state.resultPolygon) {
+                const outerRing = poly[0];
+                const holes = poly.slice(1);
+
+                ctx.beginPath();
+                let p0 = mmToCanvas(outerRing[0][0], outerRing[0][1]);
+                ctx.moveTo(p0.x, p0.y);
+                for (let i = 1; i < outerRing.length; i++) {
+                    const p = mmToCanvas(outerRing[i][0], outerRing[i][1]);
+                    ctx.lineTo(p.x, p.y);
+                }
+                ctx.closePath();
+
+                // Draw holes using even-odd fill
+                for (const hole of holes) {
+                    const h0 = mmToCanvas(hole[0][0], hole[0][1]);
+                    ctx.moveTo(h0.x, h0.y);
+                    for (let i = 1; i < hole.length; i++) {
+                        const hp = mmToCanvas(hole[i][0], hole[i][1]);
+                        ctx.lineTo(hp.x, hp.y);
+                    }
+                    ctx.closePath();
+                }
+
+                ctx.fillStyle = 'rgba(200, 16, 46, 0.15)';
+                ctx.fill('evenodd');
+                ctx.strokeStyle = '#c8102e';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        } else {
+            // No cuts or boolean not computed — draw outer as-is
             ctx.beginPath();
             const p0 = mmToCanvas(state.outer[0].x, state.outer[0].y);
             ctx.moveTo(p0.x, p0.y);
@@ -633,76 +739,65 @@ const CustomConfigurator = (() => {
             ctx.strokeStyle = '#c8102e';
             ctx.lineWidth = 2;
             ctx.stroke();
-
-            // Draw vertices
-            for (const pt of state.outer) {
-                const p = mmToCanvas(pt.x, pt.y);
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-                ctx.fillStyle = '#c8102e';
-                ctx.fill();
-            }
         }
 
-        // Draw hollows
-        for (let i = 0; i < state.hollows.length; i++) {
-            const h = state.hollows[i];
+        // Draw outer contour vertices
+        for (const pt of state.outer) {
+            const p = mmToCanvas(pt.x, pt.y);
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#c8102e';
+            ctx.fill();
+        }
+
+        // --- Draw cut shapes (negative) ---
+        for (let i = 0; i < state.cuts.length; i++) {
+            const cut = state.cuts[i];
+            if (cut.length < 3) continue;
+
             const isSelected = state.selectedIndex === i;
-            ctx.fillStyle = '#050508';
+
+            // Dark fill
+            ctx.beginPath();
+            const fp = mmToCanvas(cut[0].x, cut[0].y);
+            ctx.moveTo(fp.x, fp.y);
+            for (let j = 1; j < cut.length; j++) {
+                const pp = mmToCanvas(cut[j].x, cut[j].y);
+                ctx.lineTo(pp.x, pp.y);
+            }
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(5, 5, 8, 0.6)';
+            ctx.fill();
+
+            // Cross-hatch pattern inside cut
+            ctx.save();
+            ctx.clip();
+            const cbb = boundingBox(cut);
+            const ctl = mmToCanvas(cbb.minX, cbb.minY);
+            const cbr = mmToCanvas(cbb.maxX, cbb.maxY);
+            drawHatchPattern(ctl.x, ctl.y, cbr.x - ctl.x, cbr.y - ctl.y);
+            ctx.restore();
+
+            // Stroke outline
+            ctx.beginPath();
+            const fp2 = mmToCanvas(cut[0].x, cut[0].y);
+            ctx.moveTo(fp2.x, fp2.y);
+            for (let j = 1; j < cut.length; j++) {
+                const pp = mmToCanvas(cut[j].x, cut[j].y);
+                ctx.lineTo(pp.x, pp.y);
+            }
+            ctx.closePath();
             ctx.strokeStyle = isSelected ? '#f5a623' : '#e0132f';
             ctx.lineWidth = isSelected ? 2.5 : 1.5;
+            ctx.stroke();
 
-            if (h.type === 'rect') {
-                const tl = mmToCanvas(h.x, h.y);
-                const br = mmToCanvas(h.x + h.w, h.y + h.h);
-                const rw = br.x - tl.x, rh = br.y - tl.y;
-                ctx.fillRect(tl.x, tl.y, rw, rh);
-                // Draw cross-hatch pattern inside hollow
-                drawHatchPattern(tl.x, tl.y, rw, rh);
-                ctx.strokeRect(tl.x, tl.y, rw, rh);
-
-                // Drag handles
-                if (isSelected) {
-                    drawHandle(tl.x, tl.y);
-                    drawHandle(br.x, tl.y);
-                    drawHandle(br.x, br.y);
-                    drawHandle(tl.x, br.y);
-                }
-            } else if (h.type === 'polygon' && h.points.length >= 3) {
+            // Cut vertices
+            for (const pt of cut) {
+                const p = mmToCanvas(pt.x, pt.y);
                 ctx.beginPath();
-                const fp = mmToCanvas(h.points[0].x, h.points[0].y);
-                ctx.moveTo(fp.x, fp.y);
-                for (let j = 1; j < h.points.length; j++) {
-                    const pp = mmToCanvas(h.points[j].x, h.points[j].y);
-                    ctx.lineTo(pp.x, pp.y);
-                }
-                ctx.closePath();
+                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#e0132f';
                 ctx.fill();
-                // Cross-hatch for polygon hollows
-                ctx.save();
-                ctx.clip();
-                const hbb = boundingBox(h.points);
-                const htl = mmToCanvas(hbb.minX, hbb.minY);
-                const hbr = mmToCanvas(hbb.maxX, hbb.maxY);
-                drawHatchPattern(htl.x, htl.y, hbr.x - htl.x, hbr.y - htl.y);
-                ctx.restore();
-                ctx.beginPath();
-                const fp2 = mmToCanvas(h.points[0].x, h.points[0].y);
-                ctx.moveTo(fp2.x, fp2.y);
-                for (let j = 1; j < h.points.length; j++) {
-                    const pp = mmToCanvas(h.points[j].x, h.points[j].y);
-                    ctx.lineTo(pp.x, pp.y);
-                }
-                ctx.closePath();
-                ctx.stroke();
-
-                for (const pt of h.points) {
-                    const p = mmToCanvas(pt.x, pt.y);
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-                    ctx.fillStyle = '#e0132f';
-                    ctx.fill();
-                }
             }
         }
     }
@@ -723,11 +818,6 @@ const CustomConfigurator = (() => {
             ctx.stroke();
         }
         ctx.restore();
-    }
-
-    function drawHandle(x, y) {
-        ctx.fillStyle = '#f5a623';
-        ctx.fillRect(x - 4, y - 4, 8, 8);
     }
 
     function drawCurrentDrawing() {
@@ -770,7 +860,7 @@ const CustomConfigurator = (() => {
                 const fp2 = mmToCanvas(first.x, first.y);
                 ctx.beginPath();
                 ctx.arc(fp2.x, fp2.y, 10, 0, Math.PI * 2);
-                ctx.strokeStyle = '#22c55e';
+                ctx.strokeStyle = state.mode === 'draw-outer' ? '#22c55e' : '#f5a623';
                 ctx.lineWidth = 2;
                 ctx.stroke();
             }
@@ -800,8 +890,6 @@ const CustomConfigurator = (() => {
         const profile = PROFILES_CALC();
         if (!profile.valid) return;
 
-        const minAllowed = PRESS.minWallThickness[state.alloy] || PRESS.minWallDefault;
-
         // Circumscribing circle warning
         if (profile.circumCircle > PRESS.maxCircumscribingCircle) {
             const bb = profile.bb;
@@ -815,7 +903,6 @@ const CustomConfigurator = (() => {
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Max allowed circle
             const maxRadiusPx = (PRESS.maxCircumscribingCircle / 2) * state.scale;
             ctx.beginPath();
             ctx.arc(center.x, center.y, maxRadiusPx, 0, Math.PI * 2);
@@ -853,11 +940,10 @@ const CustomConfigurator = (() => {
             const mx = (cp1.x + cp2.x) / 2;
             const my = (cp1.y + cp2.y) / 2;
 
-            // Calculate offset perpendicular to edge
             const dx = cp2.x - cp1.x;
             const dy = cp2.y - cp1.y;
             const edgeLen = Math.hypot(dx, dy);
-            if (edgeLen < 30) continue; // Don't label very short edges on screen
+            if (edgeLen < 30) continue;
 
             const nx = -dy / edgeLen * 14;
             const ny = dx / edgeLen * 14;
@@ -865,7 +951,6 @@ const CustomConfigurator = (() => {
             const lx = mx + nx;
             const ly = my + ny;
 
-            // Draw dimension text with background
             const text = len.toFixed(1);
             const textWidth = ctx.measureText(text).width;
             ctx.fillStyle = 'rgba(10, 10, 10, 0.85)';
@@ -876,8 +961,6 @@ const CustomConfigurator = (() => {
             ctx.fillStyle = 'rgba(200, 16, 46, 0.8)';
             ctx.fillText(text, lx, ly);
 
-            // Draw dimension ticks at endpoints
-            const tickLen = 4;
             ctx.strokeStyle = 'rgba(200, 16, 46, 0.35)';
             ctx.lineWidth = 0.5;
             ctx.beginPath();
@@ -888,13 +971,12 @@ const CustomConfigurator = (() => {
             ctx.stroke();
         }
 
-        // Also show bounding box dimensions if profile exists
+        // Bounding box dimensions
         if (state.outer.length >= 3) {
             const bb = boundingBox(state.outer);
             const tl = mmToCanvas(bb.minX, bb.minY);
             const br = mmToCanvas(bb.maxX, bb.maxY);
 
-            // Width dimension below
             const widthText = bb.width.toFixed(1) + ' mm';
             const wtw = ctx.measureText(widthText).width;
             const wmy = br.y + 20;
@@ -906,7 +988,6 @@ const CustomConfigurator = (() => {
             ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
             ctx.fillText(widthText, (tl.x + br.x) / 2, wmy);
 
-            // Height dimension to the right
             const heightText = bb.height.toFixed(1) + ' mm';
             const htw = ctx.measureText(heightText).width;
             const hmx = br.x + 24;
@@ -927,44 +1008,80 @@ const CustomConfigurator = (() => {
     }
 
     function drawPointHandles() {
-        if (state.mode !== 'select' || state.outer.length < 3) return;
+        if (state.mode !== 'select') return;
 
         // Draw editable point handles on outer polygon
-        for (let i = 0; i < state.outer.length; i++) {
-            const pt = state.outer[i];
-            const p = mmToCanvas(pt.x, pt.y);
+        if (state.outer.length >= 3) {
+            for (let i = 0; i < state.outer.length; i++) {
+                const pt = state.outer[i];
+                const p = mmToCanvas(pt.x, pt.y);
 
-            // Check if cursor is near this point
-            let isHovered = false;
-            if (state.cursorMm) {
-                const dist = Math.hypot(state.cursorMm.x - pt.x, state.cursorMm.y - pt.y);
-                isHovered = dist < state.gridSize * 1.5;
+                let isHovered = false;
+                if (state.cursorMm) {
+                    const dist = Math.hypot(state.cursorMm.x - pt.x, state.cursorMm.y - pt.y);
+                    isHovered = dist < state.gridSize * 1.5;
+                }
+
+                if (isHovered) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(200, 16, 46, 0.3)';
+                    ctx.fill();
+                    ctx.strokeStyle = '#c8102e';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    ctx.save();
+                    ctx.font = '10px "JetBrains Mono", monospace';
+                    ctx.textAlign = 'left';
+                    const coordText = `(${pt.x.toFixed(1)}, ${pt.y.toFixed(1)})`;
+                    const tw = ctx.measureText(coordText).width;
+                    ctx.fillStyle = 'rgba(10, 10, 10, 0.9)';
+                    ctx.fillRect(p.x + 10, p.y - 18, tw + 8, 16);
+                    ctx.strokeStyle = '#c8102e';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(p.x + 10, p.y - 18, tw + 8, 16);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(coordText, p.x + 14, p.y - 10);
+                    ctx.restore();
+                }
             }
+        }
 
-            if (isHovered) {
-                // Draw enlarged handle with coordinate tooltip
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(200, 16, 46, 0.3)';
-                ctx.fill();
-                ctx.strokeStyle = '#c8102e';
-                ctx.lineWidth = 2;
-                ctx.stroke();
+        // Draw editable point handles on cut polygons
+        for (const cut of state.cuts) {
+            for (const pt of cut) {
+                const p = mmToCanvas(pt.x, pt.y);
 
-                // Coordinate label
-                ctx.save();
-                ctx.font = '10px "JetBrains Mono", monospace';
-                ctx.textAlign = 'left';
-                const coordText = `(${pt.x.toFixed(1)}, ${pt.y.toFixed(1)})`;
-                const tw = ctx.measureText(coordText).width;
-                ctx.fillStyle = 'rgba(10, 10, 10, 0.9)';
-                ctx.fillRect(p.x + 10, p.y - 18, tw + 8, 16);
-                ctx.strokeStyle = '#c8102e';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(p.x + 10, p.y - 18, tw + 8, 16);
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText(coordText, p.x + 14, p.y - 10);
-                ctx.restore();
+                let isHovered = false;
+                if (state.cursorMm) {
+                    const dist = Math.hypot(state.cursorMm.x - pt.x, state.cursorMm.y - pt.y);
+                    isHovered = dist < state.gridSize * 1.5;
+                }
+
+                if (isHovered) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(224, 19, 47, 0.3)';
+                    ctx.fill();
+                    ctx.strokeStyle = '#e0132f';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    ctx.save();
+                    ctx.font = '10px "JetBrains Mono", monospace';
+                    ctx.textAlign = 'left';
+                    const coordText = `(${pt.x.toFixed(1)}, ${pt.y.toFixed(1)})`;
+                    const tw = ctx.measureText(coordText).width;
+                    ctx.fillStyle = 'rgba(10, 10, 10, 0.9)';
+                    ctx.fillRect(p.x + 10, p.y - 18, tw + 8, 16);
+                    ctx.strokeStyle = '#e0132f';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(p.x + 10, p.y - 18, tw + 8, 16);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(coordText, p.x + 14, p.y - 10);
+                    ctx.restore();
+                }
             }
         }
     }
@@ -973,14 +1090,13 @@ const CustomConfigurator = (() => {
     // POINT EDITING
     // ========================================================================
 
-    let editingPoint = null; // { type: 'outer'|'hollow', index: number, pointIndex: number }
+    let editingPoint = null;
     let pointEditOverlay = null;
 
     function showPointEditor(pt, onSave) {
         removePointEditor();
         const canvasWrapper = canvas.parentElement;
         const cp = mmToCanvas(pt.x, pt.y);
-        const rect = canvas.getBoundingClientRect();
 
         pointEditOverlay = document.createElement('div');
         pointEditOverlay.className = 'cc-point-editor';
@@ -1016,7 +1132,7 @@ const CustomConfigurator = (() => {
         inputY.style.cssText = inputX.style.cssText;
 
         const okBtn = document.createElement('button');
-        okBtn.textContent = '✓';
+        okBtn.textContent = '\u2713';
         okBtn.style.cssText = 'padding:4px 8px;background:#c8102e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;';
 
         okBtn.addEventListener('click', () => {
@@ -1028,7 +1144,6 @@ const CustomConfigurator = (() => {
             removePointEditor();
         });
 
-        // Confirm on Enter key
         const onKey = (e) => {
             if (e.key === 'Enter') { okBtn.click(); e.preventDefault(); }
             if (e.key === 'Escape') { removePointEditor(); }
@@ -1058,7 +1173,7 @@ const CustomConfigurator = (() => {
     // MOUSE EVENTS
     // ========================================================================
 
-    let rectStartMm = null;  // for add-rect mode
+    let rectStartMm = null;  // for rect-cut mode
 
     function getMouseMm(e) {
         const rect = canvas.getBoundingClientRect();
@@ -1069,7 +1184,6 @@ const CustomConfigurator = (() => {
 
     function onMouseDown(e) {
         if (e.button === 1) {
-            // Middle-click pan
             state.isPanning = true;
             state.panStart = { x: e.clientX, y: e.clientY };
             e.preventDefault();
@@ -1079,13 +1193,13 @@ const CustomConfigurator = (() => {
         if (e.button !== 0) return;
         const mm = getMouseMm(e);
 
-        if (state.mode === 'add-rect') {
+        if (state.mode === 'rect-cut') {
             rectStartMm = { x: mm.x, y: mm.y };
             return;
         }
 
         if (state.mode === 'select') {
-            // Hit test vertices first (for individual vertex dragging)
+            // Hit test outer polygon vertices first
             for (let i = 0; i < state.outer.length; i++) {
                 const pt = state.outer[i];
                 const dist = Math.hypot(mm.x - pt.x, mm.y - pt.y);
@@ -1096,44 +1210,35 @@ const CustomConfigurator = (() => {
                     return;
                 }
             }
-            for (let hi = 0; hi < state.hollows.length; hi++) {
-                const h = state.hollows[hi];
-                if (h.type === 'polygon' && h.points) {
-                    for (let pi = 0; pi < h.points.length; pi++) {
-                        const pt = h.points[pi];
-                        const dist = Math.hypot(mm.x - pt.x, mm.y - pt.y);
-                        if (dist < state.gridSize * 1.5) {
-                            state.draggingVertex = { source: 'hollow', hollowIdx: hi, pointIdx: pi };
-                            state.dragging = true;
-                            render();
-                            return;
-                        }
+
+            // Hit test cut polygon vertices
+            for (let ci = 0; ci < state.cuts.length; ci++) {
+                const cut = state.cuts[ci];
+                for (let pi = 0; pi < cut.length; pi++) {
+                    const pt = cut[pi];
+                    const dist = Math.hypot(mm.x - pt.x, mm.y - pt.y);
+                    if (dist < state.gridSize * 1.5) {
+                        state.draggingVertex = { source: 'cut', cutIdx: ci, pointIdx: pi };
+                        state.dragging = true;
+                        render();
+                        return;
                     }
                 }
             }
 
-            // Hit test hollows (whole shape drag)
-            for (let i = state.hollows.length - 1; i >= 0; i--) {
-                const h = state.hollows[i];
-                if (h.type === 'rect') {
-                    if (mm.x >= h.x && mm.x <= h.x + h.w && mm.y >= h.y && mm.y <= h.y + h.h) {
-                        state.selectedIndex = i;
-                        state.dragging = true;
-                        state.dragOffset = { x: mm.x - h.x, y: mm.y - h.y };
-                        render();
-                        return;
-                    }
-                } else if (h.type === 'polygon' && h.points) {
-                    if (pointInPolygon(mm.x, mm.y, h.points)) {
-                        state.selectedIndex = i;
-                        state.dragging = true;
-                        state.dragOffset = { x: mm.x - h.points[0].x, y: mm.y - h.points[0].y };
-                        render();
-                        return;
-                    }
+            // Hit test whole cut shapes
+            for (let i = state.cuts.length - 1; i >= 0; i--) {
+                const cut = state.cuts[i];
+                if (cut.length >= 3 && pointInPolygon(mm.x, mm.y, cut)) {
+                    state.selectedIndex = i;
+                    state.dragging = true;
+                    state.dragOffset = { x: mm.x - cut[0].x, y: mm.y - cut[0].y };
+                    render();
+                    return;
                 }
             }
-            // Hit test outer
+
+            // Hit test outer shape
             if (state.outer.length >= 3 && pointInPolygon(mm.x, mm.y, state.outer)) {
                 state.selectedIndex = -2;
                 state.dragging = true;
@@ -1170,9 +1275,10 @@ const CustomConfigurator = (() => {
             }
             if (v.source === 'outer') {
                 state.outer[v.pointIdx] = { x: nx, y: ny };
-            } else if (v.source === 'hollow') {
-                state.hollows[v.hollowIdx].points[v.pointIdx] = { x: nx, y: ny };
+            } else if (v.source === 'cut') {
+                state.cuts[v.cutIdx][v.pointIdx] = { x: nx, y: ny };
             }
+            computeResult();
             render();
             updateCalculations();
             updateCursorDisplay(mm);
@@ -1182,37 +1288,28 @@ const CustomConfigurator = (() => {
         // Drag in select mode (whole shape)
         if (state.dragging && state.mode === 'select') {
             if (state.selectedIndex >= 0) {
-                const h = state.hollows[state.selectedIndex];
-                if (h.type === 'rect') {
-                    h.x = mm.x - state.dragOffset.x;
-                    h.y = mm.y - state.dragOffset.y;
-                    if (state.snapToGrid) {
-                        h.x = Math.round(h.x / state.gridSize) * state.gridSize;
-                        h.y = Math.round(h.y / state.gridSize) * state.gridSize;
-                    }
-                } else if (h.type === 'polygon' && h.points) {
-                    const dx = mm.x - state.dragOffset.x - h.points[0].x;
-                    const dy = mm.y - state.dragOffset.y - h.points[0].y;
-                    for (const p of h.points) { p.x += dx; p.y += dy; }
-                    state.dragOffset = { x: mm.x - h.points[0].x, y: mm.y - h.points[0].y };
-                }
+                const cut = state.cuts[state.selectedIndex];
+                const dx = mm.x - state.dragOffset.x - cut[0].x;
+                const dy = mm.y - state.dragOffset.y - cut[0].y;
+                for (const p of cut) { p.x += dx; p.y += dy; }
+                state.dragOffset = { x: mm.x - cut[0].x, y: mm.y - cut[0].y };
             } else if (state.selectedIndex === -2) {
                 const dx = mm.x - state.dragOffset.x - state.outer[0].x;
                 const dy = mm.y - state.dragOffset.y - state.outer[0].y;
                 for (const p of state.outer) { p.x += dx; p.y += dy; }
-                for (const h of state.hollows) {
-                    if (h.type === 'rect') { h.x += dx; h.y += dy; }
-                    else if (h.points) { for (const p of h.points) { p.x += dx; p.y += dy; } }
+                for (const cut of state.cuts) {
+                    for (const p of cut) { p.x += dx; p.y += dy; }
                 }
                 state.dragOffset = { x: mm.x - state.outer[0].x, y: mm.y - state.outer[0].y };
             }
+            computeResult();
             render();
             updateCalculations();
             return;
         }
 
-        // Rectangle preview in add-rect mode
-        if (state.mode === 'add-rect' && rectStartMm) {
+        // Rectangle preview in rect-cut mode
+        if (state.mode === 'rect-cut' && rectStartMm) {
             render();
             const s = mmToCanvas(rectStartMm.x, rectStartMm.y);
             const e2 = mmToCanvas(mm.x, mm.y);
@@ -1239,20 +1336,27 @@ const CustomConfigurator = (() => {
         if (state.dragging) {
             state.dragging = false;
             state.draggingVertex = null;
+            computeResult();
             saveHistory();
             updateCalculations();
             return;
         }
 
-        // Complete rectangle
-        if (state.mode === 'add-rect' && rectStartMm && e.button === 0) {
+        // Complete rectangle cut
+        if (state.mode === 'rect-cut' && rectStartMm && e.button === 0) {
             const mm = getMouseMm(e);
             const x = Math.min(rectStartMm.x, mm.x);
             const y = Math.min(rectStartMm.y, mm.y);
             const w = Math.abs(mm.x - rectStartMm.x);
             const h = Math.abs(mm.y - rectStartMm.y);
             if (w >= PRESS.minFeatureSize && h >= PRESS.minFeatureSize) {
-                state.hollows.push({ type: 'rect', x, y, w, h });
+                state.cuts.push([
+                    {x: x, y: y},
+                    {x: x + w, y: y},
+                    {x: x + w, y: y + h},
+                    {x: x, y: y + h}
+                ]);
+                computeResult();
                 saveHistory();
                 updateCalculations();
             }
@@ -1265,7 +1369,7 @@ const CustomConfigurator = (() => {
         if (e.button !== 0) return;
         const mm = getMouseMm(e);
 
-        if (state.mode === 'draw-outer' || state.mode === 'draw-hollow') {
+        if (state.mode === 'draw-outer' || state.mode === 'draw-cut') {
             // Check if clicking near first point to close
             if (state.drawingPoints.length >= 3) {
                 const first = state.drawingPoints[0];
@@ -1281,7 +1385,7 @@ const CustomConfigurator = (() => {
     }
 
     function onDblClick(e) {
-        if (state.mode === 'draw-outer' || state.mode === 'draw-hollow') {
+        if (state.mode === 'draw-outer' || state.mode === 'draw-cut') {
             if (state.drawingPoints.length >= 3) {
                 closeCurrentShape();
             }
@@ -1299,6 +1403,7 @@ const CustomConfigurator = (() => {
                 if (dist < state.gridSize * 1.5) {
                     showPointEditor(pt, (nx, ny) => {
                         state.outer[i] = { x: nx, y: ny };
+                        computeResult();
                         saveHistory();
                         render();
                         updateCalculations();
@@ -1307,22 +1412,21 @@ const CustomConfigurator = (() => {
                 }
             }
 
-            // Check hollow polygon points
-            for (let hi = 0; hi < state.hollows.length; hi++) {
-                const h = state.hollows[hi];
-                if (h.type === 'polygon' && h.points) {
-                    for (let pi = 0; pi < h.points.length; pi++) {
-                        const pt = h.points[pi];
-                        const dist = Math.hypot(mm.x - pt.x, mm.y - pt.y);
-                        if (dist < state.gridSize * 1.5) {
-                            showPointEditor(pt, (nx, ny) => {
-                                h.points[pi] = { x: nx, y: ny };
-                                saveHistory();
-                                render();
-                                updateCalculations();
-                            });
-                            return;
-                        }
+            // Check cut polygon points
+            for (let ci = 0; ci < state.cuts.length; ci++) {
+                const cut = state.cuts[ci];
+                for (let pi = 0; pi < cut.length; pi++) {
+                    const pt = cut[pi];
+                    const dist = Math.hypot(mm.x - pt.x, mm.y - pt.y);
+                    if (dist < state.gridSize * 1.5) {
+                        showPointEditor(pt, (nx, ny) => {
+                            cut[pi] = { x: nx, y: ny };
+                            computeResult();
+                            saveHistory();
+                            render();
+                            updateCalculations();
+                        });
+                        return;
                     }
                 }
             }
@@ -1333,11 +1437,13 @@ const CustomConfigurator = (() => {
         if (state.mode === 'draw-outer') {
             state.outer = [...state.drawingPoints];
             state.drawingPoints = [];
-            // Auto-switch to select mode
+            computeResult();
             setMode('select');
-        } else if (state.mode === 'draw-hollow') {
-            state.hollows.push({ type: 'polygon', points: [...state.drawingPoints] });
+        } else if (state.mode === 'draw-cut') {
+            state.cuts.push([...state.drawingPoints]);
             state.drawingPoints = [];
+            computeResult();
+            // Stay in draw-cut mode for drawing multiple cuts
         }
         saveHistory();
         render();
@@ -1351,7 +1457,6 @@ const CustomConfigurator = (() => {
         const cx = e.clientX - rect.left;
         const cy = e.clientY - rect.top;
 
-        // Zoom towards cursor
         const mmBefore = canvasToMm(cx, cy);
         state.scale = Math.max(0.5, Math.min(15, state.scale * zoomFactor));
         const mmAfter = canvasToMm(cx, cy);
@@ -1365,14 +1470,16 @@ const CustomConfigurator = (() => {
     function onKeyDown(e) {
         if (e.key === 'Delete' || e.key === 'Backspace') {
             if (state.selectedIndex >= 0) {
-                state.hollows.splice(state.selectedIndex, 1);
+                state.cuts.splice(state.selectedIndex, 1);
                 state.selectedIndex = -1;
+                computeResult();
                 saveHistory();
                 render();
                 updateCalculations();
             } else if (state.selectedIndex === -2) {
                 state.outer = [];
-                state.hollows = [];
+                state.cuts = [];
+                state.resultPolygon = null;
                 state.selectedIndex = -1;
                 saveHistory();
                 render();
@@ -1401,12 +1508,10 @@ const CustomConfigurator = (() => {
         rectStartMm = null;
         state.selectedIndex = -1;
 
-        // Update toolbar active state
         document.querySelectorAll('.cc-tool-btn').forEach(b => {
             b.classList.toggle('active', b.dataset.mode === mode);
         });
 
-        // Update canvas cursor
         if (canvas) {
             canvas.style.cursor = mode === 'select' ? 'default' : 'crosshair';
         }
@@ -1418,11 +1523,11 @@ const CustomConfigurator = (() => {
         if (!tpl) return;
 
         state.outer = JSON.parse(JSON.stringify(tpl.outer));
-        state.hollows = JSON.parse(JSON.stringify(tpl.hollows));
+        state.cuts = JSON.parse(JSON.stringify(tpl.cuts));
         state.drawingPoints = [];
         state.selectedIndex = -1;
 
-        // Center view on profile
+        computeResult();
         centerView();
         saveHistory();
         render();
@@ -1440,7 +1545,6 @@ const CustomConfigurator = (() => {
         const cx = (bb.minX + bb.maxX) / 2;
         const cy = (bb.minY + bb.maxY) / 2;
 
-        // Calculate scale to fit
         const margin = 40;
         const scaleX = (canvasRect.width - margin * 2) / Math.max(bb.width, 20);
         const scaleY = (canvasRect.height - margin * 2) / Math.max(bb.height, 20);
@@ -1453,7 +1557,8 @@ const CustomConfigurator = (() => {
 
     function clearAll() {
         state.outer = [];
-        state.hollows = [];
+        state.cuts = [];
+        state.resultPolygon = null;
         state.drawingPoints = [];
         state.selectedIndex = -1;
         saveHistory();
@@ -1512,7 +1617,7 @@ const CustomConfigurator = (() => {
             <div class="cc-info-grid">
                 <div class="cc-info-item">
                     <span class="cc-info-label">Net Area</span>
-                    <span class="cc-info-value">${profile.netArea.toFixed(1)} mm²</span>
+                    <span class="cc-info-value">${profile.netArea.toFixed(1)} mm\u00B2</span>
                 </div>
                 <div class="cc-info-item">
                     <span class="cc-info-label">Weight/Meter</span>
@@ -1524,15 +1629,15 @@ const CustomConfigurator = (() => {
                 </div>
                 <div class="cc-info-item">
                     <span class="cc-info-label">Min Wall</span>
-                    <span class="cc-info-value">${profile.nHollows > 0 ? profile.minWall.toFixed(1) + ' mm' : '—'}</span>
+                    <span class="cc-info-value">${state.cuts.length > 0 ? profile.minWall.toFixed(1) + ' mm' : '\u2014'}</span>
                 </div>
                 <div class="cc-info-item">
                     <span class="cc-info-label">Bounding Box</span>
-                    <span class="cc-info-value">${profile.bb.width.toFixed(0)} × ${profile.bb.height.toFixed(0)} mm</span>
+                    <span class="cc-info-value">${profile.bb.width.toFixed(0)} \u00D7 ${profile.bb.height.toFixed(0)} mm</span>
                 </div>
                 <div class="cc-info-item">
-                    <span class="cc-info-label">Hollows</span>
-                    <span class="cc-info-value">${profile.nHollows}</span>
+                    <span class="cc-info-label">Cuts / Chambers</span>
+                    <span class="cc-info-value">${state.cuts.length} / ${profile.nHollows}</span>
                 </div>
             </div>
         `;
@@ -1547,7 +1652,7 @@ const CustomConfigurator = (() => {
             </div>` : ''}
             <div class="quote-line">
                 <span class="quote-line-label">Die (tooling) cost</span>
-                <span class="quote-line-value">€${pricing.dieCost.toFixed(0)}</span>
+                <span class="quote-line-value">\u20AC${pricing.dieCost.toFixed(0)}</span>
             </div>
             <div class="quote-line">
                 <span class="quote-line-label">Complexity class</span>
@@ -1555,7 +1660,7 @@ const CustomConfigurator = (() => {
             </div>
             <div class="quote-line">
                 <span class="quote-line-label">Material (${state.alloy})</span>
-                <span class="quote-line-value">€${(PRICING.materialPerKg[state.alloy] || 4.5).toFixed(2)}/kg</span>
+                <span class="quote-line-value">\u20AC${(PRICING.materialPerKg[state.alloy] || 4.5).toFixed(2)}/kg</span>
             </div>
             <div class="quote-line">
                 <span class="quote-line-label">Surface</span>
@@ -1571,20 +1676,20 @@ const CustomConfigurator = (() => {
             </div>
             <div class="quote-line">
                 <span class="quote-line-label">Volume tier</span>
-                <span class="quote-line-value">${pricing.qtyFactor < 1 ? 'Discount' : pricing.qtyFactor > 1.1 ? 'Surcharge' : 'Standard'} (×${pricing.qtyFactor.toFixed(2)})</span>
+                <span class="quote-line-value">${pricing.qtyFactor < 1 ? 'Discount' : pricing.qtyFactor > 1.1 ? 'Surcharge' : 'Standard'} (\u00D7${pricing.qtyFactor.toFixed(2)})</span>
             </div>
             ${!pricing.isStandard ? `<div class="quote-line"><span class="quote-line-label">Cutting surcharge</span><span class="quote-line-value">+10%</span></div>` : ''}
             <div class="quote-line">
                 <span class="quote-line-label">Material total</span>
-                <span class="quote-line-value">€${pricing.materialTotal.toFixed(2)}</span>
+                <span class="quote-line-value">\u20AC${pricing.materialTotal.toFixed(2)}</span>
             </div>
             <div class="quote-line quote-line-total">
                 <span class="quote-line-label">Estimated Total</span>
-                <span class="quote-line-value">€${pricing.grandTotal.toFixed(2)}</span>
+                <span class="quote-line-value">\u20AC${pricing.grandTotal.toFixed(2)}</span>
             </div>
             <div class="quote-line quote-line-per-unit">
                 <span class="quote-line-label">Per piece / Per meter</span>
-                <span class="quote-line-value">€${pricing.perPiece.toFixed(2)} / pc — €${pricing.perMeter.toFixed(2)} / m</span>
+                <span class="quote-line-value">\u20AC${pricing.perPiece.toFixed(2)} / pc \u2014 \u20AC${pricing.perMeter.toFixed(2)} / m</span>
             </div>
             <div class="cc-die-note">
                 Die cost is one-time. For repeat orders, only material cost applies.
@@ -1637,8 +1742,7 @@ const CustomConfigurator = (() => {
                 clientX: touch.clientX, clientY: touch.clientY, button: 0
             });
             onMouseDown(mouseEvent);
-            // Also trigger click for drawing modes
-            if (state.mode === 'draw-outer' || state.mode === 'draw-hollow') {
+            if (state.mode === 'draw-outer' || state.mode === 'draw-cut') {
                 const clickEvent = new MouseEvent('click', {
                     clientX: touch.clientX, clientY: touch.clientY, button: 0
                 });
@@ -1659,7 +1763,6 @@ const CustomConfigurator = (() => {
             onMouseUp(mouseEvent);
         }, { passive: false });
         document.addEventListener('keydown', (e) => {
-            // Only handle if custom configurator is visible
             const ccSection = document.getElementById('customConfigPanel');
             if (ccSection && ccSection.style.display !== 'none') {
                 onKeyDown(e);
@@ -1668,7 +1771,9 @@ const CustomConfigurator = (() => {
 
         // Toolbar buttons
         document.querySelectorAll('.cc-tool-btn').forEach(btn => {
-            btn.addEventListener('click', () => setMode(btn.dataset.mode));
+            btn.addEventListener('click', () => {
+                if (btn.dataset.mode) setMode(btn.dataset.mode);
+            });
         });
 
         // Template buttons
@@ -1739,26 +1844,37 @@ const CustomConfigurator = (() => {
             updateCalculations();
         });
 
-        // Request quote button — save profile to sessionStorage, open 3D preview modal
+        // Request quote button — compute result, save to sessionStorage, open 3D preview
         const reqQuoteBtn = document.getElementById('ccRequestQuote');
         if (reqQuoteBtn) {
             reqQuoteBtn.addEventListener('click', () => {
-                // Require a completed outer contour
                 if (!state.outer || state.outer.length < 3) {
                     alert('Please draw an outer contour first.');
                     return;
                 }
 
-                // Serialise points as [[x,y]] arrays for cross-module use
-                const profileData = {
-                    outer: state.outer.map(p => [p.x, p.y]),
-                    hollows: state.hollows.map(h => h.map(p => [p.x, p.y])),
-                };
+                // Build profile data from the boolean result polygon
+                let profileData;
 
-                // Persist for session — hero3d.js reads this on next load
+                if (state.resultPolygon && state.resultPolygon.length > 0) {
+                    // Use the first polygon from the boolean result
+                    const poly = state.resultPolygon[0];
+                    profileData = {
+                        outer: poly[0],          // outer ring as [[x,y], ...]
+                        hollows: poly.slice(1),  // hole rings as [[[x,y], ...], ...]
+                    };
+                } else {
+                    // No cuts — just the outer contour
+                    profileData = {
+                        outer: state.outer.map(p => [p.x, p.y]),
+                        hollows: [],
+                    };
+                }
+
+                // Persist for session — hero3d.js reads on load
                 try { sessionStorage.setItem('staeler_custom_profile', JSON.stringify(profileData)); } catch (_) {}
 
-                // Live-update the hero 3D in the same tab (no reload needed)
+                // Live-update the hero 3D
                 document.dispatchEvent(new CustomEvent('staeler:profileUpdate', { detail: profileData }));
 
                 // Open the 3D quote preview modal

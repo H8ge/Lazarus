@@ -110,7 +110,7 @@ import { setupProfileScene } from './profile3d.js';
             { label: 'Gewicht / m', value: weightPerM + ' kg/m' },
             { label: 'Breite × Höhe', value: `${w} × ${h} mm` },
             { label: 'Umschr. Kreis ⌀', value: circDia + ' mm' },
-            { label: 'Hohlräume', value: (profileData.hollows || []).length.toString() },
+            { label: 'Kammern', value: (profileData.hollows || []).length.toString() },
             { label: 'Ecken gesamt', value: (outer.length + (profileData.hollows || []).reduce((s, h) => s + h.length, 0)).toString() },
         ];
 
