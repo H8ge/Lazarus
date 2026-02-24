@@ -757,7 +757,6 @@ const CustomConfigurator = (() => {
 
             const isSelected = state.selectedIndex === i;
 
-            // Dark fill
             ctx.beginPath();
             const fp = mmToCanvas(cut[0].x, cut[0].y);
             ctx.moveTo(fp.x, fp.y);
@@ -766,37 +765,48 @@ const CustomConfigurator = (() => {
                 ctx.lineTo(pp.x, pp.y);
             }
             ctx.closePath();
-            ctx.fillStyle = 'rgba(5, 5, 8, 0.6)';
-            ctx.fill();
 
-            // Cross-hatch pattern inside cut
-            ctx.save();
-            ctx.clip();
-            const cbb = boundingBox(cut);
-            const ctl = mmToCanvas(cbb.minX, cbb.minY);
-            const cbr = mmToCanvas(cbb.maxX, cbb.maxY);
-            drawHatchPattern(ctl.x, ctl.y, cbr.x - ctl.x, cbr.y - ctl.y);
-            ctx.restore();
+            if (state.resultPolygon) {
+                // Boolean result already baked holes into the shape via evenodd fill.
+                // Only draw a dashed outline so the user can see/select cut boundaries
+                // without covering the transparent holes.
+                ctx.strokeStyle = isSelected ? '#f5a623' : 'rgba(224, 19, 47, 0.55)';
+                ctx.lineWidth = isSelected ? 2 : 1.5;
+                ctx.setLineDash([5, 3]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            } else {
+                // No boolean result yet — show dark overlay with hatch
+                ctx.fillStyle = 'rgba(5, 5, 8, 0.6)';
+                ctx.fill();
 
-            // Stroke outline
-            ctx.beginPath();
-            const fp2 = mmToCanvas(cut[0].x, cut[0].y);
-            ctx.moveTo(fp2.x, fp2.y);
-            for (let j = 1; j < cut.length; j++) {
-                const pp = mmToCanvas(cut[j].x, cut[j].y);
-                ctx.lineTo(pp.x, pp.y);
+                ctx.save();
+                ctx.clip();
+                const cbb = boundingBox(cut);
+                const ctl = mmToCanvas(cbb.minX, cbb.minY);
+                const cbr = mmToCanvas(cbb.maxX, cbb.maxY);
+                drawHatchPattern(ctl.x, ctl.y, cbr.x - ctl.x, cbr.y - ctl.y);
+                ctx.restore();
+
+                ctx.beginPath();
+                const fp2 = mmToCanvas(cut[0].x, cut[0].y);
+                ctx.moveTo(fp2.x, fp2.y);
+                for (let j = 1; j < cut.length; j++) {
+                    const pp = mmToCanvas(cut[j].x, cut[j].y);
+                    ctx.lineTo(pp.x, pp.y);
+                }
+                ctx.closePath();
+                ctx.strokeStyle = isSelected ? '#f5a623' : '#e0132f';
+                ctx.lineWidth = isSelected ? 2.5 : 1.5;
+                ctx.stroke();
             }
-            ctx.closePath();
-            ctx.strokeStyle = isSelected ? '#f5a623' : '#e0132f';
-            ctx.lineWidth = isSelected ? 2.5 : 1.5;
-            ctx.stroke();
 
             // Cut vertices
             for (const pt of cut) {
                 const p = mmToCanvas(pt.x, pt.y);
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-                ctx.fillStyle = '#e0132f';
+                ctx.fillStyle = isSelected ? '#f5a623' : '#e0132f';
                 ctx.fill();
             }
         }
@@ -850,6 +860,33 @@ const CustomConfigurator = (() => {
             ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
             ctx.fillStyle = state.mode === 'draw-outer' ? '#22c55e' : '#f5a623';
             ctx.fill();
+        }
+
+        // Live length + angle HUD near cursor
+        if (state.drawingPoints.length > 0 && state.cursorMm) {
+            const last = state.drawingPoints[state.drawingPoints.length - 1];
+            const dx = state.cursorMm.x - last.x;
+            const dy = state.cursorMm.y - last.y;
+            const len = Math.hypot(dx, dy).toFixed(1);
+            // Angle: 0° = right, 90° = up (canvas y increases downward so negate dy)
+            let angle = Math.atan2(-dy, dx) * 180 / Math.PI;
+            if (angle < 0) angle += 360;
+            const label = `${len} mm  ${angle.toFixed(1)}°`;
+
+            const cp = mmToCanvas(state.cursorMm.x, state.cursorMm.y);
+            ctx.save();
+            ctx.font = 'bold 11px "JetBrains Mono", monospace';
+            const tw = ctx.measureText(label).width;
+            const pad = 5;
+            const tx = cp.x + 16;
+            const ty = cp.y - 16;
+            ctx.fillStyle = 'rgba(10, 10, 14, 0.88)';
+            ctx.fillRect(tx - pad, ty - 9 - pad, tw + pad * 2, 18 + pad * 2);
+            ctx.fillStyle = state.mode === 'draw-outer' ? '#22c55e' : '#f5a623';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, tx, ty);
+            ctx.restore();
         }
 
         // Close indicator - highlight first point when cursor is near it
@@ -1568,7 +1605,18 @@ const CustomConfigurator = (() => {
 
     function updateCursorDisplay(mm) {
         const el = document.getElementById('ccCursorPos');
-        if (el) el.textContent = `${mm.x.toFixed(1)} , ${mm.y.toFixed(1)} mm`;
+        if (!el) return;
+        if ((state.mode === 'draw-outer' || state.mode === 'draw-cut') && state.drawingPoints.length > 0) {
+            const last = state.drawingPoints[state.drawingPoints.length - 1];
+            const dx = mm.x - last.x;
+            const dy = mm.y - last.y;
+            const len = Math.hypot(dx, dy).toFixed(1);
+            let angle = Math.atan2(-dy, dx) * 180 / Math.PI;
+            if (angle < 0) angle += 360;
+            el.textContent = `${mm.x.toFixed(1)}, ${mm.y.toFixed(1)} mm  |  L: ${len} mm  ∠: ${angle.toFixed(1)}°`;
+        } else {
+            el.textContent = `${mm.x.toFixed(1)} , ${mm.y.toFixed(1)} mm`;
+        }
     }
 
     function updateCalculations() {
@@ -1877,8 +1925,12 @@ const CustomConfigurator = (() => {
                 // Live-update the hero 3D
                 document.dispatchEvent(new CustomEvent('staeler:profileUpdate', { detail: profileData }));
 
-                // Open the 3D quote preview modal
-                document.dispatchEvent(new CustomEvent('staeler:openProfile3DModal', { detail: profileData }));
+                // Open the quote confirmation modal directly
+                const ref = 'STL-' + new Date().getFullYear() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+                const refEl = document.getElementById('modalRef');
+                if (refEl) refEl.textContent = ref;
+                const successModal = document.getElementById('quoteModal');
+                if (successModal) successModal.classList.add('active');
             });
         }
 
