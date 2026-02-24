@@ -216,6 +216,8 @@ const CustomConfigurator = (() => {
         dragging: false,
         dragOffset: {x:0, y:0},
         draggingVertex: null,       // {source:'outer'|'cut', cutIdx:n, pointIdx:n}
+        cursorMm: null,
+        lengthInput: '',            // accumulates typed digits for exact length entry
         // View
         scale: 3.5,                 // pixels per mm
         offsetX: 0,
@@ -253,6 +255,27 @@ const CustomConfigurator = (() => {
             y = Math.round(y / state.gridSize) * state.gridSize;
         }
         return { x, y };
+    }
+
+    // When typing a length, constrain cursor to exact distance from last point
+    function getEffectiveCursorMm() {
+        if (!state.cursorMm) return null;
+        if (state.lengthInput && state.drawingPoints.length > 0) {
+            const len = parseFloat(state.lengthInput);
+            if (!isNaN(len) && len > 0) {
+                const last = state.drawingPoints[state.drawingPoints.length - 1];
+                const dx = state.cursorMm.x - last.x;
+                const dy = state.cursorMm.y - last.y;
+                const dist = Math.hypot(dx, dy);
+                if (dist > 0.001) {
+                    return {
+                        x: last.x + (dx / dist) * len,
+                        y: last.y + (dy / dist) * len,
+                    };
+                }
+            }
+        }
+        return state.cursorMm;
     }
 
     // ========================================================================
@@ -691,9 +714,10 @@ const CustomConfigurator = (() => {
     function drawProfile() {
         if (state.outer.length < 3) return;
 
-        // --- Draw the result polygon (boolean output) or plain outer ---
+        // === ONE unified shape — the boolean result or plain outer ===
         if (state.resultPolygon && state.resultPolygon.length > 0) {
-            // Draw the boolean result — the actual material shape
+            // Boolean result: one shape with holes baked in.
+            // This is the ONLY thing we draw — cuts are invisible (already subtracted).
             for (const poly of state.resultPolygon) {
                 const outerRing = poly[0];
                 const holes = poly.slice(1);
@@ -707,7 +731,6 @@ const CustomConfigurator = (() => {
                 }
                 ctx.closePath();
 
-                // Draw holes using even-odd fill
                 for (const hole of holes) {
                     const h0 = mmToCanvas(hole[0][0], hole[0][1]);
                     ctx.moveTo(h0.x, h0.y);
@@ -718,14 +741,14 @@ const CustomConfigurator = (() => {
                     ctx.closePath();
                 }
 
-                ctx.fillStyle = 'rgba(200, 16, 46, 0.15)';
+                ctx.fillStyle = 'rgba(200, 16, 46, 0.18)';
                 ctx.fill('evenodd');
                 ctx.strokeStyle = '#c8102e';
                 ctx.lineWidth = 2;
                 ctx.stroke();
             }
         } else {
-            // No cuts or boolean not computed — draw outer as-is
+            // No cuts — draw the outer contour as-is
             ctx.beginPath();
             const p0 = mmToCanvas(state.outer[0].x, state.outer[0].y);
             ctx.moveTo(p0.x, p0.y);
@@ -734,14 +757,14 @@ const CustomConfigurator = (() => {
                 ctx.lineTo(p.x, p.y);
             }
             ctx.closePath();
-            ctx.fillStyle = 'rgba(200, 16, 46, 0.15)';
+            ctx.fillStyle = 'rgba(200, 16, 46, 0.18)';
             ctx.fill();
             ctx.strokeStyle = '#c8102e';
             ctx.lineWidth = 2;
             ctx.stroke();
         }
 
-        // Draw outer contour vertices
+        // Outer contour vertices (always visible for editing)
         for (const pt of state.outer) {
             const p = mmToCanvas(pt.x, pt.y);
             ctx.beginPath();
@@ -750,64 +773,37 @@ const CustomConfigurator = (() => {
             ctx.fill();
         }
 
-        // --- Draw cut shapes (negative) ---
-        for (let i = 0; i < state.cuts.length; i++) {
-            const cut = state.cuts[i];
-            if (cut.length < 3) continue;
-
-            const isSelected = state.selectedIndex === i;
-
-            ctx.beginPath();
-            const fp = mmToCanvas(cut[0].x, cut[0].y);
-            ctx.moveTo(fp.x, fp.y);
-            for (let j = 1; j < cut.length; j++) {
-                const pp = mmToCanvas(cut[j].x, cut[j].y);
-                ctx.lineTo(pp.x, pp.y);
-            }
-            ctx.closePath();
-
-            if (state.resultPolygon) {
-                // Boolean result already baked holes into the shape via evenodd fill.
-                // Only draw a dashed outline so the user can see/select cut boundaries
-                // without covering the transparent holes.
-                ctx.strokeStyle = isSelected ? '#f5a623' : 'rgba(224, 19, 47, 0.55)';
-                ctx.lineWidth = isSelected ? 2 : 1.5;
-                ctx.setLineDash([5, 3]);
-                ctx.stroke();
-                ctx.setLineDash([]);
-            } else {
-                // No boolean result yet — show dark overlay with hatch
-                ctx.fillStyle = 'rgba(5, 5, 8, 0.6)';
-                ctx.fill();
-
-                ctx.save();
-                ctx.clip();
-                const cbb = boundingBox(cut);
-                const ctl = mmToCanvas(cbb.minX, cbb.minY);
-                const cbr = mmToCanvas(cbb.maxX, cbb.maxY);
-                drawHatchPattern(ctl.x, ctl.y, cbr.x - ctl.x, cbr.y - ctl.y);
-                ctx.restore();
+        // In select mode only: show subtle cut boundaries so user can pick/edit them
+        if (state.mode === 'select') {
+            for (let i = 0; i < state.cuts.length; i++) {
+                const cut = state.cuts[i];
+                if (cut.length < 3) continue;
+                const isSelected = state.selectedIndex === i;
 
                 ctx.beginPath();
-                const fp2 = mmToCanvas(cut[0].x, cut[0].y);
-                ctx.moveTo(fp2.x, fp2.y);
+                const fp = mmToCanvas(cut[0].x, cut[0].y);
+                ctx.moveTo(fp.x, fp.y);
                 for (let j = 1; j < cut.length; j++) {
                     const pp = mmToCanvas(cut[j].x, cut[j].y);
                     ctx.lineTo(pp.x, pp.y);
                 }
                 ctx.closePath();
-                ctx.strokeStyle = isSelected ? '#f5a623' : '#e0132f';
-                ctx.lineWidth = isSelected ? 2.5 : 1.5;
-                ctx.stroke();
-            }
 
-            // Cut vertices
-            for (const pt of cut) {
-                const p = mmToCanvas(pt.x, pt.y);
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-                ctx.fillStyle = isSelected ? '#f5a623' : '#e0132f';
-                ctx.fill();
+                ctx.strokeStyle = isSelected ? '#f5a623' : 'rgba(224, 19, 47, 0.25)';
+                ctx.lineWidth = isSelected ? 2 : 1;
+                ctx.setLineDash([4, 3]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                if (isSelected) {
+                    for (const pt of cut) {
+                        const p = mmToCanvas(pt.x, pt.y);
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                        ctx.fillStyle = '#f5a623';
+                        ctx.fill();
+                    }
+                }
             }
         }
     }
@@ -833,6 +829,9 @@ const CustomConfigurator = (() => {
     function drawCurrentDrawing() {
         if (state.drawingPoints.length === 0) return;
 
+        const effectiveCursor = getEffectiveCursorMm();
+        const color = state.mode === 'draw-outer' ? '#22c55e' : '#f5a623';
+
         ctx.beginPath();
         const fp = mmToCanvas(state.drawingPoints[0].x, state.drawingPoints[0].y);
         ctx.moveTo(fp.x, fp.y);
@@ -841,13 +840,13 @@ const CustomConfigurator = (() => {
             ctx.lineTo(p.x, p.y);
         }
 
-        // Line to cursor
-        if (state.cursorMm) {
-            const cp = mmToCanvas(state.cursorMm.x, state.cursorMm.y);
+        // Line to effective cursor (constrained if typing length)
+        if (effectiveCursor) {
+            const cp = mmToCanvas(effectiveCursor.x, effectiveCursor.y);
             ctx.lineTo(cp.x, cp.y);
         }
 
-        ctx.strokeStyle = state.mode === 'draw-outer' ? '#22c55e' : '#f5a623';
+        ctx.strokeStyle = color;
         ctx.lineWidth = 1.5;
         ctx.setLineDash([6, 4]);
         ctx.stroke();
@@ -858,46 +857,81 @@ const CustomConfigurator = (() => {
             const p = mmToCanvas(pt.x, pt.y);
             ctx.beginPath();
             ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-            ctx.fillStyle = state.mode === 'draw-outer' ? '#22c55e' : '#f5a623';
+            ctx.fillStyle = color;
             ctx.fill();
         }
 
-        // Live length + angle HUD near cursor
-        if (state.drawingPoints.length > 0 && state.cursorMm) {
+        // Live HUD near cursor: length, angle, and typed-length input
+        if (state.drawingPoints.length > 0 && effectiveCursor) {
             const last = state.drawingPoints[state.drawingPoints.length - 1];
-            const dx = state.cursorMm.x - last.x;
-            const dy = state.cursorMm.y - last.y;
-            const len = Math.hypot(dx, dy).toFixed(1);
-            // Angle: 0° = right, 90° = up (canvas y increases downward so negate dy)
+            const dx = effectiveCursor.x - last.x;
+            const dy = effectiveCursor.y - last.y;
+            const len = Math.hypot(dx, dy);
             let angle = Math.atan2(-dy, dx) * 180 / Math.PI;
             if (angle < 0) angle += 360;
-            const label = `${len} mm  ${angle.toFixed(1)}°`;
 
-            const cp = mmToCanvas(state.cursorMm.x, state.cursorMm.y);
+            const cp = mmToCanvas(effectiveCursor.x, effectiveCursor.y);
             ctx.save();
-            ctx.font = 'bold 11px "JetBrains Mono", monospace';
-            const tw = ctx.measureText(label).width;
-            const pad = 5;
-            const tx = cp.x + 16;
-            const ty = cp.y - 16;
-            ctx.fillStyle = 'rgba(10, 10, 14, 0.88)';
-            ctx.fillRect(tx - pad, ty - 9 - pad, tw + pad * 2, 18 + pad * 2);
-            ctx.fillStyle = state.mode === 'draw-outer' ? '#22c55e' : '#f5a623';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(label, tx, ty);
+
+            if (state.lengthInput) {
+                // Typing mode: show prominent input box
+                ctx.font = 'bold 12px "JetBrains Mono", monospace';
+                const inputLabel = state.lengthInput + '_ mm';
+                const angleLabel = `  ${angle.toFixed(1)}°`;
+                const fullLabel = inputLabel + angleLabel;
+                const tw = ctx.measureText(fullLabel).width;
+                const pad = 6;
+                const tx = cp.x + 16;
+                const ty = cp.y - 20;
+
+                // Input box background
+                ctx.fillStyle = 'rgba(10, 10, 14, 0.95)';
+                ctx.fillRect(tx - pad, ty - 11 - pad, tw + pad * 2, 22 + pad * 2);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(tx - pad, ty - 11 - pad, tw + pad * 2, 22 + pad * 2);
+
+                // Input text
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(inputLabel, tx, ty);
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.fillText(angleLabel, tx + ctx.measureText(inputLabel).width, ty);
+
+                // Constrained point marker
+                ctx.beginPath();
+                ctx.arc(cp.x, cp.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.fill();
+            } else {
+                // Normal mode: show length and angle
+                ctx.font = 'bold 11px "JetBrains Mono", monospace';
+                const label = `${len.toFixed(1)} mm  ${angle.toFixed(1)}°`;
+                const tw = ctx.measureText(label).width;
+                const pad = 5;
+                const tx = cp.x + 16;
+                const ty = cp.y - 16;
+                ctx.fillStyle = 'rgba(10, 10, 14, 0.88)';
+                ctx.fillRect(tx - pad, ty - 9 - pad, tw + pad * 2, 18 + pad * 2);
+                ctx.fillStyle = color;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(label, tx, ty);
+            }
+
             ctx.restore();
         }
 
-        // Close indicator - highlight first point when cursor is near it
-        if (state.drawingPoints.length >= 3 && state.cursorMm) {
+        // Close indicator — highlight first point when cursor is near it
+        if (state.drawingPoints.length >= 3 && effectiveCursor) {
             const first = state.drawingPoints[0];
-            const dist = Math.hypot(state.cursorMm.x - first.x, state.cursorMm.y - first.y);
+            const dist = Math.hypot(effectiveCursor.x - first.x, effectiveCursor.y - first.y);
             if (dist < state.gridSize * 1.5) {
                 const fp2 = mmToCanvas(first.x, first.y);
                 ctx.beginPath();
                 ctx.arc(fp2.x, fp2.y, 10, 0, Math.PI * 2);
-                ctx.strokeStyle = state.mode === 'draw-outer' ? '#22c55e' : '#f5a623';
+                ctx.strokeStyle = color;
                 ctx.lineWidth = 2;
                 ctx.stroke();
             }
@@ -1404,19 +1438,24 @@ const CustomConfigurator = (() => {
 
     function onClick(e) {
         if (e.button !== 0) return;
-        const mm = getMouseMm(e);
 
         if (state.mode === 'draw-outer' || state.mode === 'draw-cut') {
+            // Use constrained position if typing a length, otherwise raw mouse
+            const mm = state.lengthInput ? getEffectiveCursorMm() : getMouseMm(e);
+            if (!mm) return;
+
             // Check if clicking near first point to close
             if (state.drawingPoints.length >= 3) {
                 const first = state.drawingPoints[0];
                 const dist = Math.hypot(mm.x - first.x, mm.y - first.y);
                 if (dist < state.gridSize * 1.5) {
+                    state.lengthInput = '';
                     closeCurrentShape();
                     return;
                 }
             }
             state.drawingPoints.push({ x: mm.x, y: mm.y });
+            state.lengthInput = '';
             render();
         }
     }
@@ -1505,6 +1544,54 @@ const CustomConfigurator = (() => {
     }
 
     function onKeyDown(e) {
+        // --- Fusion 360-style length input while drawing ---
+        if ((state.mode === 'draw-outer' || state.mode === 'draw-cut') && state.drawingPoints.length > 0) {
+            // Digit or period → accumulate into length input
+            if ((e.key >= '0' && e.key <= '9') || e.key === '.') {
+                if (e.key === '.' && state.lengthInput.includes('.')) return;
+                state.lengthInput += e.key;
+                render();
+                e.preventDefault();
+                return;
+            }
+            // Backspace while typing length → remove last char
+            if (e.key === 'Backspace' && state.lengthInput.length > 0) {
+                state.lengthInput = state.lengthInput.slice(0, -1);
+                render();
+                e.preventDefault();
+                return;
+            }
+            // Enter → place point at the exact typed length
+            if (e.key === 'Enter' && state.lengthInput) {
+                const eff = getEffectiveCursorMm();
+                if (eff) {
+                    // Check if placing near first point to close shape
+                    if (state.drawingPoints.length >= 3) {
+                        const first = state.drawingPoints[0];
+                        const dist = Math.hypot(eff.x - first.x, eff.y - first.y);
+                        if (dist < state.gridSize * 1.5) {
+                            state.lengthInput = '';
+                            closeCurrentShape();
+                            e.preventDefault();
+                            return;
+                        }
+                    }
+                    state.drawingPoints.push({ x: eff.x, y: eff.y });
+                    state.lengthInput = '';
+                    render();
+                }
+                e.preventDefault();
+                return;
+            }
+            // Escape while typing length → cancel length input only
+            if (e.key === 'Escape' && state.lengthInput) {
+                state.lengthInput = '';
+                render();
+                e.preventDefault();
+                return;
+            }
+        }
+
         if (e.key === 'Delete' || e.key === 'Backspace') {
             if (state.selectedIndex >= 0) {
                 state.cuts.splice(state.selectedIndex, 1);
@@ -1526,6 +1613,7 @@ const CustomConfigurator = (() => {
         }
         if (e.key === 'Escape') {
             state.drawingPoints = [];
+            state.lengthInput = '';
             rectStartMm = null;
             state.selectedIndex = -1;
             render();
@@ -1542,6 +1630,7 @@ const CustomConfigurator = (() => {
     function setMode(mode) {
         state.mode = mode;
         state.drawingPoints = [];
+        state.lengthInput = '';
         rectStartMm = null;
         state.selectedIndex = -1;
 
@@ -1607,13 +1696,15 @@ const CustomConfigurator = (() => {
         const el = document.getElementById('ccCursorPos');
         if (!el) return;
         if ((state.mode === 'draw-outer' || state.mode === 'draw-cut') && state.drawingPoints.length > 0) {
+            const eff = getEffectiveCursorMm() || mm;
             const last = state.drawingPoints[state.drawingPoints.length - 1];
-            const dx = mm.x - last.x;
-            const dy = mm.y - last.y;
-            const len = Math.hypot(dx, dy).toFixed(1);
+            const dx = eff.x - last.x;
+            const dy = eff.y - last.y;
+            const len = Math.hypot(dx, dy);
             let angle = Math.atan2(-dy, dx) * 180 / Math.PI;
             if (angle < 0) angle += 360;
-            el.textContent = `${mm.x.toFixed(1)}, ${mm.y.toFixed(1)} mm  |  L: ${len} mm  ∠: ${angle.toFixed(1)}°`;
+            const lenStr = state.lengthInput ? state.lengthInput + '_' : len.toFixed(1);
+            el.textContent = `${eff.x.toFixed(1)}, ${eff.y.toFixed(1)} mm  |  L: ${lenStr} mm  \u2220: ${angle.toFixed(1)}\u00B0`;
         } else {
             el.textContent = `${mm.x.toFixed(1)} , ${mm.y.toFixed(1)} mm`;
         }
