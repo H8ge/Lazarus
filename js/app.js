@@ -29,6 +29,9 @@
         navToggle.addEventListener('click', function () {
             var isOpen = navLinks.classList.toggle('open');
             navToggle.classList.toggle('open', isOpen);
+            // menu-open on nav: expands to full viewport, drops backdrop-filter
+            // so the fixed overlay isn't trapped inside a 72px containing block
+            nav.classList.toggle('menu-open', isOpen);
             document.body.style.overflow = isOpen ? 'hidden' : '';
         });
 
@@ -37,6 +40,7 @@
             link.addEventListener('click', function () {
                 navToggle.classList.remove('open');
                 navLinks.classList.remove('open');
+                nav.classList.remove('menu-open');
                 document.body.style.overflow = '';
             });
         });
