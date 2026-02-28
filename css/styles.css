@@ -2725,11 +2725,7 @@ html {
 
     .hero-visual {
         order: 0;
-        min-height: 300px;
-    }
-
-    #hero3d {
-        /* canvas now fills full hero section */
+        min-height: 200px;
     }
 
     .hero-capacity-badge {
@@ -2833,43 +2829,137 @@ html {
     }
 
     .container {
-        padding: 0 20px;
+        padding: 0 16px;
     }
 
     .section-header {
-        margin-bottom: 48px;
+        margin-bottom: 40px;
+    }
+
+    .section-desc {
+        font-size: 14px;
+    }
+
+    /* --- Hero --- */
+    .hero {
+        min-height: auto;
+        padding: var(--nav-height) 0 24px;
+    }
+
+    .hero-inner {
+        gap: 16px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .hero-visual {
+        min-height: 160px;
     }
 
     .hero-title {
-        font-size: clamp(36px, 10vw, 56px);
+        font-size: clamp(32px, 10vw, 52px);
+        margin-bottom: 16px;
     }
 
+    .hero-content {
+        position: relative;
+        z-index: 3;
+    }
+
+    .hero-text {
+        font-size: 14px;
+        line-height: 1.65;
+        margin-bottom: 8px;
+    }
+
+    .hero-capacity-badge {
+        font-size: 11px;
+        padding: 8px 14px;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .hero-actions {
+        margin-top: 20px;
+        gap: 12px;
+    }
+
+    .hero-scroll {
+        display: none;
+    }
+
+    /* --- Nav --- */
     .nav-tagline {
         display: none;
     }
 
+    .nav-inner-full {
+        padding: 0 16px;
+    }
+
+    .nav-toggle {
+        padding: 10px;
+        width: 36px;
+    }
+
     .nav-link {
-        font-size: 28px;
+        font-size: 24px;
+        padding: 10px 20px;
     }
 
     .nav-link-cta {
-        font-size: 28px;
+        font-size: 24px;
+    }
+
+    /* --- Capacity --- */
+    .capacity-section {
+        padding: 40px 0;
     }
 
     .capacity-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 0;
     }
 
     .capacity-value {
-        font-size: 36px;
+        font-size: 32px;
     }
 
+    .capacity-item {
+        padding: 16px 12px;
+    }
+
+    /* --- Capabilities --- */
     .capability-card {
-        padding: 32px;
+        padding: 28px 24px;
+    }
+
+    .capability-number {
+        font-size: 36px;
+        margin-bottom: 16px;
+    }
+
+    .capability-title {
+        font-size: 18px;
+    }
+
+    .capability-desc {
+        font-size: 14px;
+    }
+
+    /* --- Configurator --- */
+    .configurator {
+        padding: 20px 16px;
+    }
+
+    .config-note {
+        font-size: 12px;
     }
 
     .profile-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
     }
 
     .config-steps {
@@ -2889,55 +2979,108 @@ html {
         grid-template-columns: 1fr;
     }
 
-    .configurator {
-        padding: 24px;
-    }
-
     .config-mode-tabs {
         max-width: 100%;
+        flex-wrap: wrap;
+        gap: 0;
     }
 
     .config-mode-tab {
         padding: 10px 12px;
         font-size: 13px;
+        flex: 1;
+        min-width: 0;
     }
 
+    .config-mode-tab .tab-note {
+        font-size: 10px;
+    }
+
+    .config-panel-title {
+        font-size: 18px;
+    }
+
+    .config-nav {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .config-nav .btn {
+        font-size: 13px;
+    }
+
+    /* --- Specs --- */
     .specs-grid {
         grid-template-columns: 1fr;
     }
 
+    .spec-card {
+        padding: 24px 20px;
+    }
+
+    .spec-list li {
+        font-size: 13px;
+    }
+
+    /* --- Process --- */
     .process-grid {
         grid-template-columns: 1fr;
     }
 
     .process-card {
-        padding: 36px 28px;
+        padding: 28px 24px;
     }
 
+    /* --- Trust --- */
     .trust-stats {
-        gap: 40px;
+        gap: 32px;
+        flex-wrap: wrap;
     }
 
     .trust-stat-value {
-        font-size: 40px;
+        font-size: 36px;
     }
 
     .trust-stat-suffix {
+        font-size: 20px;
+    }
+
+    .trust-industries {
+        gap: 8px;
+    }
+
+    .trust-tag {
+        font-size: 11px;
+        padding: 6px 12px;
+    }
+
+    /* --- CTA --- */
+    .cta-inner {
+        padding: 48px 24px;
+    }
+
+    .cta-title {
         font-size: 24px;
     }
 
-    .cta-inner {
-        padding: 56px 32px;
+    .cta-desc {
+        font-size: 14px;
     }
 
+    /* --- Contact --- */
     .form-row {
         grid-template-columns: 1fr;
     }
 
     .contact-form {
-        padding: 28px;
+        padding: 24px 20px;
     }
 
+    .contact-info-card {
+        padding: 24px 20px;
+    }
+
+    /* --- Footer --- */
     .footer-links {
         grid-template-columns: 1fr;
         gap: 24px;
@@ -2949,15 +3092,55 @@ html {
         text-align: center;
     }
 
-    /* CC responsive */
+    /* --- Modals --- */
+    .modal {
+        padding: 32px 24px;
+        margin: 16px;
+    }
+
+    .modal-icon {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 16px;
+    }
+
+    .modal-title {
+        font-size: 20px;
+    }
+
+    .profile3d-modal-dialog {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+    }
+
+    .profile3d-modal-info {
+        padding: 20px 16px;
+    }
+
+    .profile3d-modal-title {
+        font-size: 18px;
+    }
+
+    .profile3d-modal-specs {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    /* --- CC custom configurator --- */
     .cc-templates {
         flex-direction: column;
         align-items: flex-start;
+        padding: 12px 16px;
+        gap: 8px;
     }
 
     .cc-toolbar {
         gap: 2px;
         padding: 6px 8px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
     }
 
     .cc-tool-btn span {
@@ -2965,33 +3148,69 @@ html {
     }
 
     .cc-tool-btn {
-        padding: 6px;
+        padding: 8px;
+        min-width: 36px;
+        min-height: 36px;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .cc-tool-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .cc-toolbar-sep {
+        height: 20px;
+        margin: 0 2px;
     }
 
     .cc-canvas-wrapper {
-        min-height: 300px;
-        max-height: 350px;
-        height: 300px;
+        min-height: 280px;
+        max-height: 340px;
+        height: 280px;
         flex: none;
     }
 
     .cc-canvas-area {
-        max-height: 420px;
+        max-height: 400px;
     }
 
     .cc-canvas-footer {
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 4px;
+        padding: 5px 10px;
+        font-size: 10px;
     }
 
     .cc-canvas-hint {
-        order: 3;
-        width: 100%;
-        text-align: left;
+        display: none;
+    }
+
+    .cc-cursor-pos {
+        font-size: 10px;
+        flex: 1;
+    }
+
+    .cc-grid-controls label {
+        font-size: 10px;
     }
 
     .cc-info-grid {
         grid-template-columns: 1fr;
+    }
+
+    .cc-section {
+        padding: 14px 16px;
+    }
+
+    .cc-actions {
+        padding: 14px 16px;
+    }
+
+    .cc-actions .btn-lg {
+        padding: 14px 20px;
+        font-size: 13px;
     }
 
     .lang-switcher {
@@ -3007,30 +3226,40 @@ html {
    ========================================================================== */
 @media (max-width: 480px) {
     :root {
-        --section-padding: 60px;
+        --section-padding: 48px;
     }
 
+    .container {
+        padding: 0 14px;
+    }
+
+    /* --- Hero small --- */
     .hero-title {
-        font-size: 36px;
+        font-size: 32px;
+        margin-bottom: 12px;
     }
 
     .hero-text {
-        font-size: 15px;
+        font-size: 13px;
     }
 
-    #hero3d {
-        /* canvas fills full hero section */
+    .hero-visual {
+        min-height: 120px;
     }
 
     .hero-capacity-badge {
-        flex-wrap: wrap;
-        gap: 6px 10px;
-        font-size: 11px;
-        padding: 8px 14px;
+        font-size: 10px;
+        padding: 6px 10px;
+        gap: 5px 8px;
+    }
+
+    .hero-badge-dot {
+        font-size: 10px;
     }
 
     .hero-actions {
         flex-direction: column;
+        gap: 10px;
     }
 
     .hero-actions .btn {
@@ -3038,35 +3267,81 @@ html {
         justify-content: center;
     }
 
+    /* --- Capacity small --- */
     .capacity-grid {
         grid-template-columns: 1fr 1fr;
     }
 
     .capacity-value {
-        font-size: 28px;
+        font-size: 26px;
     }
 
     .capacity-label {
-        font-size: 10px;
+        font-size: 9px;
         letter-spacing: 1px;
+    }
+
+    .capacity-unit {
+        font-size: 14px;
+    }
+
+    /* --- Cards small --- */
+    .capability-card {
+        padding: 24px 20px;
+    }
+
+    .capability-number {
+        font-size: 32px;
+    }
+
+    .capability-title {
+        font-size: 17px;
+    }
+
+    /* --- Configurator small --- */
+    .configurator {
+        padding: 16px 12px;
     }
 
     .profile-grid {
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
+        gap: 8px;
     }
 
     .profile-card {
-        padding: 16px 12px;
+        padding: 14px 10px;
     }
 
     .profile-card-icon {
-        width: 48px;
-        height: 48px;
+        width: 44px;
+        height: 44px;
     }
 
+    .config-mode-tab {
+        padding: 8px 8px;
+        font-size: 12px;
+    }
+
+    .config-mode-tab .tab-note {
+        display: none;
+    }
+
+    /* --- Process small --- */
     .process-num {
-        font-size: 40px;
+        font-size: 36px;
+    }
+
+    .process-title {
+        font-size: 18px;
+    }
+
+    .process-desc {
+        font-size: 13px;
+    }
+
+    /* --- CTA small --- */
+    .cta-inner {
+        padding: 36px 20px;
     }
 
     .cta-actions {
@@ -3078,43 +3353,90 @@ html {
         justify-content: center;
     }
 
+    /* --- About small --- */
     .about-certs {
         gap: 6px;
     }
 
     .cert-badge {
-        padding: 4px 12px;
+        padding: 4px 10px;
         font-size: 10px;
     }
 
+    /* --- Global small --- */
     .section-title {
-        font-size: 28px;
+        font-size: 26px;
+    }
+
+    .section-label {
+        font-size: 10px;
     }
 
     .btn-lg {
-        padding: 14px 28px;
+        padding: 14px 24px;
         font-size: 13px;
     }
 
-    /* CC responsive */
+    /* --- CC small --- */
     .cc-canvas-wrapper {
-        min-height: 260px;
-        max-height: 300px;
-        height: 260px;
+        min-height: 240px;
+        max-height: 280px;
+        height: 240px;
         flex: none;
     }
 
     .cc-canvas-area {
-        max-height: 360px;
+        max-height: 340px;
     }
 
     .cc-tpl-btn {
-        min-width: 64px;
+        min-width: 60px;
         padding: 6px 8px;
     }
 
     .cc-tpl-btn svg {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .cc-tpl-btn span {
+        font-size: 9px;
+    }
+
+    .cc-canvas-footer {
+        padding: 4px 8px;
+    }
+
+    .cc-tool-btn {
+        padding: 7px;
+        min-width: 34px;
+        min-height: 34px;
+    }
+
+    /* --- Modal small --- */
+    .modal {
+        padding: 28px 20px;
+        margin: 12px;
+    }
+
+    .modal-title {
+        font-size: 18px;
+    }
+
+    .modal-text {
+        font-size: 13px;
+    }
+
+    .profile3d-modal-dialog {
+        grid-template-rows: 40vh auto;
+    }
+
+    .profile3d-modal-info {
+        padding: 16px 14px;
+        gap: 12px;
+    }
+
+    .profile3d-modal-specs {
+        grid-template-columns: 1fr;
     }
 }
