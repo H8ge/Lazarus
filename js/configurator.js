@@ -1,5 +1,5 @@
 /* ==========================================================================
-   FERRON Profile Configurator
+   STAELER Profile Configurator
    Interactive tool for configuring steel & aluminum profiles with
    real-time SVG preview, weight calculation, and price estimation.
 
@@ -47,16 +47,20 @@ const Configurator = (() => {
         aluminum: {
             label: 'Aluminum',
             density: 2700,
+            // All-in €/kg grounded in Werk ERP (staging_masked.auftragspos, FY2025+):
+            // blank/mill ≈ 4.95 €/kg median; alloy spread small. LME-indexed.
             grades: {
-                '6060-T6':  { label: '6060-T6 (AlMgSi)', pricePerKg: 4.20 },
-                '6063-T6':  { label: '6063-T6 (AlMg0.7Si)', pricePerKg: 4.50 },
-                '6082-T6':  { label: '6082-T6 (AlSi1MgMn)', pricePerKg: 4.90 },
+                '6060-T6':  { label: '6060-T6 (AlMgSi)', pricePerKg: 4.85 },
+                '6063-T6':  { label: '6063-T6 (AlMg0.7Si)', pricePerKg: 4.95 },
+                '6082-T6':  { label: '6082-T6 (AlSi1MgMn)', pricePerKg: 5.15 },
             },
+            // Surface adders grounded in DB: blank→anodized ≈ +2.05 €/kg,
+            // coloured ≈ +2.45, powder/RAL ≈ +3.35 (lands ≈ 8.3 €/kg all-in).
             treatments: {
                 'raw':       { label: 'Mill Finish', addPerKg: 0 },
-                'anodized':  { label: 'Anodized (natural)', addPerKg: 0.55 },
-                'anodized_c':{ label: 'Anodized (coloured)', addPerKg: 0.70 },
-                'powder':    { label: 'Powder Coated (RAL)', addPerKg: 0.42 },
+                'anodized':  { label: 'Anodized (natural)', addPerKg: 2.05 },
+                'anodized_c':{ label: 'Anodized (coloured)', addPerKg: 2.45 },
+                'powder':    { label: 'Powder Coated (RAL)', addPerKg: 3.35 },
             }
         }
     };
@@ -155,7 +159,7 @@ const Configurator = (() => {
                     L ${cx - tw/2} ${y0 + tf}
                     L ${x0} ${y0 + tf}
                     Z
-                " fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="1.5"/>`;
+                " fill="rgba(200,16,46,0.15)" stroke="#c8102e" stroke-width="1.5"/>`;
 
                 // Dimension lines
                 svg += drawDimLine(x0 - 30, y0, x0 - 30, y0 + h, `${p.h}`, 'left', size);
@@ -254,7 +258,7 @@ const Configurator = (() => {
                     L ${x0 + b} ${y0 + h}
                     L ${x0} ${y0 + h}
                     Z
-                " fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="1.5"/>`;
+                " fill="rgba(200,16,46,0.15)" stroke="#c8102e" stroke-width="1.5"/>`;
 
                 svg += drawDimLine(x0 - 30, y0, x0 - 30, y0 + h, `${p.h}`, 'left', size);
                 svg += drawDimLine(x0, y0 - 20, x0 + b, y0 - 20, `${p.b}`, 'top', size);
@@ -312,7 +316,7 @@ const Configurator = (() => {
                     L ${x0 + b} ${y0 + a}
                     L ${x0} ${y0 + a}
                     Z
-                " fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="1.5"/>`;
+                " fill="rgba(200,16,46,0.15)" stroke="#c8102e" stroke-width="1.5"/>`;
 
                 svg += drawDimLine(x0 - 25, y0, x0 - 25, y0 + a, `${p.a}`, 'left', size);
                 svg += drawDimLine(x0, y0 + a + 20, x0 + b, y0 + a + 20, `${p.b}`, 'bottom', size);
@@ -360,7 +364,7 @@ const Configurator = (() => {
                     L ${cx - tw/2} ${y0 + tf}
                     L ${x0} ${y0 + tf}
                     Z
-                " fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="1.5"/>`;
+                " fill="rgba(200,16,46,0.15)" stroke="#c8102e" stroke-width="1.5"/>`;
 
                 svg += drawDimLine(x0 - 25, y0, x0 - 25, y0 + h, `${p.h}`, 'left', size);
                 svg += drawDimLine(x0, y0 - 20, x0 + b, y0 - 20, `${p.b}`, 'top', size);
@@ -421,9 +425,9 @@ const Configurator = (() => {
                 const r = Math.min(t * 1.5, 8);
                 let svg = '';
                 // Outer rect
-                svg += `<rect x="${x0}" y="${y0}" width="${a}" height="${a}" rx="${r}" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="1.5"/>`;
+                svg += `<rect x="${x0}" y="${y0}" width="${a}" height="${a}" rx="${r}" fill="rgba(200,16,46,0.15)" stroke="#c8102e" stroke-width="1.5"/>`;
                 // Inner rect (hole)
-                svg += `<rect x="${x0 + t}" y="${y0 + t}" width="${a - 2*t}" height="${a - 2*t}" rx="${r*0.5}" fill="#111827" stroke="#3b82f6" stroke-width="0.8" stroke-dasharray="4 3"/>`;
+                svg += `<rect x="${x0 + t}" y="${y0 + t}" width="${a - 2*t}" height="${a - 2*t}" rx="${r*0.5}" fill="#111111" stroke="#c8102e" stroke-width="0.8" stroke-dasharray="4 3"/>`;
 
                 svg += drawDimLine(x0 - 25, y0, x0 - 25, y0 + a, `${p.a}`, 'left', size);
                 svg += drawDimLabel(x0 + t/2, cy, `t=${p.t}`, size);
@@ -479,8 +483,8 @@ const Configurator = (() => {
                 const x0 = cx - b / 2, y0 = cy - h / 2;
                 const r = Math.min(t * 1.5, 8);
                 let svg = '';
-                svg += `<rect x="${x0}" y="${y0}" width="${b}" height="${h}" rx="${r}" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="1.5"/>`;
-                svg += `<rect x="${x0 + t}" y="${y0 + t}" width="${b - 2*t}" height="${h - 2*t}" rx="${r*0.5}" fill="#111827" stroke="#3b82f6" stroke-width="0.8" stroke-dasharray="4 3"/>`;
+                svg += `<rect x="${x0}" y="${y0}" width="${b}" height="${h}" rx="${r}" fill="rgba(200,16,46,0.15)" stroke="#c8102e" stroke-width="1.5"/>`;
+                svg += `<rect x="${x0 + t}" y="${y0 + t}" width="${b - 2*t}" height="${h - 2*t}" rx="${r*0.5}" fill="#111111" stroke="#c8102e" stroke-width="0.8" stroke-dasharray="4 3"/>`;
 
                 svg += drawDimLine(x0 - 30, y0, x0 - 30, y0 + h, `${p.h}`, 'left', size);
                 svg += drawDimLine(x0, y0 - 20, x0 + b, y0 - 20, `${p.b}`, 'top', size);
@@ -532,8 +536,8 @@ const Configurator = (() => {
                 const ri = (p.d / 2 - p.t) * s;
 
                 let svg = '';
-                svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="1.5"/>`;
-                svg += `<circle cx="${cx}" cy="${cy}" r="${ri}" fill="#111827" stroke="#3b82f6" stroke-width="0.8" stroke-dasharray="4 3"/>`;
+                svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="rgba(200,16,46,0.15)" stroke="#c8102e" stroke-width="1.5"/>`;
+                svg += `<circle cx="${cx}" cy="${cy}" r="${ri}" fill="#111111" stroke="#c8102e" stroke-width="0.8" stroke-dasharray="4 3"/>`;
 
                 // Diameter dimension
                 svg += `<line x1="${cx - r}" y1="${cy}" x2="${cx + r}" y2="${cy}" stroke="#94a3b8" stroke-width="0.8" stroke-dasharray="4 2"/>`;
@@ -592,7 +596,7 @@ const Configurator = (() => {
                 const x0 = cx - b / 2, y0 = cy - t / 2;
                 const r = 2;
                 let svg = '';
-                svg += `<rect x="${x0}" y="${y0}" width="${b}" height="${t}" rx="${r}" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="1.5"/>`;
+                svg += `<rect x="${x0}" y="${y0}" width="${b}" height="${t}" rx="${r}" fill="rgba(200,16,46,0.15)" stroke="#c8102e" stroke-width="1.5"/>`;
 
                 svg += drawDimLine(x0, y0 - 20, x0 + b, y0 - 20, `${p.b}`, 'top', size);
                 svg += drawDimLine(x0 - 25, y0, x0 - 25, y0 + t, `${p.t}`, 'left', size);
@@ -645,7 +649,7 @@ const Configurator = (() => {
                 const r = p.d / 2 * s;
 
                 let svg = '';
-                svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="1.5"/>`;
+                svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="rgba(200,16,46,0.15)" stroke="#c8102e" stroke-width="1.5"/>`;
                 svg += `<line x1="${cx - r}" y1="${cy}" x2="${cx + r}" y2="${cy}" stroke="#94a3b8" stroke-width="0.8" stroke-dasharray="4 2"/>`;
                 svg += `<text x="${cx}" y="${cy - 8}" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="var(--font-mono)">D=${p.d}</text>`;
 
@@ -691,49 +695,49 @@ const Configurator = (() => {
     }
 
     function drawDimLabel(x, y, label, svgSize) {
-        return `<text x="${x}" y="${y}" text-anchor="middle" fill="#60a5fa" font-size="9" font-family="'JetBrains Mono', monospace" opacity="0.8">${label}</text>`;
+        return `<text x="${x}" y="${y}" text-anchor="middle" fill="#e0132f" font-size="9" font-family="'JetBrains Mono', monospace" opacity="0.8">${label}</text>`;
     }
 
     // Profile type SVG icons for the selection grid
     function getProfileIcon(typeKey) {
         const icons = {
             ipe: `<svg viewBox="0 0 72 72" fill="none">
-                <rect x="16" y="10" width="40" height="8" rx="1.5" fill="#3b82f6" opacity="0.7"/>
-                <rect x="31" y="18" width="10" height="36" rx="1" fill="#3b82f6" opacity="0.5"/>
-                <rect x="16" y="54" width="40" height="8" rx="1.5" fill="#3b82f6" opacity="0.7"/>
+                <rect x="16" y="10" width="40" height="8" rx="1.5" fill="#c8102e" opacity="0.7"/>
+                <rect x="31" y="18" width="10" height="36" rx="1" fill="#c8102e" opacity="0.5"/>
+                <rect x="16" y="54" width="40" height="8" rx="1.5" fill="#c8102e" opacity="0.7"/>
             </svg>`,
             hea: `<svg viewBox="0 0 72 72" fill="none">
-                <rect x="10" y="10" width="52" height="10" rx="1.5" fill="#3b82f6" opacity="0.7"/>
-                <rect x="29" y="20" width="14" height="32" rx="1" fill="#3b82f6" opacity="0.5"/>
-                <rect x="10" y="52" width="52" height="10" rx="1.5" fill="#3b82f6" opacity="0.7"/>
+                <rect x="10" y="10" width="52" height="10" rx="1.5" fill="#c8102e" opacity="0.7"/>
+                <rect x="29" y="20" width="14" height="32" rx="1" fill="#c8102e" opacity="0.5"/>
+                <rect x="10" y="52" width="52" height="10" rx="1.5" fill="#c8102e" opacity="0.7"/>
             </svg>`,
             upn: `<svg viewBox="0 0 72 72" fill="none">
-                <path d="M16 10 H52 V20 H26 V52 H52 V62 H16 Z" fill="#3b82f6" opacity="0.6" rx="1.5"/>
+                <path d="M16 10 H52 V20 H26 V52 H52 V62 H16 Z" fill="#c8102e" opacity="0.6" rx="1.5"/>
             </svg>`,
             angle: `<svg viewBox="0 0 72 72" fill="none">
-                <path d="M16 10 H26 V52 H62 V62 H16 Z" fill="#3b82f6" opacity="0.6"/>
+                <path d="M16 10 H26 V52 H62 V62 H16 Z" fill="#c8102e" opacity="0.6"/>
             </svg>`,
             tee: `<svg viewBox="0 0 72 72" fill="none">
-                <rect x="12" y="10" width="48" height="10" rx="1.5" fill="#3b82f6" opacity="0.7"/>
-                <rect x="30" y="20" width="12" height="42" rx="1" fill="#3b82f6" opacity="0.5"/>
+                <rect x="12" y="10" width="48" height="10" rx="1.5" fill="#c8102e" opacity="0.7"/>
+                <rect x="30" y="20" width="12" height="42" rx="1" fill="#c8102e" opacity="0.5"/>
             </svg>`,
             shs: `<svg viewBox="0 0 72 72" fill="none">
-                <rect x="12" y="12" width="48" height="48" rx="4" fill="#3b82f6" opacity="0.6"/>
-                <rect x="20" y="20" width="32" height="32" rx="2" fill="#111827"/>
+                <rect x="12" y="12" width="48" height="48" rx="4" fill="#c8102e" opacity="0.6"/>
+                <rect x="20" y="20" width="32" height="32" rx="2" fill="#111111"/>
             </svg>`,
             rhs: `<svg viewBox="0 0 72 72" fill="none">
-                <rect x="8" y="16" width="56" height="40" rx="4" fill="#3b82f6" opacity="0.6"/>
-                <rect x="16" y="24" width="40" height="24" rx="2" fill="#111827"/>
+                <rect x="8" y="16" width="56" height="40" rx="4" fill="#c8102e" opacity="0.6"/>
+                <rect x="16" y="24" width="40" height="24" rx="2" fill="#111111"/>
             </svg>`,
             chs: `<svg viewBox="0 0 72 72" fill="none">
-                <circle cx="36" cy="36" r="26" fill="#3b82f6" opacity="0.6"/>
-                <circle cx="36" cy="36" r="18" fill="#111827"/>
+                <circle cx="36" cy="36" r="26" fill="#c8102e" opacity="0.6"/>
+                <circle cx="36" cy="36" r="18" fill="#111111"/>
             </svg>`,
             flat: `<svg viewBox="0 0 72 72" fill="none">
-                <rect x="8" y="26" width="56" height="20" rx="2" fill="#3b82f6" opacity="0.6"/>
+                <rect x="8" y="26" width="56" height="20" rx="2" fill="#c8102e" opacity="0.6"/>
             </svg>`,
             round: `<svg viewBox="0 0 72 72" fill="none">
-                <circle cx="36" cy="36" r="24" fill="#3b82f6" opacity="0.6"/>
+                <circle cx="36" cy="36" r="24" fill="#c8102e" opacity="0.6"/>
             </svg>`,
         };
         return icons[typeKey] || '';
@@ -1195,7 +1199,7 @@ const Configurator = (() => {
         // Request Quote button
         document.getElementById('requestQuote').addEventListener('click', () => {
             // Generate reference number
-            const ref = 'FRN-' + new Date().getFullYear() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+            const ref = 'STL-' + new Date().getFullYear() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
             els.modalRef.textContent = ref;
             els.quoteModal.classList.add('active');
         });

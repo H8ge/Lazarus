@@ -1,15 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 36" fill="none">
-  <!-- Logo mark: Abstract extrusion profile / F shape -->
-  <g>
-    <!-- Top flange -->
-    <rect x="0" y="2" width="26" height="5.5" rx="1.2" fill="#3b82f6"/>
-    <!-- Web -->
-    <rect x="0" y="7.5" width="5.5" height="21" rx="0.6" fill="#3b82f6"/>
-    <!-- Middle flange -->
-    <rect x="0" y="14" width="19" height="4.5" rx="1" fill="#60a5fa"/>
-    <!-- Base anchor -->
-    <rect x="0" y="28.5" width="5.5" height="5.5" rx="0.6" fill="#3b82f6"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 36" fill="none">
+  <!-- Logo mark: Stylized double-S with red accent -->
+  <g transform="translate(0, 2)">
+    <!-- Top arrow / chevron -->
+    <path d="M4,8 L14,2 L28,8 L28,12 L14,6 L4,12 Z" fill="#ffffff" stroke="#0a0a0a" stroke-width="0.5"/>
+    <!-- Middle section with red accent -->
+    <path d="M4,14 L14,8 L28,14" fill="none" stroke="#ffffff" stroke-width="3"/>
+    <path d="M8,13 L14,10 L18,13" fill="#c8102e"/>
+    <!-- Bottom arrow / chevron -->
+    <path d="M4,20 L14,26 L28,20 L28,24 L14,30 L4,24 Z" fill="#ffffff" stroke="#0a0a0a" stroke-width="0.5"/>
+    <!-- Middle bar connecting -->
+    <path d="M4,16 L14,22 L28,16" fill="none" stroke="#ffffff" stroke-width="3"/>
   </g>
-  <!-- FERRON text -->
-  <text x="36" y="27.5" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="26" font-weight="800" letter-spacing="-0.5" fill="#f1f5f9">FERRON</text>
+  <!-- STAELER text -->
+  <text x="42" y="27" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="24" font-weight="800" letter-spacing="1.5" fill="#ffffff">STAELER</text>
 </svg>
