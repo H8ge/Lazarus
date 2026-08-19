@@ -51,30 +51,15 @@ function profileBounds(outer) {
     return { minX, minY, maxX, maxY, w: maxX - minX, h: maxY - minY, cx: (minX + maxX) / 2, cy: (minY + maxY) / 2 };
 }
 
-// ── Shared lighting setup ──────────────────────────────────────────────────
+// ── Lighting (matches the homepage hero: key + strong fill, env does the rest) ──
 function addStudioLights(scene) {
-    // Primary key — upper-front-left, illuminates cross-section face
-    const keyLight = new THREE.DirectionalLight(0xffffff, 5.5);
-    keyLight.position.set(20, 80, 200);
-    scene.add(keyLight);
+    const key = new THREE.DirectionalLight(0xffffff, 1.0);
+    key.position.set(-520, 380, 200);
+    scene.add(key);
 
-    // Top edge strip — creates specular streak on raised rails
-    const edgeLight = new THREE.DirectionalLight(0xcce0ff, 4.5);
-    edgeLight.position.set(-25, 160, 60);
-    scene.add(edgeLight);
-
-    // Dim right-face fill
-    const fillLight = new THREE.DirectionalLight(0x151a22, 6.0);
-    fillLight.position.set(160, 10, 40);
-    scene.add(fillLight);
-
-    // Cold blue rim from behind
-    const rimLight = new THREE.DirectionalLight(0x0a1828, 8.0);
-    rimLight.position.set(60, 80, -280);
-    scene.add(rimLight);
-
-    // Near-black ambient
-    scene.add(new THREE.AmbientLight(0x0e0e14, 1));
+    const fill = new THREE.DirectionalLight(0xffffff, 10.0);
+    fill.position.set(160, 10, -40);
+    scene.add(fill);
 }
 
 // ── Shared env map builder ─────────────────────────────────────────────────
@@ -165,9 +150,10 @@ export function buildProfileMesh(renderer, outer, hollows = [], extrudeDepth = 8
 export function setupProfileScene(canvas, outer, hollows = [], opts = {}) {
     const {
         extrudeDepth = 800,
-        rotation = { x: -4.0, y: 0.8, z: 0 },
-        position  = { x: 38, y: -6, z: 0 },
-        meshScale = 0.4,
+        rotation = { x: -4.0, y: 0.85, z: 0 },
+        position  = { x: 6, y: -2, z: 0 },
+        meshScale = 1.0,
+        autoRotate = false,
     } = opts;
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -180,16 +166,44 @@ export function setupProfileScene(canvas, outer, hollows = [], opts = {}) {
     addStudioLights(scene);
 
     const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 5000);
-    camera.position.set(0, 5, 100);
-    camera.lookAt(15, -5, 0);
+    camera.position.set(0, 4, 100);
+    camera.lookAt(10, -4, 0);
 
-    const { mesh, geometry, bounds } = buildProfileMesh(renderer, outer, hollows, extrudeDepth);
+    // Frame the cross-section to a constant on-screen size (40 mm reference),
+    // then DERIVE the extrude depth from that scale so the body's world-space
+    // length stays constant for every section. With a fixed depth a large
+    // section gets a small scale and renders as a stub — same bug as the hero.
+    const pts = outer.map(p => Array.isArray(p) ? p : [p.x, p.y]);
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    const maxDim = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
+    const normScale = maxDim > 0 ? (40 / maxDim) * meshScale : meshScale;
+    // Body length at the reference section (= extrudeDepth × meshScale) is held
+    // constant by growing the depth inversely with the scale.
+    const bodyDepth = normScale > 0 ? (extrudeDepth * meshScale) / normScale : extrudeDepth;
 
-    // Scale so the cross-section fits the same visual size as the NUT-8 hero
-    // NUT-8 is 40mm across; we scale the custom profile to match proportionally
-    const profileMaxDim = Math.max(bounds.w, bounds.h);
-    const normScale = profileMaxDim > 0 ? (40 / profileMaxDim) * meshScale : meshScale;
+    const { mesh, geometry, bounds } = buildProfileMesh(renderer, outer, hollows, bodyDepth);
 
+    // Same metallic look as the homepage hero: light-blue-grey body, dark caps,
+    // softbox env reflections, plus a depth fade so the body recedes into dark.
+    const envMap = (mesh.material && mesh.material[0]) ? mesh.material[0].envMap : null;
+    const side = new THREE.MeshPhysicalMaterial({ color: 0xb8c4d0, metalness: 0.95, roughness: 0.45, clearcoat: 0.2, clearcoatRoughness: 0.4 });
+    const cap  = new THREE.MeshPhysicalMaterial({ color: 0x18181c, metalness: 0.9, roughness: 0.18, clearcoat: 0.8, clearcoatRoughness: 0.08 });
+    const fade = (m) => {
+        m.onBeforeCompile = (sh) => {
+            sh.uniforms.fadeStart = { value: 80 };
+            sh.uniforms.fadeEnd = { value: 280 };
+            sh.fragmentShader = 'uniform float fadeStart;\nuniform float fadeEnd;\n' + sh.fragmentShader.replace(
+                '#include <dithering_fragment>',
+                'float d = length(vViewPosition); float f = smoothstep(fadeEnd, fadeStart, d);' +
+                'gl_FragColor.rgb = mix(vec3(0.039), gl_FragColor.rgb, f*f);\n#include <dithering_fragment>'
+            );
+        };
+    };
+    if (envMap) { side.envMap = envMap; side.envMapIntensity = 1.5; cap.envMap = envMap; cap.envMapIntensity = 4.0; }
+    fade(side); fade(cap);
+    mesh.material = [side, cap];
+
+    // Scale computed above from the cross-section (drives bodyDepth too).
     mesh.scale.set(normScale, normScale, normScale);
     mesh.rotation.x = rotation.x;
     mesh.rotation.y = rotation.y;
@@ -219,14 +233,15 @@ export function setupProfileScene(canvas, outer, hollows = [], opts = {}) {
     window.addEventListener('resize', resize, { passive: true });
     resize();
 
-    let running = true;
+    let running = true, spin = 0;
     function animate() {
         if (!running) return;
         requestAnimationFrame(animate);
         smoothMouse.x += (mouse.x - smoothMouse.x) * 0.04;
         smoothMouse.y += (mouse.y - smoothMouse.y) * 0.04;
+        if (autoRotate) spin += 0.0045;
         mesh.rotation.x = baseRot.x + smoothMouse.y * 0.12;
-        mesh.rotation.y = baseRot.y + smoothMouse.x * 0.18;
+        mesh.rotation.y = baseRot.y + smoothMouse.x * 0.18 + spin;
         mesh.rotation.z = baseRot.z + smoothMouse.x * 0.04;
         renderer.render(scene, camera);
     }

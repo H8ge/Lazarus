@@ -3,13 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STAELER — Aluminiumprofile & Strangpresslösungen</title>
-    <meta name="description" content="STAELER — Seit Jahrzehnten Ihr erfahrener Partner für hochpräzise Aluminium-Strangpressprofile und Stahl-Strukturprofile. 28 MN Presskapazität, individuelle Querschnitte, EN-zertifizierte Qualität.">
+    <title>STAELER. Aluminiumprofile und Strangpresslösungen aus einer Hand</title>
+    <meta name="description" content="STAELER fertigt hochpräzise Aluminium-Strangpressprofile und liefert Stahl-Strukturprofile. 28 MN Presskapazität, individuelle Querschnitte, EN-zertifizierte Qualität. Profil online konfigurieren und Richtpreis erhalten.">
+    <link rel="canonical" href="https://staeler.de/">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="alternate" hreflang="de" href="https://staeler.de/">
+    <link rel="alternate" hreflang="x-default" href="https://staeler.de/">
+
+    <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="STAELER">
+    <meta property="og:locale" content="de_DE">
+    <meta property="og:title" content="STAELER. Aluminiumprofile und Strangpresslösungen aus einer Hand">
+    <meta property="og:description" content="Hochpräzise Aluminium-Strangpressprofile und Stahl-Strukturprofile. 28 MN Presskapazität, individuelle Querschnitte, EN-zertifiziert. Profil online konfigurieren.">
+    <meta property="og:url" content="https://staeler.de/">
+    <meta property="og:image" content="https://staeler.de/assets/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="STAELER. Präzision in jedem Profil.">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="STAELER. Aluminiumprofile und Strangpresslösungen">
+    <meta name="twitter:description" content="Hochpräzise Aluminium-Strangpressprofile und Stahl-Strukturprofile. 28 MN, individuelle Querschnitte, EN-zertifiziert.">
+    <meta name="twitter:image" content="https://staeler.de/assets/og-image.png">
+
+    <!-- Self-hosted fonts (no Google CDN, GDPR-safe, no render-blocking external CSS) -->
+    <link rel="preload" href="assets/fonts/inter-600-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="assets/fonts/inter-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="css/fonts.css">
     <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Structured data: Organization + WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://staeler.de/#org",
+          "name": "STAELER GmbH",
+          "url": "https://staeler.de/",
+          "logo": "https://staeler.de/assets/apple-touch-icon.png",
+          "image": "https://staeler.de/assets/og-image.png",
+          "description": "Hersteller hochpräziser Aluminium-Strangpressprofile und Lieferant von Stahl-Strukturprofilen. Entwicklung, Strangpressung und Oberflächenveredelung aus einer Hand.",
+          "email": "anfrage@staeler.de",
+          "telephone": "+49 2151 7843200",
+          "vatID": "DE342891756",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Düsseldorfer Str. 47",
+            "postalCode": "47829",
+            "addressLocality": "Krefeld",
+            "addressRegion": "Nordrhein-Westfalen",
+            "addressCountry": "DE"
+          },
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "sales",
+            "email": "anfrage@staeler.de",
+            "telephone": "+49 2151 7843200",
+            "availableLanguage": ["de", "en", "fr", "pl", "es"]
+          },
+          "areaServed": { "@type": "Place", "name": "Europa" },
+          "knowsAbout": [
+            "Aluminium-Strangpressprofile",
+            "Strangpressen",
+            "Sonderprofile",
+            "Eloxieren",
+            "Pulverbeschichtung",
+            "Stahl-Strukturprofile",
+            "EN 755",
+            "EN 12020",
+            "EN 10204"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://staeler.de/#website",
+          "url": "https://staeler.de/",
+          "name": "STAELER",
+          "inLanguage": "de",
+          "publisher": { "@id": "https://staeler.de/#org" }
+        }
+      ]
+    }
+    </script>
     <script type="importmap">
     {
         "imports": {
@@ -57,6 +141,8 @@
             </div>
         </div>
     </nav>
+
+    <main id="main">
 
     <!-- ================================================================
          HERO — Split layout: text left, profile visual right
@@ -410,22 +496,33 @@
                 <div class="cc-main-layout">
                     <div class="cc-canvas-area">
                         <div class="cc-toolbar">
-                            <button class="cc-tool-btn active" data-mode="draw-outer" title="Draw outer contour (polygon)">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 21.5 12 28 2 21.5 2 8.5" transform="scale(0.8) translate(3,1)"/></svg>
-                                <span data-i18n="cc.toolbar.outer">Outer Contour</span>
+                            <div class="cc-op-toggle" role="group" aria-label="Operation">
+                                <button class="cc-op-btn cc-op-add active" data-op="add" title="Material hinzufügen (Vereinigung)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+                                    <span data-i18n="cc.op.add">Material</span>
+                                </button>
+                                <button class="cc-op-btn cc-op-sub" data-op="subtract" title="Aussparung schneiden (Differenz)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14"/></svg>
+                                    <span data-i18n="cc.op.sub">Aussparung</span>
+                                </button>
+                            </div>
+                            <div class="cc-toolbar-sep"></div>
+                            <button class="cc-tool-btn active" data-tool="rect" title="Rechteck zeichnen (ziehen)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1"/></svg>
+                                <span data-i18n="cc.tool.rect">Rechteck</span>
                             </button>
-                            <button class="cc-tool-btn" data-mode="draw-cut" title="Draw a cut polygon (subtracts from outer)">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M8 8l8 8M16 8l-8 8" stroke-width="2.5" opacity="0.7"/></svg>
-                                <span data-i18n="cc.toolbar.cut">Cut (Poly)</span>
+                            <button class="cc-tool-btn" data-tool="circle" title="Kreis zeichnen (Mittelpunkt → Radius)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+                                <span data-i18n="cc.tool.circle">Kreis</span>
                             </button>
-                            <button class="cc-tool-btn" data-mode="rect-cut" title="Draw a rectangular cut (subtracts from outer)">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="6" y="8" width="12" height="8" fill="currentColor" opacity="0.15"/><path d="M9 11l6 0" stroke-width="2.5" opacity="0.7"/></svg>
-                                <span data-i18n="cc.toolbar.cutrect">Cut (Rect)</span>
+                            <button class="cc-tool-btn" data-tool="poly" title="Polygon zeichnen (Punkte setzen, Länge tippen, Shift = Ortho)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 3 21 9 17.5 20 6.5 20 3 9"/></svg>
+                                <span data-i18n="cc.tool.poly">Polygon</span>
                             </button>
                             <div class="cc-toolbar-sep"></div>
-                            <button class="cc-tool-btn" data-mode="select" title="Select, move, and delete shapes">
+                            <button class="cc-tool-btn" data-tool="select" title="Bearbeiten: Eckpunkte ziehen, Doppelklick = Maß eingeben / Punkt einfügen, Entf = löschen">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
-                                <span data-i18n="cc.toolbar.select">Select / Move</span>
+                                <span data-i18n="cc.tool.select">Bearbeiten</span>
                             </button>
                             <div class="cc-toolbar-sep"></div>
                             <button class="cc-tool-btn cc-tool-sm" id="ccUndoBtn" title="Undo (Ctrl+Z)">
@@ -445,7 +542,7 @@
                             <canvas id="ccCanvas"></canvas>
                             <div class="cc-canvas-footer">
                                 <span class="cc-cursor-pos" id="ccCursorPos">0.0 , 0.0 mm</span>
-                                <span class="cc-canvas-hint">Click to draw points. Double-click or click first point to close shape.</span>
+                                <span class="cc-canvas-hint" data-i18n="cc.canvas.hint">Material + zeichnen, dann Aussparung − schneiden. Polygon: Länge tippen, Shift = Ortho, ersten Punkt klicken zum Schließen. Pinch/Rad = Zoom.</span>
                                 <div class="cc-grid-controls">
                                     <label data-i18n="cc.grid">Grid</label>
                                     <select id="ccGridSize" class="cc-mini-select">
@@ -739,6 +836,61 @@
     </section>
 
     <!-- ================================================================
+         FAQ — crawlable Q&A (GEO) + FAQPage structured data
+         ================================================================ -->
+    <section class="section faq-section" id="faq">
+        <div class="container">
+            <div class="section-header" data-animate="fade-up">
+                <span class="section-label" data-i18n="faq.tag">Häufige Fragen</span>
+                <h2 class="section-title" data-i18n="faq.title">Antworten <span class="text-accent">vor der Anfrage.</span></h2>
+            </div>
+            <div class="faq-list">
+                <details class="faq-item" data-animate="fade-up">
+                    <summary class="faq-q" data-i18n="faq.q1">Welche Profile fertigt STAELER?</summary>
+                    <div class="faq-a"><p data-i18n="faq.a1">STAELER fertigt individuelle Aluminium-Strangpressprofile auf einer 28-MN-Presse und liefert Stahl-Strukturprofile wie IPE, HEA, UPN und Hohlprofile über ein Netzwerk zertifizierter europäischer Walzwerke. Entwicklung, Strangpressung und Oberflächenveredelung kommen aus einer Hand.</p></div>
+                </details>
+                <details class="faq-item" data-animate="fade-up">
+                    <summary class="faq-q" data-i18n="faq.q2">Kann ich mein eigenes Profil zeichnen und sofort einen Preis sehen?</summary>
+                    <div class="faq-a"><p data-i18n="faq.a2">Ja. Im Online-Konfigurator zeichnen Sie Ihren Querschnitt frei oder wählen ein Standardprofil. Gewicht, Hüllkreis und ein unverbindlicher Richtpreis werden sofort berechnet, bei Sonderquerschnitten inklusive Werkzeugkosten.</p></div>
+                </details>
+                <details class="faq-item" data-animate="fade-up">
+                    <summary class="faq-q" data-i18n="faq.q3">Welche Legierungen und Oberflächen sind möglich?</summary>
+                    <div class="faq-a"><p data-i18n="faq.a3">Standard sind die Legierungen der 6000er-Reihe wie 6060 und 6063. Als Oberfläche bieten wir blank, Eloxal, Harteloxal und Pulverbeschichtung in allen gängigen Schichtdicken und Farben.</p></div>
+                </details>
+                <details class="faq-item" data-animate="fade-up">
+                    <summary class="faq-q" data-i18n="faq.q4">Gibt es eine Mindestbestellmenge?</summary>
+                    <div class="faq-a"><p data-i18n="faq.a4">Strangpressung erfolgt ab einer materialbedingten Mindestmenge pro Auftrag, in der Regel einige hundert Kilogramm. Kleinserien und Erstmuster sind möglich. Den genauen Mindestumfang nennen wir mit dem Angebot, da er von Querschnitt und Legierung abhängt.</p></div>
+                </details>
+                <details class="faq-item" data-animate="fade-up">
+                    <summary class="faq-q" data-i18n="faq.q5">Welche Normen und Zertifikate erfüllen Ihre Profile?</summary>
+                    <div class="faq-a"><p data-i18n="faq.a5">Aluminiumprofile nach EN 755 und EN 12020, Stahlprofile nach EN 10025, EN 10210 und EN 10219. Auf Wunsch liefern wir Werkszeugnisse nach EN 10204 in den Stufen 2.1, 3.1 oder 3.2 mit vollständiger Rückverfolgbarkeit. Das Qualitätsmanagement ist an ISO 9001 ausgerichtet.</p></div>
+                </details>
+                <details class="faq-item" data-animate="fade-up">
+                    <summary class="faq-q" data-i18n="faq.q6">Wie schnell erhalte ich ein verbindliches Angebot?</summary>
+                    <div class="faq-a"><p data-i18n="faq.a6">Den Richtpreis sehen Sie sofort im Konfigurator. Ein verbindliches Angebot mit Zeichnungsprüfung senden wir in der Regel innerhalb von 48 Stunden nach Ihrer Anfrage.</p></div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "@id": "https://staeler.de/#faq",
+      "inLanguage": "de",
+      "mainEntity": [
+        { "@type": "Question", "name": "Welche Profile fertigt STAELER?", "acceptedAnswer": { "@type": "Answer", "text": "STAELER fertigt individuelle Aluminium-Strangpressprofile auf einer 28-MN-Presse und liefert Stahl-Strukturprofile wie IPE, HEA, UPN und Hohlprofile über ein Netzwerk zertifizierter europäischer Walzwerke. Entwicklung, Strangpressung und Oberflächenveredelung kommen aus einer Hand." } },
+        { "@type": "Question", "name": "Kann ich mein eigenes Profil zeichnen und sofort einen Preis sehen?", "acceptedAnswer": { "@type": "Answer", "text": "Ja. Im Online-Konfigurator zeichnen Sie Ihren Querschnitt frei oder wählen ein Standardprofil. Gewicht, Hüllkreis und ein unverbindlicher Richtpreis werden sofort berechnet, bei Sonderquerschnitten inklusive Werkzeugkosten." } },
+        { "@type": "Question", "name": "Welche Legierungen und Oberflächen sind möglich?", "acceptedAnswer": { "@type": "Answer", "text": "Standard sind die Legierungen der 6000er-Reihe wie 6060 und 6063. Als Oberfläche bieten wir blank, Eloxal, Harteloxal und Pulverbeschichtung in allen gängigen Schichtdicken und Farben." } },
+        { "@type": "Question", "name": "Gibt es eine Mindestbestellmenge?", "acceptedAnswer": { "@type": "Answer", "text": "Strangpressung erfolgt ab einer materialbedingten Mindestmenge pro Auftrag, in der Regel einige hundert Kilogramm. Kleinserien und Erstmuster sind möglich. Den genauen Mindestumfang nennen wir mit dem Angebot, da er von Querschnitt und Legierung abhängt." } },
+        { "@type": "Question", "name": "Welche Normen und Zertifikate erfüllen Ihre Profile?", "acceptedAnswer": { "@type": "Answer", "text": "Aluminiumprofile nach EN 755 und EN 12020, Stahlprofile nach EN 10025, EN 10210 und EN 10219. Auf Wunsch liefern wir Werkszeugnisse nach EN 10204 in den Stufen 2.1, 3.1 oder 3.2 mit vollständiger Rückverfolgbarkeit. Das Qualitätsmanagement ist an ISO 9001 ausgerichtet." } },
+        { "@type": "Question", "name": "Wie schnell erhalte ich ein verbindliches Angebot?", "acceptedAnswer": { "@type": "Answer", "text": "Den Richtpreis sehen Sie sofort im Konfigurator. Ein verbindliches Angebot mit Zeichnungsprüfung senden wir in der Regel innerhalb von 48 Stunden nach Ihrer Anfrage." } }
+      ]
+    }
+    </script>
+
+    <!-- ================================================================
          CONTACT
          ================================================================ -->
     <section class="section contact-section" id="contact">
@@ -849,39 +1001,65 @@
         </div>
     </section>
 
-    <!-- 3D Profile Quote Modal -->
+    <!-- Custom Profile — Request Quote Modal (form primary, 3D as summary gimmick) -->
     <div class="profile3d-modal" id="profile3dModal" aria-hidden="true">
         <div class="profile3d-modal-backdrop"></div>
-        <div class="profile3d-modal-dialog">
+        <div class="rq-dialog">
             <button class="profile3d-modal-close" id="profile3dModalClose" aria-label="Close">&times;</button>
 
-            <!-- Left: interactive 3D preview -->
-            <div class="profile3d-modal-canvas-wrap">
-                <canvas id="profile3dCanvas"></canvas>
-                <div class="profile3d-modal-hint">Move mouse to rotate</div>
+            <!-- Left: the actual lead form (primary) -->
+            <div class="rq-form-col">
+                <div class="rq-head">
+                    <span class="profile3d-modal-badge" data-i18n="rq.badge">Individuelles Profil</span>
+                    <h2 class="rq-title" data-i18n="rq.title">Angebot anfragen</h2>
+                    <p class="rq-sub" data-i18n="rq.sub">Wir prüfen Ihr Profil und senden Ihnen innerhalb von 48 Stunden ein verbindliches Angebot.</p>
+                </div>
+                <form class="rq-form" id="rqForm" novalidate>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="rqName" data-i18n="contact.name">Name *</label>
+                            <input type="text" id="rqName" class="form-input" required data-i18n-placeholder="rq.ph.name" placeholder="Ihr Name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="rqCompany" data-i18n="contact.company">Unternehmen *</label>
+                            <input type="text" id="rqCompany" class="form-input" required data-i18n-placeholder="rq.ph.company" placeholder="Firmenname">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="rqEmail" data-i18n="contact.email">E-Mail *</label>
+                            <input type="email" id="rqEmail" class="form-input" required data-i18n-placeholder="rq.ph.email" placeholder="name@firma.de">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="rqPhone" data-i18n="contact.phone">Telefon</label>
+                            <input type="tel" id="rqPhone" class="form-input" placeholder="+49 …">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="rqMessage" data-i18n="contact.message">Nachricht</label>
+                        <textarea id="rqMessage" class="form-input form-textarea" rows="3" data-i18n-placeholder="rq.ph.message" placeholder="Anwendung, Toleranzen, Liefertermin …"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-checkbox">
+                            <input type="checkbox" id="rqPrivacy" required>
+                            <span data-i18n="contact.privacy">Ich stimme der Verarbeitung meiner Daten gemäß der <a href="#privacy">Datenschutzerklärung</a> zu.</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg btn-full" id="rqSubmit">
+                        <span data-i18n="rq.send">Anfrage senden</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    </button>
+                    <p class="rq-hint" data-i18n="rq.hint">Mit Absenden öffnet sich Ihr E-Mail-Programm mit allen Spezifikationen. Lieber telefonisch? +49 (0) 2151 784 3200</p>
+                </form>
             </div>
 
-            <!-- Right: quote details + form -->
-            <div class="profile3d-modal-info">
-                <div class="profile3d-modal-badge">Your Custom Profile</div>
-                <h2 class="profile3d-modal-title" data-i18n="profile3d.title">Ihr Profil — 3D Vorschau</h2>
-                <div class="profile3d-modal-specs" id="profile3dSpecs">
-                    <!-- Filled by JS from current configurator state -->
+            <!-- Right: big hero-style 3D preview + a compact summary -->
+            <aside class="rq-summary">
+                <div class="rq-preview">
+                    <canvas id="profile3dCanvas"></canvas>
                 </div>
-                <div class="profile3d-modal-quote" id="profile3dQuote">
-                    <!-- Quote summary copied from cc-quote -->
-                </div>
-                <p class="profile3d-modal-note">
-                    Diese 3D-Ansicht zeigt Ihr gezeichnetes Profil als extrudiertes Aluminium-Strangpressprofil.
-                    Klicken Sie unten, um das verbindliche Angebot anzufordern.
-                </p>
-                <div class="profile3d-modal-actions">
-                    <button class="btn btn-primary btn-lg btn-full" id="profile3dConfirmQuote">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                        <span data-i18n="profile3d.confirm">Verbindliches Angebot anfragen</span>
-                    </button>
-                </div>
-            </div>
+                <div class="rq-mini" id="rqMini"></div>
+            </aside>
         </div>
     </div>
 
@@ -919,6 +1097,33 @@
         </div>
     </section>
 
+    <!-- ================================================================
+         IMPRESSUM — § 5 DDG (revealed via footer link, like privacy)
+         ================================================================ -->
+    <section class="section impressum-section" id="impressum" style="display:none;">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-i18n="impressum.title">Impressum</h2>
+            </div>
+            <div class="privacy-content">
+                <h4 data-i18n="impressum.legal">Angaben gemäß § 5 DDG</h4>
+                <p>STAELER GmbH<br>Düsseldorfer Str. 47<br>47829 Krefeld<br>Deutschland</p>
+                <h4 data-i18n="impressum.represented">Vertreten durch</h4>
+                <p><span data-i18n="impressum.md">Geschäftsführer:</span> [bitte ergänzen]</p>
+                <h4 data-i18n="impressum.contact">Kontakt</h4>
+                <p>Telefon: +49 (0) 2151 784 3200<br>E-Mail: anfrage@staeler.de</p>
+                <h4 data-i18n="impressum.register">Registereintrag</h4>
+                <p data-i18n="impressum.register.text">Eintragung im Handelsregister.<br>Registergericht: Amtsgericht Krefeld<br>Registernummer: HRB 94127</p>
+                <h4 data-i18n="impressum.vat">Umsatzsteuer-ID</h4>
+                <p data-i18n="impressum.vat.text">Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:<br>DE342891756</p>
+                <h4 data-i18n="impressum.responsible">Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h4>
+                <p>STAELER GmbH<br>Düsseldorfer Str. 47<br>47829 Krefeld</p>
+            </div>
+        </div>
+    </section>
+
+    </main>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -946,8 +1151,10 @@
                         <h4 data-i18n="footer.company">Unternehmen</h4>
                         <a href="#about" data-i18n="footer.about">Über uns</a>
                         <a href="#process" data-i18n="footer.howit">Ablauf</a>
+                        <a href="#faq" data-i18n="footer.faq">Häufige Fragen</a>
                         <a href="#contact" data-i18n="footer.contact">Kontakt</a>
                         <a href="#privacy" data-i18n="footer.privacy">Datenschutz</a>
+                        <a href="#impressum" data-i18n="footer.imprint">Impressum</a>
                     </div>
                 </div>
             </div>
@@ -960,7 +1167,7 @@
 
     <script src="js/i18n.js"></script>
     <script src="js/configurator.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/polygon-clipping@0.15.7/dist/polygon-clipping.umd.js"></script>
+    <script src="js/lib/polygon-clipping.umd.js"></script>
     <script src="js/custom-configurator.js"></script>
     <script src="js/app.js"></script>
     <script type="module" src="js/hero3d.js"></script>

@@ -47,16 +47,20 @@ const Configurator = (() => {
         aluminum: {
             label: 'Aluminum',
             density: 2700,
+            // All-in €/kg grounded in Werk ERP (staging_masked.auftragspos, FY2025+):
+            // blank/mill ≈ 4.95 €/kg median; alloy spread small. LME-indexed.
             grades: {
-                '6060-T6':  { label: '6060-T6 (AlMgSi)', pricePerKg: 4.20 },
-                '6063-T6':  { label: '6063-T6 (AlMg0.7Si)', pricePerKg: 4.50 },
-                '6082-T6':  { label: '6082-T6 (AlSi1MgMn)', pricePerKg: 4.90 },
+                '6060-T6':  { label: '6060-T6 (AlMgSi)', pricePerKg: 4.85 },
+                '6063-T6':  { label: '6063-T6 (AlMg0.7Si)', pricePerKg: 4.95 },
+                '6082-T6':  { label: '6082-T6 (AlSi1MgMn)', pricePerKg: 5.15 },
             },
+            // Surface adders grounded in DB: blank→anodized ≈ +2.05 €/kg,
+            // coloured ≈ +2.45, powder/RAL ≈ +3.35 (lands ≈ 8.3 €/kg all-in).
             treatments: {
                 'raw':       { label: 'Mill Finish', addPerKg: 0 },
-                'anodized':  { label: 'Anodized (natural)', addPerKg: 0.55 },
-                'anodized_c':{ label: 'Anodized (coloured)', addPerKg: 0.70 },
-                'powder':    { label: 'Powder Coated (RAL)', addPerKg: 0.42 },
+                'anodized':  { label: 'Anodized (natural)', addPerKg: 2.05 },
+                'anodized_c':{ label: 'Anodized (coloured)', addPerKg: 2.45 },
+                'powder':    { label: 'Powder Coated (RAL)', addPerKg: 3.35 },
             }
         }
     };

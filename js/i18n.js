@@ -153,12 +153,39 @@ const I18n = (() => {
 
         // Custom configurator
         'cc.templates':        { de:'Vorlage wählen', en:'Choose Template', fr:'Choisir un modèle', pl:'Wybierz szablon', es:'Elegir plantilla' },
-        'cc.toolbar.outer':    { de:'Außenkontur zeichnen', en:'Draw Outer Contour', fr:'Dessiner contour ext.', pl:'Rysuj kontur zewn.', es:'Dibujar contorno ext.' },
-        'cc.toolbar.hollow':   { de:'Hohlraum (Polygon)', en:'Add Hollow (Polygon)', fr:'Ajouter creux (polygone)', pl:'Dodaj otwór (wielokąt)', es:'Añadir hueco (polígono)' },
-        'cc.toolbar.rect':     { de:'Hohlraum (Rechteck)', en:'Add Hollow (Rectangle)', fr:'Ajouter creux (rectangle)', pl:'Dodaj otwór (prostokąt)', es:'Añadir hueco (rectángulo)' },
-        'cc.toolbar.select':   { de:'Auswählen / Verschieben', en:'Select / Move', fr:'Sélectionner / Déplacer', pl:'Wybierz / Przesuń', es:'Seleccionar / Mover' },
+        'cc.op.add':           { de:'Material', en:'Material', fr:'Matière', pl:'Materiał', es:'Material' },
+        'cc.op.sub':           { de:'Aussparung', en:'Cut-out', fr:'Évidement', pl:'Wycięcie', es:'Vaciado' },
+        'cc.tool.rect':        { de:'Rechteck', en:'Rectangle', fr:'Rectangle', pl:'Prostokąt', es:'Rectángulo' },
+        'cc.tool.circle':      { de:'Kreis', en:'Circle', fr:'Cercle', pl:'Okrąg', es:'Círculo' },
+        'cc.tool.poly':        { de:'Polygon', en:'Polygon', fr:'Polygone', pl:'Wielokąt', es:'Polígono' },
+        'cc.tool.select':      { de:'Bearbeiten', en:'Edit', fr:'Modifier', pl:'Edytuj', es:'Editar' },
+        'cc.canvas.hint':      { de:'Material + zeichnen, dann Aussparung − schneiden. Polygon: Länge tippen, Shift = Ortho, ersten Punkt klicken zum Schließen. Pinch/Rad = Zoom.', en:'Draw Material +, then cut Cut-out −. Polygon: type a length, Shift = ortho, click the first point to close. Pinch/wheel = zoom.', fr:'Dessinez Matière +, puis évidement −. Polygone : tapez une longueur, Shift = ortho, cliquez le premier point pour fermer. Pincer/molette = zoom.', pl:'Rysuj Materiał +, potem wytnij −. Wielokąt: wpisz długość, Shift = orto, kliknij pierwszy punkt, aby zamknąć. Szczypanie/kółko = zoom.', es:'Dibuje Material +, luego corte Vaciado −. Polígono: escriba una longitud, Shift = orto, clic en el primer punto para cerrar. Pellizco/rueda = zoom.' },
         'cc.grid':             { de:'Raster', en:'Grid', fr:'Grille', pl:'Siatka', es:'Cuadrícula' },
         'cc.snap':             { de:'Einrasten', en:'Snap', fr:'Aimanter', pl:'Przyciągaj', es:'Ajustar' },
+
+        // Request-quote modal (custom profile)
+        'rq.badge':            { de:'Individuelles Profil', en:'Custom Profile', fr:'Profilé sur mesure', pl:'Profil indywidualny', es:'Perfil personalizado' },
+        'rq.title':            { de:'Angebot anfragen', en:'Request a Quote', fr:'Demander un devis', pl:'Zapytanie ofertowe', es:'Solicitar presupuesto' },
+        'rq.sub':              { de:'Wir prüfen Ihr Profil und senden Ihnen innerhalb von 48 Stunden ein verbindliches Angebot.', en:'We review your profile and send a binding quote within 48 hours.', fr:'Nous examinons votre profilé et envoyons un devis ferme sous 48 heures.', pl:'Sprawdzamy Twój profil i wysyłamy wiążącą ofertę w ciągu 48 godzin.', es:'Revisamos su perfil y enviamos un presupuesto vinculante en 48 horas.' },
+        'rq.send':             { de:'Anfrage senden', en:'Send Request', fr:'Envoyer la demande', pl:'Wyślij zapytanie', es:'Enviar solicitud' },
+        'rq.hint':             { de:'Mit Absenden öffnet sich Ihr E-Mail-Programm mit allen Spezifikationen. Lieber telefonisch? +49 (0) 2151 784 3200', en:'Submitting opens your email app with the full specification. Prefer to call? +49 (0) 2151 784 3200', fr:'L\'envoi ouvre votre messagerie avec la spécification complète. Vous préférez appeler ? +49 (0) 2151 784 3200', pl:'Wysłanie otworzy program pocztowy z pełną specyfikacją. Wolisz zadzwonić? +49 (0) 2151 784 3200', es:'Al enviar se abre su correo con la especificación completa. ¿Prefiere llamar? +49 (0) 2151 784 3200' },
+        'rq.preview':          { de:'3D-Vorschau', en:'3D preview', fr:'Aperçu 3D', pl:'Podgląd 3D', es:'Vista 3D' },
+        // Request-quote summary (right column)
+        'rq.mini.section':     { de:'Querschnitt', en:'Cross-section', fr:'Section', pl:'Przekrój', es:'Sección' },
+        'rq.mini.weight':      { de:'Gewicht / m', en:'Weight / m', fr:'Poids / m', pl:'Waga / m', es:'Peso / m' },
+        'rq.mini.chambers':    { de:'Kammern', en:'Chambers', fr:'Chambres', pl:'Komory', es:'Cámaras' },
+        'rq.mini.alloy':       { de:'Legierung', en:'Alloy', fr:'Alliage', pl:'Stop', es:'Aleación' },
+        'rq.mini.qty':         { de:'Menge', en:'Quantity', fr:'Quantité', pl:'Ilość', es:'Cantidad' },
+        'rq.mini.length':      { de:'Länge / Stück', en:'Length / piece', fr:'Longueur / pièce', pl:'Długość / szt.', es:'Longitud / pieza' },
+        'rq.mini.price':       { de:'Richtpreis Erstbestellung', en:'Indicative price, first order', fr:'Prix indicatif, 1ʳᵉ commande', pl:'Cena orientacyjna, 1. zam.', es:'Precio orientativo, 1.ᵉʳ pedido' },
+        'rq.mini.perpiece':    { de:'/ Stk.', en:'/ pc', fr:'/ pc', pl:'/ szt.', es:'/ ud' },
+        'rq.mini.permeter':    { de:'/ m', en:'/ m', fr:'/ m', pl:'/ m', es:'/ m' },
+        'rq.mini.reorder':     { de:'Folgebestellung', en:'reorder', fr:'réappro.', pl:'kolejne', es:'recompra' },
+        // Placeholders for the request-quote form inputs
+        'rq.ph.name':          { de:'Ihr Name', en:'Your name', fr:'Votre nom', pl:'Imię i nazwisko', es:'Su nombre' },
+        'rq.ph.company':       { de:'Firmenname', en:'Company name', fr:'Nom de l\'entreprise', pl:'Nazwa firmy', es:'Nombre de empresa' },
+        'rq.ph.email':         { de:'name@firma.de', en:'name@company.com', fr:'nom@entreprise.fr', pl:'nazwa@firma.pl', es:'nombre@empresa.es' },
+        'rq.ph.message':       { de:'Anwendung, Toleranzen, Liefertermin …', en:'Application, tolerances, delivery date …', fr:'Application, tolérances, délai …', pl:'Zastosowanie, tolerancje, termin …', es:'Aplicación, tolerancias, plazo …' },
 
         // Footer
         'footer.tagline2':     { de:'Präzise Metallprofile — seit Jahrzehnten zuverlässig geliefert.', en:'Precision metal profiles — reliably delivered for decades.', fr:'Profilés métalliques de précision — livrés avec fiabilité depuis des décennies.', pl:'Precyzyjne profile metalowe — niezawodnie dostarczane od dziesięcioleci.', es:'Perfiles metálicos de precisión — entregados con fiabilidad durante décadas.' },
@@ -328,6 +355,40 @@ const I18n = (() => {
 
         // Footer updated
         'footer.tagline':      { de:'Ihr erfahrener Partner für Aluminium-Strangpressprofile und Stahl-Strukturprofile in Europa.', en:'Your experienced partner for aluminum extrusion profiles and structural steel profiles in Europe.', fr:'Votre partenaire expérimenté pour les profilés aluminium et acier en Europe.', pl:'Twój doświadczony partner w zakresie profili aluminiowych i stalowych w Europie.', es:'Su socio experimentado para perfiles de aluminio y acero estructural en Europa.' },
+        'footer.imprint':      { de:'Impressum', en:'Imprint', fr:'Mentions légales', pl:'Nota prawna', es:'Aviso legal' },
+        'footer.faq':          { de:'Häufige Fragen', en:'FAQ', fr:'FAQ', pl:'FAQ', es:'Preguntas frecuentes' },
+
+        // SEO meta (title + description follow the active language)
+        'meta.title':          { de:'STAELER. Aluminiumprofile und Strangpresslösungen aus einer Hand', en:'STAELER. Aluminium extrusion profiles and steel solutions from a single source' },
+        'meta.description':    { de:'STAELER fertigt hochpräzise Aluminium-Strangpressprofile und liefert Stahl-Strukturprofile. 28 MN Presskapazität, individuelle Querschnitte, EN-zertifizierte Qualität. Profil online konfigurieren und Richtpreis erhalten.', en:'STAELER manufactures high-precision aluminium extrusion profiles and supplies structural steel profiles. 28 MN press capacity, custom cross-sections, EN-certified quality. Configure your profile online and get an indicative price.' },
+
+        // FAQ Section (crawlable Q&A / GEO)
+        'faq.tag':             { de:'Häufige Fragen', en:'Frequently Asked Questions', fr:'Questions fréquentes', pl:'Najczęstsze pytania', es:'Preguntas frecuentes' },
+        'faq.title':           { de:'Antworten <span class="text-accent">vor der Anfrage.</span>', en:'Answers <span class="text-accent">before you ask.</span>' },
+        'faq.q1':              { de:'Welche Profile fertigt STAELER?', en:'Which profiles does STAELER manufacture?' },
+        'faq.a1':              { de:'STAELER fertigt individuelle Aluminium-Strangpressprofile auf einer 28-MN-Presse und liefert Stahl-Strukturprofile wie IPE, HEA, UPN und Hohlprofile über ein Netzwerk zertifizierter europäischer Walzwerke. Entwicklung, Strangpressung und Oberflächenveredelung kommen aus einer Hand.', en:'STAELER manufactures custom aluminium extrusion profiles on a 28 MN press and supplies structural steel profiles such as IPE, HEA, UPN and hollow sections through a network of certified European rolling mills. Development, extrusion and surface finishing all come from a single source.' },
+        'faq.q2':              { de:'Kann ich mein eigenes Profil zeichnen und sofort einen Preis sehen?', en:'Can I draw my own profile and see a price instantly?' },
+        'faq.a2':              { de:'Ja. Im Online-Konfigurator zeichnen Sie Ihren Querschnitt frei oder wählen ein Standardprofil. Gewicht, Hüllkreis und ein unverbindlicher Richtpreis werden sofort berechnet, bei Sonderquerschnitten inklusive Werkzeugkosten.', en:'Yes. In the online configurator you draw your cross-section freely or pick a standard profile. Weight, circumscribing circle and a non-binding indicative price are calculated instantly, including tooling cost for custom sections.' },
+        'faq.q3':              { de:'Welche Legierungen und Oberflächen sind möglich?', en:'Which alloys and surface finishes are available?' },
+        'faq.a3':              { de:'Standard sind die Legierungen der 6000er-Reihe wie 6060 und 6063. Als Oberfläche bieten wir blank, Eloxal, Harteloxal und Pulverbeschichtung in allen gängigen Schichtdicken und Farben.', en:'Standard alloys are the 6000 series such as 6060 and 6063. Surface options include mill finish, anodising, hard anodising and powder coating in all common coating thicknesses and colours.' },
+        'faq.q4':              { de:'Gibt es eine Mindestbestellmenge?', en:'Is there a minimum order quantity?' },
+        'faq.a4':              { de:'Strangpressung erfolgt ab einer materialbedingten Mindestmenge pro Auftrag, in der Regel einige hundert Kilogramm. Kleinserien und Erstmuster sind möglich. Den genauen Mindestumfang nennen wir mit dem Angebot, da er von Querschnitt und Legierung abhängt.', en:'Extrusion runs from a material-dependent minimum quantity per order, typically a few hundred kilograms. Small batches and first samples are possible. We state the exact minimum with the quote, as it depends on cross-section and alloy.' },
+        'faq.q5':              { de:'Welche Normen und Zertifikate erfüllen Ihre Profile?', en:'Which standards and certificates do your profiles meet?' },
+        'faq.a5':              { de:'Aluminiumprofile nach EN 755 und EN 12020, Stahlprofile nach EN 10025, EN 10210 und EN 10219. Auf Wunsch liefern wir Werkszeugnisse nach EN 10204 in den Stufen 2.1, 3.1 oder 3.2 mit vollständiger Rückverfolgbarkeit. Das Qualitätsmanagement ist an ISO 9001 ausgerichtet.', en:'Aluminium profiles to EN 755 and EN 12020, steel profiles to EN 10025, EN 10210 and EN 10219. On request we supply inspection certificates to EN 10204 in grades 2.1, 3.1 or 3.2 with full traceability. Quality management follows ISO 9001.' },
+        'faq.q6':              { de:'Wie schnell erhalte ich ein verbindliches Angebot?', en:'How quickly do I get a binding quote?' },
+        'faq.a6':              { de:'Den Richtpreis sehen Sie sofort im Konfigurator. Ein verbindliches Angebot mit Zeichnungsprüfung senden wir in der Regel innerhalb von 48 Stunden nach Ihrer Anfrage.', en:'You see the indicative price instantly in the configurator. We send a binding quote with drawing review typically within 48 hours of your request.' },
+
+        // Impressum (§ 5 DDG) — legally binding German version; others fall back to German
+        'impressum.title':         { de:'Impressum', en:'Legal Notice' },
+        'impressum.legal':         { de:'Angaben gemäß § 5 DDG', en:'Information pursuant to § 5 DDG' },
+        'impressum.represented':   { de:'Vertreten durch', en:'Represented by' },
+        'impressum.md':            { de:'Geschäftsführer:', en:'Managing Director:' },
+        'impressum.contact':       { de:'Kontakt', en:'Contact' },
+        'impressum.register':      { de:'Registereintrag', en:'Register entry' },
+        'impressum.register.text': { de:'Eintragung im Handelsregister.<br>Registergericht: Amtsgericht Krefeld<br>Registernummer: HRB 94127', en:'Entered in the commercial register.<br>Register court: Amtsgericht Krefeld<br>Register number: HRB 94127' },
+        'impressum.vat':           { de:'Umsatzsteuer-ID', en:'VAT ID' },
+        'impressum.vat.text':      { de:'Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:<br>DE342891756', en:'VAT identification number pursuant to § 27 a German VAT Act:<br>DE342891756' },
+        'impressum.responsible':   { de:'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV', en:'Responsible for content pursuant to § 18 (2) MStV' },
     };
 
     let currentLang = 'de'; // Default German
@@ -371,6 +432,15 @@ const I18n = (() => {
 
         // Update html lang attribute
         document.documentElement.lang = lang;
+
+        // Keep document title + meta description in sync with the language
+        // (falls back to German when a translation is missing).
+        const pick = (key) => T[key] && (T[key][lang] || T[key].de);
+        const mt = pick('meta.title');
+        if (mt) document.title = mt;
+        const md = pick('meta.description');
+        const mdEl = document.querySelector('meta[name="description"]');
+        if (md && mdEl) mdEl.setAttribute('content', md);
     }
 
     function init() {
@@ -397,7 +467,10 @@ const I18n = (() => {
         setLanguage(currentLang);
     }
 
-    return { init, setLanguage, t: (key) => T[key]?.[currentLang] || key };
+    return { init, setLanguage, t: (key) => T[key]?.[currentLang] || T[key]?.de || key, lang: () => currentLang };
 })();
+
+// Expose for ES modules (quote-modal.js) — classic-script `const` is not on window otherwise.
+window.I18n = I18n;
 
 document.addEventListener('DOMContentLoaded', I18n.init);

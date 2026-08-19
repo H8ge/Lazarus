@@ -62,8 +62,8 @@
 
             e.preventDefault();
 
-            // Reveal hidden privacy section when its link is clicked
-            if (href === '#privacy') {
+            // Reveal hidden legal sections (privacy / imprint) when linked
+            if (href === '#privacy' || href === '#impressum') {
                 target.style.display = 'block';
             }
 
@@ -211,36 +211,50 @@
             var btn = contactForm.querySelector('button[type="submit"]');
             if (!btn) return;
 
-            var originalHtml = btn.innerHTML;
+            var get = function (id) { var el = document.getElementById(id); return el ? (el.value || '').trim() : ''; };
+            var name = get('contactName'), company = get('contactCompany'), email = get('contactEmail');
 
-            // Show loading state
+            // basic validation (static site — no backend to validate server-side)
+            if (!name || !company || !email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+                [['contactName', name], ['contactCompany', company], ['contactEmail', email]].forEach(function (p) {
+                    var el = document.getElementById(p[0]);
+                    if (el && !p[1]) { el.classList.add('input-error'); el.addEventListener('input', function () { el.classList.remove('input-error'); }, { once: true }); }
+                });
+                return;
+            }
+
+            // Build a real mailto: so the enquiry actually reaches the company
+            var subjectSel = document.getElementById('contactSubject');
+            var subjectTxt = subjectSel && subjectSel.value ? subjectSel.options[subjectSel.selectedIndex].text : 'Anfrage';
+            var body = [
+                'Anfrage über staeler.de', '',
+                'Name:     ' + name,
+                'Firma:    ' + company,
+                'E-Mail:   ' + email,
+                'Telefon:  ' + (get('contactPhone') || '-'),
+                'Betreff:  ' + subjectTxt, '',
+                'Nachricht:',
+                get('contactMessage') || '-'
+            ].join('\n');
+            window.location.href = 'mailto:anfrage@staeler.de?subject=' +
+                encodeURIComponent('Anfrage: ' + subjectTxt) + '&body=' + encodeURIComponent(body);
+
+            // success feedback
+            var originalHtml = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML =
-                '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" ' +
-                'stroke="currentColor" stroke-width="2" class="spin">' +
-                '<path d="M21 12a9 9 0 11-6.219-8.56"/>' +
-                '</svg> Sending...';
-
-            // Show success state after simulated delay
+                '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+                '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ' +
+                'E-Mail-Programm geöffnet';
+            btn.style.background = '#22c55e';
+            btn.style.borderColor = '#22c55e';
             setTimeout(function () {
-                btn.innerHTML =
-                    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" ' +
-                    'stroke="currentColor" stroke-width="2">' +
-                    '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>' +
-                    '<polyline points="22 4 12 14.01 9 11.01"/>' +
-                    '</svg> Sent Successfully';
-                btn.style.background = '#22c55e';
-                btn.style.borderColor = '#22c55e';
-
-                // Reset form and button after 3 seconds
-                setTimeout(function () {
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
-                    btn.style.background = '';
-                    btn.style.borderColor = '';
-                    contactForm.reset();
-                }, 3000);
-            }, 1500);
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+                btn.style.background = '';
+                btn.style.borderColor = '';
+                contactForm.reset();
+            }, 3500);
         });
     }
 

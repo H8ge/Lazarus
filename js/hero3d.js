@@ -181,22 +181,39 @@ import { buildShape, buildProfileMesh } from './profile3d.js';
         return null;
     }
 
+    // The cross-section is normalised to a constant on-screen size, so a
+    // bigger section gets a SMALLER mesh scale. If the extrude depth were
+    // fixed, that smaller scale would shrink the BODY too — a large section
+    // would render as a stub that never reaches the frame edge. So we make
+    // the depth grow inversely with the scale, keeping the body's WORLD-space
+    // length constant (BODY_WORLD_LEN) for every cross-section.
+    const CROSS_REF = 40;         // reference cross-section dimension (mm)
+    const CROSS_VIS = 0.4;        // on-screen scale of that reference
+    const BODY_WORLD_LEN = 320;   // constant world-space body length (= old 800 × 0.4)
+
+    function frameProfile(outer) {
+        const xs = outer.map(p => Array.isArray(p) ? p[0] : p.x);
+        const ys = outer.map(p => Array.isArray(p) ? p[1] : p.y);
+        const maxDim = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
+        const scale = maxDim > 0 ? (CROSS_REF / maxDim) * CROSS_VIS : CROSS_VIS;
+        const depth = scale > 0 ? BODY_WORLD_LEN / scale : 800;
+        return { scale, depth };
+    }
+
     const customProfile = getHeroShape();
-    let profileShape, heroScale;
+    let profileShape, heroScale, extrudeLen;
 
     if (customProfile) {
         profileShape = buildShape(customProfile.outer, customProfile.hollows);
-        // Scale so the profile matches the visual size of the standard NUT-8
-        const xs = customProfile.outer.map(p => Array.isArray(p) ? p[0] : p.x);
-        const ys = customProfile.outer.map(p => Array.isArray(p) ? p[1] : p.y);
-        const maxDim = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
-        heroScale = maxDim > 0 ? (40 / maxDim) * 0.4 : 0.4;
+        const f = frameProfile(customProfile.outer);
+        heroScale  = f.scale;
+        extrudeLen = f.depth;     // grows with section size → constant world length
     } else {
         profileShape = createNut8Shape();
-        heroScale = 0.4;
+        heroScale  = CROSS_VIS;                 // 0.4
+        extrudeLen = BODY_WORLD_LEN / CROSS_VIS; // 800 — unchanged for the default NUT-8
     }
 
-    const extrudeLen = 800;
     const geometry = new THREE.ExtrudeGeometry(profileShape, {
         depth: extrudeLen,
         bevelEnabled: false,
@@ -294,19 +311,16 @@ import { buildShape, buildProfileMesh } from './profile3d.js';
         const { outer, hollows } = e.detail;
         const newShape = buildShape(outer, hollows || []);
 
-        const xs = outer.map(p => Array.isArray(p) ? p[0] : p.x);
-        const ys = outer.map(p => Array.isArray(p) ? p[1] : p.y);
-        const maxDim = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
-        const newScale = maxDim > 0 ? (40 / maxDim) * 0.4 : 0.4;
+        const f = frameProfile(outer);   // same invariant: world-length stays constant
 
-        const newGeo = new THREE.ExtrudeGeometry(newShape, { depth: 800, bevelEnabled: false, steps: 1 });
+        const newGeo = new THREE.ExtrudeGeometry(newShape, { depth: f.depth, bevelEnabled: false, steps: 1 });
         newGeo.computeBoundingBox();
         const nb = newGeo.boundingBox;
         newGeo.translate(-(nb.max.x + nb.min.x) / 2, -(nb.max.y + nb.min.y) / 2, 0);
 
         mesh.geometry.dispose();
         mesh.geometry = newGeo;
-        mesh.scale.set(newScale, newScale, newScale);
+        mesh.scale.set(f.scale, f.scale, f.scale);
 
         // Regenerate env map for the new geometry
         envGenerated = false;

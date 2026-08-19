@@ -1,8 +1,17 @@
 /* ==========================================================================
-   STAELER — 3D Quote Modal
-   ES module: listens for the staeler:openProfile3DModal event dispatched by
-   custom-configurator.js, renders the drawn cross-section as an interactive
-   3D extruded profile, and shows it alongside the quote summary.
+   STAELER — Custom Profile "Request Quote" modal
+   --------------------------------------------------------------------------
+   Opened from the configurator's "Angebot anfragen" button via the
+   `staeler:openProfile3DModal` event, whose detail carries everything:
+     { profile:{outer,hollows,disconnected}, pricing:{…}, meta:{…} }
+
+   ONE screen: the contact form is the focus; the right column shows a large
+   hero-style 3D preview and a compact profile/price summary. Quantity and
+   length were already entered in the configurator (which drives the price),
+   so they are shown read-only in the summary — NOT re-asked here. Everything
+   follows the active page language. Submitting builds a fully-specified
+   mailto: to anfrage@staeler.de (static site → honest send) and shows the
+   success modal. No second click.
    ========================================================================== */
 
 import { setupProfileScene } from './profile3d.js';
@@ -10,137 +19,177 @@ import { setupProfileScene } from './profile3d.js';
 (function () {
     'use strict';
 
-    const modal   = document.getElementById('profile3dModal');
-    const canvas  = document.getElementById('profile3dCanvas');
+    const COMPANY_EMAIL = 'anfrage@staeler.de';
+
+    const modal    = document.getElementById('profile3dModal');
+    const canvas   = document.getElementById('profile3dCanvas');
     const closeBtn = document.getElementById('profile3dModalClose');
-    const confirmBtn = document.getElementById('profile3dConfirmQuote');
-    const specsEl = document.getElementById('profile3dSpecs');
-    const quoteEl = document.getElementById('profile3dQuote');
+    const miniEl   = document.getElementById('rqMini');
+    const form     = document.getElementById('rqForm');
 
     if (!modal || !canvas) return;
 
-    let currentScene = null;  // { dispose() } returned by setupProfileScene
+    let scene = null;
+    let data = null;     // { profile, pricing, meta }
 
-    // ── Open modal ───────────────────────────────────────────────────────────
-    function openModal(profileData) {
-        // Tear down any previous scene
-        if (currentScene) {
-            currentScene.dispose();
-            currentScene = null;
-        }
+    const val  = (id) => (document.getElementById(id)?.value || '').trim();
+    const t    = (k)  => (window.I18n && window.I18n.t ? window.I18n.t(k) : k);
+    const lang = ()   => (window.I18n && window.I18n.lang ? window.I18n.lang() : (document.documentElement.lang || 'de'));
+    const eur  = (v)  => '€' + (v || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const eur0 = (v)  => '€' + Math.round(v || 0).toLocaleString('de-DE');
 
-        // Populate specs from configurator state (if exposed on window)
-        populateSpecs(profileData);
+    // ── Open ──────────────────────────────────────────────────────────────────
+    function openModal(detail) {
+        // accept both the rich detail and a bare profile (back-compat)
+        data = detail && detail.profile ? detail : { profile: detail, pricing: null, meta: {} };
+        if (scene) { scene.dispose(); scene = null; }
 
-        // Copy quote summary from the configurator sidebar
-        const ccQuote = document.getElementById('ccQuoteSummary');
-        if (ccQuote && quoteEl) {
-            quoteEl.innerHTML = ccQuote.innerHTML || '<em>Berechne…</em>';
-        }
+        renderMini();
 
-        // Show modal, then init Three.js (canvas needs to be visible for size)
         modal.setAttribute('aria-hidden', 'false');
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
 
-        // Use rAF so the browser has painted and the canvas has real dimensions
         requestAnimationFrame(() => {
-            currentScene = setupProfileScene(
-                canvas,
-                profileData.outer,
-                profileData.hollows || [],
-                {
-                    extrudeDepth: 800,
-                    rotation: { x: -4.0, y: 0.8, z: 0 },
-                    position: { x: 38, y: -6, z: 0 },
-                    meshScale: 0.4,
-                }
-            );
+            scene = setupProfileScene(canvas, data.profile.outer, data.profile.hollows || [], {
+                meshScale: 1.0,
+                autoRotate: false,
+            });
         });
     }
 
-    // ── Close modal ──────────────────────────────────────────────────────────
     function closeModal() {
         modal.classList.remove('active');
         modal.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
-
-        if (currentScene) {
-            // Dispose on next tick to avoid killing the render mid-frame
-            const s = currentScene;
-            currentScene = null;
-            setTimeout(() => s.dispose(), 100);
-        }
+        if (scene) { const s = scene; scene = null; setTimeout(() => s.dispose(), 100); }
     }
 
-    // ── Populate spec cards ──────────────────────────────────────────────────
-    function populateSpecs(profileData) {
-        if (!specsEl) return;
-
-        // Compute basic metrics from the outer polygon
-        const outer = profileData.outer;
-        let area = 0;
-        for (let i = 0, j = outer.length - 1; i < outer.length; j = i++) {
-            const [xi, yi] = outer[i];
-            const [xj, yj] = outer[j];
-            area += (xj + xi) * (yi - yj);
-        }
-        const outerArea = Math.abs(area) / 2;
-
-        const hollowArea = (profileData.hollows || []).reduce((sum, h) => {
-            let a = 0;
-            for (let i = 0, j = h.length - 1; i < h.length; j = i++) {
-                const [xi, yi] = h[i]; const [xj, yj] = h[j];
-                a += (xj + xi) * (yi - yj);
-            }
-            return sum + Math.abs(a) / 2;
-        }, 0);
-
-        const netArea = outerArea - hollowArea;
-        const weightPerM = ((netArea / 1e6) * 2700).toFixed(2);  // density 2700 kg/m³
-
-        const xs = outer.map(p => p[0]);
-        const ys = outer.map(p => p[1]);
-        const w = (Math.max(...xs) - Math.min(...xs)).toFixed(1);
-        const h = (Math.max(...ys) - Math.min(...ys)).toFixed(1);
-        const circDia = Math.sqrt(w * w + h * h).toFixed(1);
+    // ── Compact summary: specs (incl. the qty/length already chosen) + price ──
+    function renderMini() {
+        if (!miniEl) return;
+        const m = data.meta?.metrics || {};
+        const p = data.pricing;
+        const alloy = data.meta?.alloy || '6063-T6';
+        const qty = data.meta?.quantity;
+        const len = data.meta?.pieceLength;
+        const w = m.bb ? m.bb.width : 0, h = m.bb ? m.bb.height : 0;
+        const nf = new Intl.NumberFormat(lang() === 'de' ? 'de-DE' : 'en-US');
 
         const specs = [
-            { label: 'Nettofläche', value: netArea.toFixed(0) + ' mm²' },
-            { label: 'Gewicht / m', value: weightPerM + ' kg/m' },
-            { label: 'Breite × Höhe', value: `${w} × ${h} mm` },
-            { label: 'Umschr. Kreis ⌀', value: circDia + ' mm' },
-            { label: 'Kammern', value: (profileData.hollows || []).length.toString() },
-            { label: 'Ecken gesamt', value: (outer.length + (profileData.hollows || []).reduce((s, h) => s + h.length, 0)).toString() },
+            [t('rq.mini.section'),  `${w.toFixed(0)} × ${h.toFixed(0)} mm`],
+            [t('rq.mini.weight'),   (m.weightPerMeter || 0).toFixed(2) + ' kg/m'],
+            [t('rq.mini.chambers'), String(m.holes ?? 0)],
+            [t('rq.mini.alloy'),    alloy],
         ];
+        if (qty != null) specs.push([t('rq.mini.qty'),    nf.format(qty) + ' ' + t('cc.pcs')]);
+        if (len != null) specs.push([t('rq.mini.length'), nf.format(len) + ' mm']);
 
-        specsEl.innerHTML = specs.map(s => `
-            <div class="profile3d-spec-item">
-                <div class="profile3d-spec-label">${s.label}</div>
-                <div class="profile3d-spec-value">${s.value}</div>
-            </div>
-        `).join('');
+        let html = '<div class="rq-mini-specs">' +
+            specs.map(([l, v]) => `<div class="rq-mini-spec"><span>${l}</span><b>${v}</b></div>`).join('') +
+            '</div>';
+        if (p) {
+            html += `<div class="rq-mini-price">
+                <div class="rq-mini-price-row"><span>${t('rq.mini.price')}</span><strong>${eur0(p.grandTotal)}</strong></div>
+                <div class="rq-mini-price-sub">${eur(p.perPiece)} ${t('rq.mini.perpiece')} · ${eur(p.perMeter)} ${t('rq.mini.permeter')} · ${t('rq.mini.reorder')} ${eur(p.perPieceReorder)} ${t('rq.mini.perpiece')}</div>
+            </div>`;
+        }
+        miniEl.innerHTML = html;
     }
 
-    // ── Event listeners ──────────────────────────────────────────────────────
-    document.addEventListener('staeler:openProfile3DModal', (e) => openModal(e.detail));
+    // ── Build mailto + send ─────────────────────────────────────────────────
+    function makeRef() {
+        const d = new Date();
+        return `STL-${d.getFullYear()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+    }
+    function geometryText(prof, L) {
+        const fmt = (r) => r.map(([x, y]) => `(${(+x).toFixed(1)},${(+y).toFixed(1)})`).join(' ');
+        let s = L.outer + ': ' + fmt(prof.outer);
+        (prof.hollows || []).forEach((hh, i) => { s += `\n${L.chamber} ${i + 1}: ` + fmt(hh); });
+        if (prof.disconnected) s += '\n[' + L.disconnected + ']';
+        return s;
+    }
 
-    closeBtn?.addEventListener('click', closeModal);
+    // Section headers / words that have no UI equivalent — de + en (en is the
+    // fallback for fr/pl/es so a customer never gets a German email by surprise).
+    const MAIL = {
+        de: { subject:'Profil-Anfrage', heading:'Angebotsanfrage — Individuelles Strangpressprofil', ref:'Referenz',
+              contact:'KONTAKT', order:'BESTELLUNG', profile:'PROFIL', price:'RICHTPREIS (unverbindlich)',
+              geometry:'GEOMETRIE (mm)', message:'NACHRICHT', pieces:'Stück', perPiece:'mm pro Stück',
+              section:'Querschnitt', circ:'Hüllkreis ⌀', netArea:'Nettofläche', chambers:'Kammer(n)',
+              surface:'Oberfläche', die:'Werkzeug (einmalig)', firstTotal:'Erstbestellung gesamt',
+              perPc:'Pro Stück', reorder:'Folgebestellung', outer:'Außenkontur', chamber:'Kammer',
+              disconnected:'Hinweis: mehrere getrennte Flächen gezeichnet' },
+        en: { subject:'Profile inquiry', heading:'Quote request — Custom extrusion profile', ref:'Reference',
+              contact:'CONTACT', order:'ORDER', profile:'PROFILE', price:'INDICATIVE PRICE (non-binding)',
+              geometry:'GEOMETRY (mm)', message:'MESSAGE', pieces:'pcs', perPiece:'mm per piece',
+              section:'Cross-section', circ:'Circumscribing circle ⌀', netArea:'Net area', chambers:'chamber(s)',
+              surface:'Surface', die:'Tooling (one-time)', firstTotal:'First order total',
+              perPc:'Per piece', reorder:'reorder', outer:'Outer contour', chamber:'Chamber',
+              disconnected:'Note: several disconnected areas were drawn' },
+    };
 
-    modal.querySelector('.profile3d-modal-backdrop')
-        ?.addEventListener('click', closeModal);
+    function submit(e) {
+        e.preventDefault();
+        const name = val('rqName'), company = val('rqCompany'), email = val('rqEmail');
+        const privacy = document.getElementById('rqPrivacy')?.checked;
+        const missing = [];
+        if (!name) missing.push('rqName');
+        if (!company) missing.push('rqCompany');
+        if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) missing.push('rqEmail');
+        if (!privacy) missing.push('rqPrivacy');
+        if (missing.length) {
+            missing.forEach(id => { const el = document.getElementById(id); if (el) { el.classList.add('input-error'); el.addEventListener('input', () => el.classList.remove('input-error'), { once: true }); } });
+            document.getElementById(missing[0])?.focus();
+            return;
+        }
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
-    });
+        const L = MAIL[lang() === 'de' ? 'de' : 'en'];
+        const r = makeRef();
+        const m = data.meta?.metrics || {};
+        const p = data.pricing;
+        const qty = data.meta?.quantity, len = data.meta?.pieceLength;
+        const w = m.bb ? m.bb.width : 0, h = m.bb ? m.bb.height : 0;
 
-    // "Confirm quote" — close this modal and open the standard success modal
-    confirmBtn?.addEventListener('click', () => {
-        closeModal();
-        const ref = 'STL-' + new Date().getFullYear() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+        const lines = [
+            L.heading,
+            L.ref + ': ' + r, '',
+            L.contact,
+            '  ' + t('contact.name') + ':    ' + name,
+            '  ' + t('contact.company') + ': ' + company,
+            '  ' + t('contact.email') + ':   ' + email,
+            '  ' + t('contact.phone') + ': ' + (val('rqPhone') || '-'), '',
+            L.order,
+            '  ' + t('cc.qty') + ':    ' + (qty != null ? qty + ' ' + L.pieces : '-'),
+            '  ' + t('cc.length') + ': ' + (len != null ? len + ' ' + L.perPiece : '-'), '',
+            L.profile,
+            `  ${L.section}: ${w.toFixed(1)} × ${h.toFixed(1)} mm (${L.circ} ${(m.circumCircle || 0).toFixed(1)} mm)`,
+            `  ${L.netArea}: ${(m.netArea || 0).toFixed(0)} mm² · ${(m.weightPerMeter || 0).toFixed(2)} kg/m · ${m.holes ?? 0} ${L.chambers}`,
+            `  ${t('cc.alloy')}: ${data.meta?.alloy || '-'}`,
+            `  ${L.surface}: ${data.meta?.treatmentLabel || '-'}`,
+        ];
+        if (p) lines.push('',
+            L.price,
+            `  ${L.die}: ${eur0(p.dieCost)}`,
+            `  ${L.firstTotal}: ${eur(p.grandTotal)}`,
+            `  ${L.perPc}: ${eur(p.perPiece)} (${L.reorder} ${eur(p.perPieceReorder)})`);
+        lines.push('', L.geometry, data.profile ? geometryText(data.profile, L) : '', '',
+            L.message, val('rqMessage') || '-');
+
+        const href = `mailto:${COMPANY_EMAIL}?subject=${encodeURIComponent(L.subject + ' ' + r)}&body=${encodeURIComponent(lines.join('\n'))}`;
+        window.location.href = href;
+
         const refEl = document.getElementById('modalRef');
-        if (refEl) refEl.textContent = ref;
-        const successModal = document.getElementById('quoteModal');
-        if (successModal) successModal.classList.add('active');
-    });
+        if (refEl) refEl.textContent = r;
+        closeModal();
+        document.getElementById('quoteModal')?.classList.add('active');
+        try { form.reset(); } catch (_) {}
+    }
+
+    // ── Wire ────────────────────────────────────────────────────────────────
+    document.addEventListener('staeler:openProfile3DModal', (e) => openModal(e.detail));
+    closeBtn?.addEventListener('click', closeModal);
+    modal.querySelector('.profile3d-modal-backdrop')?.addEventListener('click', closeModal);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('active')) closeModal(); });
+    form?.addEventListener('submit', submit);
 })();
